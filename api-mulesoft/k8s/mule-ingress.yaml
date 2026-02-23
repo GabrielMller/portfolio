@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mule-ingress
+  annotations:
+    kubernetes.io/ingress.class: traefik
+spec:
+  rules:
+  - http: # Sem a linha "host:", ele aceita 'localhost', '127.0.0.1' ou seu IP real
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: mule-service
+            port:
+              number: 80
