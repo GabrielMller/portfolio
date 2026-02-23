@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: localtunnel-mule
+  name: cloudflare-tunnel
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: localtunnel
+      app: cloudflare-tunnel
   template:
     metadata:
       labels:
-        app: localtunnel
+        app: cloudflare-tunnel
     spec:
       containers:
-      - name: localtunnel
-        image: devopsfaith/localtunnel 
+      - name: cloudflared
+        image: cloudflare/cloudflared:latest
         args: [
-          "--port", "80", 
-          "--local-host", "mule-service", 
-          "--subdomain", "mulesoft-gab-muller" 
+          "tunnel",
+          "--url", "http://mule-service:80",
+          "--no-autoupdate"
         ]
