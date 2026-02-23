@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: localtunnel
-        image: efrecon/localtunnel
+        image: devopsfaith/localtunnel 
         args: [
           "--port", "80", 
           "--local-host", "mule-service", 
