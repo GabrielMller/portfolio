@@ -5,6 +5,7 @@ on:
     branches: [ "main" ]
     paths:
       - 'api-mulesoft/**' # Só dispara se houver mudanças no Mule
+  workflow_dispatch:
 
 jobs:
   build:
