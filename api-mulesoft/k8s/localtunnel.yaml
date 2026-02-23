@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: localtunnel-mule
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: localtunnel
+  template:
+    metadata:
+      labels:
+        app: localtunnel
+    spec:
+      containers:
+      - name: localtunnel
+        image: efrecon/localtunnel
+        args: [
+          "--port", "80", 
+          "--local-host", "mule-service", 
+          "--subdomain", "mulesoft-gab-muller" 
+        ]

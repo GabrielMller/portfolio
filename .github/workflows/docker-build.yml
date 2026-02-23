@@ -4,7 +4,7 @@ on:
   push:
     branches: [ "main" ]
     paths:
-      - 'api-mulesoft/**' # Só dispara se houver mudanças no Mule
+      - 'api-mulesoft/**'
   workflow_dispatch:
 
 jobs:
@@ -50,12 +50,14 @@ jobs:
         env:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
         run: |
-          # Define a variável de ambiente para o kubectl encontrar o config
           export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+
           envsubst < api-mulesoft/k8s/mule-deployment.yaml | kubectl apply -f -
+
           kubectl apply -f api-mulesoft/k8s/mule-ingress.yaml
-          
+
+          kubectl apply -f api-mulesoft/k8s/localtunnel.yaml
+
           kubectl apply -f api-mulesoft/k8s/mule-deployment.yaml
           
-          # Força o Kubernetes a baixar a nova imagem e reiniciar o Pod
           kubectl rollout restart deployment/mule-teste
