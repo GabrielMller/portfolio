@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mule-teste
+  labels:
+    app: mule-teste
+spec:
+  replicas: 1 # Começamos com 1 para economizar RAM no notebook
+  selector:
+    matchLabels:
+      app: mule-teste
+  template:
+    metadata:
+      labels:
+        app: mule-teste
+    spec:
+      containers:
+      - name: mule-teste
+        image: ${DOCKERHUB_USERNAME}/mule-teste:latest # <--- TROQUE AQUI
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8081 # Porta padrão do seu HTTP Listener no Mule
+        resources:
+          requests:
+            memory: "800Mi"
+            cpu: "500m"
+          limits:
+            memory: "1.5Gi" # O Mule precisa de fôlego para a JVM
+            cpu: "1000m"
+        env:
+        - name: MULE_ENV
+          value: "dev"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mule-service
+spec:
+  selector:
+    app: mule-teste
+  ports:
+    - protocol: TCP
+      port: 80       # Porta externa (dentro do cluster)
+      targetPort: 8081 # Porta que o Mule está ouvindo
+  type: ClusterIP
