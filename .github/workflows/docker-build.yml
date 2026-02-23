@@ -43,6 +43,9 @@ jobs:
     needs: build
     runs-on: self-hosted
     steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        
       - name: Deploy to K3s
         env:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -50,7 +53,7 @@ jobs:
           # Define a variável de ambiente para o kubectl encontrar o config
           export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
           envsubst < api-mulesoft/k8s/mule-deployment.yaml | kubectl apply -f -
-          
+
           kubectl apply -f api-mulesoft/k8s/mule-deployment.yaml
           
           # Força o Kubernetes a baixar a nova imagem e reiniciar o Pod
