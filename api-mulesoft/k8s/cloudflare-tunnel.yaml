@@ -1,28 +1,18 @@
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: cloudflare-tunnel
 spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: cloudflare-tunnel
-  template:
-    metadata:
-      labels:
-        app: cloudflare-tunnel
-    spec:
-      containers:
-      - name: cloudflared
-        image: cloudflare/cloudflared:latest
-        args: [
-          "tunnel",
-          "--no-autoupdate",
-          "run"
-        ]
-        env:
-        - name: TUNNEL_TOKEN
-          valueFrom:
-            secretKeyRef:
-              name: cloudflare-token
-              key: token
+  containers:
+  - name: cloudflared
+    image: cloudflare/cloudflared:latest
+    args: [
+      "tunnel",
+      "--no-autoupdate",
+      "run",
+      "--token",
+      "$(TUNNEL_TOKEN)",
+      "--url", "http://mule-service:80"
+    ]
+    env:
+    - name: TUNNEL_TOKEN
+      valueFrom:
+        secretKeyRef:
+          name: cloudflare-token
+          key: token
