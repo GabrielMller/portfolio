@@ -6,6 +6,7 @@ metadata:
     kubernetes.io/ingress.class: traefik
 spec:
   rules:
+  - host: api.mule-gabriel-muller.online
   - http: # Sem a linha "host:", ele aceita 'localhost', '127.0.0.1' ou seu IP real
       paths:
       - path: /
