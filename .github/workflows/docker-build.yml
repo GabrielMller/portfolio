@@ -48,5 +48,7 @@ jobs:
           # Define a variável de ambiente para o kubectl encontrar o config
           export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
           
+          kubectl apply -f api-mulesoft/k8s/mule-deployment.yaml
+          
           # Força o Kubernetes a baixar a nova imagem e reiniciar o Pod
           kubectl rollout restart deployment/mule-teste
