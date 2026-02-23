@@ -17,6 +17,12 @@ spec:
         image: cloudflare/cloudflared:latest
         args: [
           "tunnel",
-          "--url", "http://mule-service:80",
-          "--no-autoupdate"
+          "--no-autoupdate",
+          "run"
         ]
+        env:
+        - name: TUNNEL_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: cloudflare-token
+              key: token

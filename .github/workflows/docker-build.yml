@@ -52,11 +52,15 @@ jobs:
         run: |
           export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
 
+          kubectl create secret generic cloudflare-token \
+            --from-literal=token=${{ secrets.CLOUDFLARE_TOKEN }} \
+            --dry-run=client -o yaml | kubectl apply -f -
+
           envsubst < api-mulesoft/k8s/mule-deployment.yaml | kubectl apply -f -
 
           kubectl apply -f api-mulesoft/k8s/mule-ingress.yaml
 
-          kubectl apply -f api-mulesoft/k8s/localtunnel.yaml
+          kubectl apply -f api-mulesoft/k8s/cloudflare-tunnel.yaml
 
           kubectl apply -f api-mulesoft/k8s/mule-deployment.yaml
           
