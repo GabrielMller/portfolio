@@ -4,7 +4,7 @@ on:
   push:
     branches: [ "main" ]
     paths:
-      - 'teste/**' # Só dispara se houver mudanças no Mule
+      - 'api-mulesoft/**' # Só dispara se houver mudanças no Mule
 
 jobs:
   build:
@@ -35,6 +35,6 @@ jobs:
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v4
         with:
-          context: ./teste
+          context: ./api-mulesoft
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/mule-teste:latest
