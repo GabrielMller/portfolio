@@ -9,7 +9,6 @@ on:
 
 jobs:
   build:
-    # O build corre em ambiente GitHub para poupar recursos do seu servidor
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -41,8 +40,8 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: ./api-mulesoft/${{ matrix.api }}
-          push: true
           file: ./api-mulesoft/${{ matrix.api }}/Dockerfile
+          push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ matrix.api }}:latest
           build-args: |
             DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
@@ -69,6 +68,6 @@ jobs:
 
           kubectl create namespace mulesoft --dry-run=client -o yaml | kubectl apply -f -
 
-          envsubst < api-mulesoft/k8s/mule-deployment-template.yaml | kubectl apply -f -
+          envsubst '${DOCKERHUB_USERNAME} ${API_NAME} ${POSTGRES_USER} ${POSTGRES_PASSWORD}' < api-mulesoft/k8s/mule-deployment-template.yaml | kubectl apply -f -
 
           kubectl rollout restart deployment/${{ matrix.api }} -n mulesoft
