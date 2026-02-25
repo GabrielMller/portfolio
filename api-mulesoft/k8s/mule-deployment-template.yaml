@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ${API_NAME}
+  namespace: mulesoft
+  labels:
+    app: ${API_NAME}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ${API_NAME}
+  template:
+    metadata:
+      labels:
+        app: ${API_NAME}
+    spec:
+      containers:
+      - name: mule-runtime
+        image: ${DOCKERHUB_USERNAME}/${API_NAME}:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8081
+        env:
+        # Variáveis para conexão com o Kafka (Internal Cluster DNS)
+        - name: KAFKA_BOOTSTRAP
+          value: "kafka-cluster-kafka-bootstrap.kafka.svc:9092"
+        
+        # Variáveis para o PostgreSQL Centralizado (enterprise_db)
+        # O host aponta para o serviço de escrita do CloudNativePG
+        - name: DB_HOST
+          value: "postgres-core-rw.postgres.svc"
+        - name: DB_PORT
+          value: "5432"
+        - name: DB_NAME
+          value: "enterprise_db"
+        - name: DB_USER
+          value: "${POSTGRES_USER}"
+        - name: DB_PASS
+          value: "${POSTGRES_PASSWORD}"
+        
+        # Otimização de Memória para o seu servidor (ajustado para o Mule Kernel)
+        resources:
+          limits:
+            memory: "1.5Gi"
+            cpu: "1"
+          requests:
+            memory: "1Gi"
+            cpu: "0.5"
+        
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8081
+          initialDelaySeconds: 60
+          periodSeconds: 30
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ${API_NAME}
+  namespace: mulesoft
+spec:
+  selector:
+    app: ${API_NAME}
+  ports:
+  - protocol: TCP
+    port: 8081
+    targetPort: 8081
