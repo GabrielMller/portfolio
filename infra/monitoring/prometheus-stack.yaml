@@ -10,8 +10,19 @@ data:
     scrape_configs:
       - job_name: 'kafka-exporter'
         static_configs:
-          # Endereço absoluto para evitar erros de DNS entre namespaces
           - targets: ['kafka-cluster-kafka-exporter.kafka.svc.cluster.local:9404']
+      - job_name: 'postgres-operator'
+        static_configs:
+          - targets: ['postgres-core-rw.postgres.svc.cluster.local:9187']
+      - job_name: 'postgres-nodes'
+        kubernetes_sd_configs:
+          - role: pod
+            namespaces:
+              names: ['postgres']
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_container_port_name]
+            action: keep
+            regex: metrics
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -33,7 +44,7 @@ spec:
         image: prom/prometheus:latest
         args:
           - "--config.file=/etc/prometheus/prometheus.yml"
-          - "--storage.tsdb.retention.time=7d" # Reduzido para poupar disco
+          - "--storage.tsdb.retention.time=7d" 
         ports:
         - containerPort: 9090
         resources:
