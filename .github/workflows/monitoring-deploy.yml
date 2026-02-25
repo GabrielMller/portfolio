@@ -5,24 +5,32 @@ on:
     branches: [ "main" ]
     paths:
       - 'infra/monitoring/**'
-  workflow_dispatch:
+  workflow_dispatch: 
 
 jobs:
   monitoring-deploy:
-    runs-on: self-hosted
+    runs-on: self-hosted 
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Deploy Prometheus & Grafana
+      - name: Prepare Monitoring Namespace
         run: |
           export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
           kubectl create namespace monitoring --dry-run=client -o yaml | kubectl apply -f -
-          
-          kubectl apply -f infra/monitoring/prometheus-stack.yaml
 
-      - name: Verificar Status
+      - name: Apply Prometheus Stack
         run: |
           export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+          kubectl apply -f infra/monitoring/prometheus-stack.yaml
+          
+          kubectl rollout restart deployment/prometheus -n monitoring
+
+      - name: Verify Health
+        run: |
+          export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+          echo "Aguardando inicialização do Prometheus..."
+          sleep 5
           kubectl get pods -n monitoring
+          kubectl get svc -n monitoring

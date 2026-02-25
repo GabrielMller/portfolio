@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<error-handler name="propagate_error" doc:id="68cc57f3-7f2e-43f0-94fe-b495eff941e1" >
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="543c887b-6a7e-40df-a34c-813058ff06a5" >
+			<flow-ref doc:name="Flow Reference" doc:id="f8d45009-0d17-4b20-9a63-95ad29bb661f" name="set-response"/>
+		</on-error-propagate>
+	</error-handler>
+	<sub-flow name="set-response" doc:id="3779e7f7-4018-41a8-8e32-f28f031cb9b4" >
+		<choice doc:name="Choice" doc:id="431d76f9-121c-4207-b119-c9cc4d5682d9" >
+			<when expression="#[isBlank(vars.httpStatus)]">
+				<ee:transform doc:name="Transform Message" doc:id="fb8e5561-865c-4aa6-af12-8eb057d8249f" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json duplicateKeyAsArray=true
+
+var vTypeOfError = typeOf(error.errorMessage.payload) 
+---
+if ( (error.errorMessage.payload != null) and (vTypeOfError == "Object" or
+		vTypeOfError == "Array") ) (error.errorMessage.payload)
+else ({
+	message: error.errorType.identifier,
+	details: error.detailedDescription as String
+})]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="httpStatus" ><![CDATA[error.errorMessage.attributes.StatusCode default 400]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</when>
+		</choice>
+		<logger level="INFO" doc:name="Logger" doc:id="faf7d169-9919-4a44-bfbb-1b33a30a3f3f" message='#[%dw 2.0  &#10;output application/json  &#10;---  &#10;{  &#10;   title: "ERROR",  &#10;   date: now(),  &#10;   status: vars.httpStatus default "vazio",  &#10;   error: write(payload default error) default "vazio"  &#10;}]'/>
+	</sub-flow>
+	<error-handler name="continue_error" doc:id="0fd84558-3a72-4b40-9c99-f799a2d5bb9d" >
+		<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="8efeaba0-f890-4b94-8826-f6c5af3caf3f" >
+			<flow-ref doc:name="Flow Reference" doc:id="2c99fc75-1024-45c2-bf68-24979d7f5cdb" name="set-response" />
+		</on-error-continue>
+	</error-handler>
+	<error-handler name="Error_Handler_Specs">
+      <on-error-propagate type="APIKIT:BAD_REQUEST">
+         <set-variable value="400" doc:name="httpStatus" doc:id="a3b2e4f1-765d-4631-a4a8-d1c46aeb5802" variableName="httpStatus" />
+         <flow-ref doc:name="Default Body" doc:id="d60ae234-801b-476b-a06a-2f04f51c24bb" name="error-handler-specs-default-body" />
+      </on-error-propagate>
+      <on-error-propagate type="APIKIT:NOT_FOUND">
+         <set-variable value="404" doc:name="httpStatus" doc:id="61e42a2b-80d5-4bf8-8514-edd81bca84ac" variableName="httpStatus" />
+         <flow-ref doc:name="Default Body" doc:id="d7c853ff-36d2-4468-a736-5ef39b83968f" name="error-handler-specs-default-body" />
+      </on-error-propagate>
+      <on-error-propagate type="APIKIT:METHOD_NOT_ALLOWED">
+         <set-variable value="405" doc:name="httpStatus" doc:id="4235ab4e-7f05-43cd-a452-b72def103ccf" variableName="httpStatus" />
+         <flow-ref doc:name="Default Body" doc:id="bc58da12-81ca-437f-a2cb-9b3ef801632b" name="error-handler-specs-default-body" />
+      </on-error-propagate>
+      <on-error-propagate type="APIKIT:NOT_ACCEPTABLE">
+         <set-variable value="406" doc:name="httpStatus" doc:id="cfc01856-36e6-47c6-8209-1188bfbeb02c" variableName="httpStatus" />
+         <flow-ref doc:name="Default Body" doc:id="9821f074-268f-45bf-9aaf-05cc5ffde9b7" name="error-handler-specs-default-body" />
+      </on-error-propagate>
+      <on-error-propagate type="APIKIT:UNSUPPORTED_MEDIA_TYPE">
+         <set-variable value="415" doc:name="httpStatus" doc:id="a6a0f4ff-b84e-40b3-876e-986c2022bae5" variableName="httpStatus" />
+         <flow-ref doc:name="Default Body" doc:id="9021131a-8642-464d-9524-17b64e222f1c" name="error-handler-specs-default-body" />
+      </on-error-propagate>
+      <on-error-propagate type="APIKIT:NOT_IMPLEMENTED">
+         <set-variable value="501" doc:name="httpStatus" doc:id="445dcd6c-4a01-4831-a868-d850565db1fd" variableName="httpStatus" />
+         <flow-ref doc:name="Default Body" doc:id="9ad4460c-aa87-4a06-9132-d4209f37c3e5" name="error-handler-specs-default-body" />
+      </on-error-propagate>
+   </error-handler>
+   <sub-flow name="error-handler-specs-default-body" doc:id="54f451f3-2a6f-45dc-abe4-5de7b047e7a2">
+      <ee:transform doc:name="Transform Message Payload" doc:id="c2648f39-ab60-4a67-b132-f5ca901e9632">
+         <ee:message>
+            <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+    message: error.errorType.identifier,
+    details: error.detailedDescription
+}]]></ee:set-payload>
+         </ee:message>
+			<ee:variables >
+			</ee:variables>
+      
+</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="81023d73-fa60-43ae-a518-e74207ff92ec" message='#[%dw 2.0  &#10;output application/json  &#10;---  &#10;{  &#10;   title: "ERROR",  &#10;   date: now(),  &#10;   status: vars.httpStatus default "vazio",  &#10;   error: write(payload default error) default "vazio"  &#10;}]' />
+   
+</sub-flow>
+</mule>

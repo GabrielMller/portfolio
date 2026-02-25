@@ -22,6 +22,10 @@ spec:
         ports:
         - containerPort: 8081
         env:
+        - name: mule.env
+          value: "prd"
+        - name: secure.key
+          value: "${SECURE_KEY}"
         - name: API_NAME
           value: "${API_NAME}"
         - name: KAFKA_BOOTSTRAP

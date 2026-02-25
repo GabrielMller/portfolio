@@ -45,6 +45,7 @@ jobs:
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ matrix.api }}:latest
           build-args: |
             DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
+            API_NAME=${{ matrix.api }}
 
   deploy:
     needs: build
@@ -63,6 +64,7 @@ jobs:
           API_NAME: ${{ matrix.api }}
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          SECURE_KEY: ${{ secrets.SECURE_KEY }}
         run: |
           export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
 
@@ -71,7 +73,7 @@ jobs:
 
           # 2. Injeta variáveis e gera um arquivo temporário para conferência se houver erro
           # Usamos aspas simples no envsubst para proteger variáveis do K8s
-          envsubst '${DOCKERHUB_USERNAME} ${API_NAME} ${POSTGRES_USER} ${POSTGRES_PASSWORD}' < api-mulesoft/k8s/mule-deployment-template.yaml > final-deployment.yaml
+          envsubst '${DOCKERHUB_USERNAME} ${API_NAME} ${POSTGRES_USER} ${POSTGRES_PASSWORD} ${SECURE_KEY}' < api-mulesoft/k8s/mule-deployment-template.yaml > final-deployment.yaml
           
           # 3. Aplica o arquivo gerado
           kubectl apply -f final-deployment.yaml

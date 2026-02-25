@@ -1,0 +1,17 @@
+#%RAML 1.0
+title: Monitoring API
+version: v1
+
+types: 
+  response.get.health-kafka: !include types/responses/get/health-kafka.raml
+
+/{version}:
+  /health:
+    /kafka:
+      get:
+        description: Endpoint para verificar a saúde do Kafka
+        responses:
+          200:
+            body:
+              application/json:
+                type: response.get.health-kafka

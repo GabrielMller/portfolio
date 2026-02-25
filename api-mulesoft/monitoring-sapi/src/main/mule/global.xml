@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd">
+	<global-property doc:name="Global Property" doc:id="4a40155b-4fde-4bff-8ba2-8cc043e49270" name="mule.env" value="local" />
+	<configuration-properties doc:name="Configuration properties" doc:id="e91fcef9-6e22-48ee-883a-5ed2c33ab902" file="properties/${mule.env}.properties" />
+	<http:request-config name="Prometheus_Request_configuration" doc:name="HTTP Request configuration" doc:id="d31c59c4-a8f5-48e0-b48f-551c271a2a82" basePath="${prometheus.basePath}" >
+		<http:request-connection protocol="${prometheus.protocol}" host="${prometheus.host}" port="${prometheus.port}" />
+	</http:request-config>
+	<configuration doc:name="Configuration" doc:id="c553650b-1f93-4c4b-8858-a84e87d0973d" defaultErrorHandler-ref="propagate_error" correlationIdGeneratorExpression="#[uuid()]" />
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="fa1f3774-82f3-4023-b708-eccf1b0545d7" >
+		<db:generic-connection url="jdbc:postgresql://${postgres.host}:${postgres.port}/${postgres.database}" driverClassName="org.postgresql.Driver" user="${secure::postgres.user}" password="${secure::postgres.password}" />
+	</db:config>
+	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="54c5dab6-b667-44ef-aee7-19e7f93c05f1" file="properties/${mule.env}.secure.properties" key="${secure.key}" />
+	<global-property doc:name="Global Property" doc:id="47f36136-92f5-4d54-ae47-90b3612d1104" name="secure.key" value="7j9otRPoFprctta1" />
+</mule>

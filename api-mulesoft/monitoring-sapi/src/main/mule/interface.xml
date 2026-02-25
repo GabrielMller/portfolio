@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd">
+    <http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="ef96781c-7a7d-473f-a1a9-f7464af31409" basePath="api">
+        <http:listener-connection host="0.0.0.0" port="8081" />
+    </http:listener-config>
+    <apikit:config name="Router" api="monitoring.raml" outboundHeadersMapName="outboundHeadersMapName" httpStatusVarName="httpStatus" />
+    <flow name="interfaceFlow" doc:id="9b6a575a-2e40-4721-b88a-59d02cadee28">
+        <http:listener doc:name="Listener" doc:id="c4e3811d-19fc-4815-8b0b-6d7ed9f51197" config-ref="HTTP_Listener_config" path="/*" >
+			<http:response statusCode="#[vars.httpStatus default 200]" >
+				<http:headers ><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+			</http:response>
+			<http:error-response statusCode="#[vars.httpStatus default 500]" >
+				<http:body ><![CDATA[#[payload]]]></http:body>
+				<http:headers ><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+			</http:error-response>
+		</http:listener>
+        <apikit:router doc:name="APIkit Router" doc:id="098e7752-f66a-46ba-8785-0b86f02b16d0" config-ref="Router" />
+		<error-handler ref="Error_Handler_Specs" />
+    </flow>
+    <flow name="get:\v1\health\kafka:Router">
+		<flow-ref doc:name="Flow Reference" doc:id="5df96f31-6f99-4f28-94f3-b25f6a1024f2" name="get-kafka-health"/>
+    </flow>
+</mule>

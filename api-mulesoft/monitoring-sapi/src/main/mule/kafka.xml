@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<flow name="get-kafka-health" doc:id="c9da81a2-09a4-4319-8f78-0e768847407c" >
+		<http:request method="GET" doc:name="Request" doc:id="8b33ec1b-327e-4dbc-826f-d8f4937d510b" config-ref="Prometheus_Request_configuration" path='/query'>
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"query" : "kafka_brokers"
+}]]]></http:query-params>
+		</http:request>
+		<set-payload value="#[output json&#10;var brokers = payload.data.result[0].value[1] as Number&#10;---&#10;{&#10;	status: if ((brokers &lt; (Mule::p('kafka.brokers') as Number default 3)))&#10;				'WARNING'&#10;			else if (brokers == 0)&#10;				'ERROR'&#10;			else&#10;				'OK'&#10;}]" doc:name="Set Payload" doc:id="91af33e1-cfd4-4178-9fe4-3263e45445d5" />
+	</flow>
+</mule>

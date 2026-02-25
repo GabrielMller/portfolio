@@ -22,13 +22,15 @@ tmp/**/*
 *.bak
 *.swp
 *~.nib
-local.properties
+local*.properties
 .settings/
 .loadpath
 
 # Recommended for Maven based projects
 .project
 .classpath
+
+**/weave/**
 
 # External tool builders
 .externalToolBuilders/
