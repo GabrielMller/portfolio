@@ -42,7 +42,10 @@ jobs:
         with:
           context: ./api-mulesoft/${{ matrix.api }}
           push: true
+          file: ./api-mulesoft/${{ matrix.api }}/Dockerfile
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ matrix.api }}:latest
+          build-args: |
+            DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
 
   deploy:
     needs: build
@@ -67,5 +70,5 @@ jobs:
           kubectl create namespace mulesoft --dry-run=client -o yaml | kubectl apply -f -
 
           envsubst < api-mulesoft/k8s/mule-deployment-template.yaml | kubectl apply -f -
-          
+
           kubectl rollout restart deployment/${{ matrix.api }} -n mulesoft
