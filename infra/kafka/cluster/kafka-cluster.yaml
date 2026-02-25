@@ -30,12 +30,18 @@ spec:
         type: persistent-claim
         size: 5Gi
         deleteClaim: false 
+  
   zookeeper:
     replicas: 3 
     storage:
       type: persistent-claim
       size: 2Gi
       deleteClaim: false
+
+  kafkaExporter:
+    topicFilter: ".*"
+    groupFilter: ".*"
+
   entityOperator:
     topicOperator: {}
     userOperator: {}
