@@ -1,46 +1,75 @@
-name: Deploy Monitoring Stack
-
-on:
-  push:
-    branches: [ "main" ]
-    paths:
-      - 'infra/monitoring/**'
-  workflow_dispatch: # Permite execução manual pelo painel do GitHub
-
-jobs:
-  monitoring-deploy:
-    runs-on: self-hosted # Executa diretamente no seu servidor local
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-
-      - name: Prepare Monitoring Namespace
-        run: |
-          export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
-          # Cria o namespace se não existir
-          kubectl create namespace monitoring --dry-run=client -o yaml | kubectl apply -f -
-
-      - name: Network Diagnostic (Pre-flight)
-        run: |
-          export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
-          echo "Verificando se o endpoint do Postgres está acessível na rede interna..."
-          # Tenta um ping TCP simples para o serviço do postgres a partir de um pod temporário
-          kubectl run net-test --image=busybox -n monitoring --rm -it --restart=Never -- /bin/sh -c "nc -zv postgres-core-rw.postgres.svc.cluster.local 9187" || echo "AVISO: Falha na conexão TCP direta entre namespaces."
-
-      - name: Apply Prometheus Stack
-        run: |
-          export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
-          # Aplica ConfigMap, Deployment e Service
-          kubectl apply -f infra/monitoring/prometheus-stack.yaml
-          
-          # Força o restart do pod para ler as novas configurações do ConfigMap
-          kubectl rollout restart deployment/prometheus -n monitoring
-
-      - name: Verify Health
-        run: |
-          export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
-          echo "Aguardando inicialização do Prometheus..."
-          sleep 10
-          kubectl get pods -n monitoring
-          kubectl get svc -n monitoring
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: monitoring
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+    scrape_configs:
+      - job_name: 'kafka-exporter'
+        static_configs:
+          - targets: ['kafka-cluster-kafka-exporter.kafka.svc.cluster.local:9404']
+      - job_name: 'postgres-operator'
+        static_configs:
+          - targets: ['postgres-core-rw.postgres.svc.cluster.local:9187']
+      - job_name: 'postgres-nodes'
+        kubernetes_sd_configs:
+          - role: pod
+            namespaces:
+              names: ['postgres']
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_container_port_name]
+            action: keep
+            regex: metrics
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+  namespace: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus
+  template:
+    metadata:
+      labels:
+        app: prometheus
+    spec:
+      containers:
+      - name: prometheus
+        image: prom/prometheus:latest
+        args:
+          - "--config.file=/etc/prometheus/prometheus.yml"
+          - "--storage.tsdb.retention.time=7d" 
+        ports:
+        - containerPort: 9090
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/prometheus
+      volumes:
+      - name: config-volume
+        configMap:
+          name: prometheus-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus-service
+  namespace: monitoring
+spec:
+  selector:
+    app: prometheus
+  ports:
+    - port: 9090
+      targetPort: 9090
