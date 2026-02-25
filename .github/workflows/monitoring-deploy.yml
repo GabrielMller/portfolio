@@ -25,8 +25,9 @@ jobs:
         run: |
           export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
           echo "Verificando se o endpoint do Postgres está acessível na rede interna..."
-          # Tenta um ping TCP simples para o serviço do postgres a partir de um pod temporário
-          kubectl run net-test --image=busybox -n monitoring --rm -it --restart=Never -- /bin/sh -c "nc -zv postgres-core-rw.postgres.svc.cluster.local 9187" || echo "AVISO: Falha na conexão TCP direta entre namespaces."
+          # Removido o -it para funcionar no GitHub Actions. Usamos --attach para ver o log.
+          # O comando nc -zv testa a conexão TCP e retorna 0 se sucesso ou 1 se falha.
+          kubectl run net-test --image=busybox -n monitoring --rm --restart=Never --attach -- /bin/sh -c "nc -zv postgres-core-rw.postgres.svc.cluster.local 9187" || echo "AVISO: Falha na conexão TCP direta entre namespaces."
 
       - name: Apply Prometheus Stack
         run: |
