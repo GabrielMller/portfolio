@@ -1,0 +1,18 @@
+#%RAML 1.0
+title: health
+version: v1
+
+/kafka:
+  get:
+    description: Endpoint para verificar a saúde do Kafka
+    responses:
+      200:
+        body:
+          application/json:
+            example: |
+              {
+                "status": "healthy",
+                "details": {
+                  "kafka": "connected"
+                }
+              }

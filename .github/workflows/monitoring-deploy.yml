@@ -1,0 +1,28 @@
+name: Deploy Monitoring Stack
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'infra/monitoring/**'
+  workflow_dispatch:
+
+jobs:
+  monitoring-deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Deploy Prometheus & Grafana
+        run: |
+          export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+          kubectl create namespace monitoring --dry-run=client -o yaml | kubectl apply -f -
+          
+          kubectl apply -f infra/monitoring/prometheus-stack.yaml
+
+      - name: Verificar Status
+        run: |
+          export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+          kubectl get pods -n monitoring
