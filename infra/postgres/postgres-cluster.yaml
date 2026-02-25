@@ -1,3 +1,8 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: postgres
+---
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
@@ -21,7 +26,7 @@ spec:
 
   bootstrap:
     initdb:
-      database: enterprise_db
+      database: mulesoft_db
       owner: ${POSTGRES_USER}
       secret:
         name: postgres-credentials
