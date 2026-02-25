@@ -1,0 +1,38 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: postgres-core
+  namespace: postgres
+spec:
+  instances: 3 
+  imageName: ghcr.io/cloudnative-pg/postgresql:16
+  
+  storage:
+    size: 5Gi
+    pvcTemplate:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 5Gi
+  
+  monitoring:
+    enablePodMonitor: true
+
+  bootstrap:
+    initdb:
+      database: enterprise_db
+      owner: ${POSTGRES_USER}
+      secret:
+        name: postgres-credentials
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgres-credentials
+  namespace: postgres
+type: Opaque
+stringData:
+  username: ${POSTGRES_USER}
+  password: ${POSTGRES_PASSWORD}

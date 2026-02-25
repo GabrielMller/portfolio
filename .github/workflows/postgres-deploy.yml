@@ -1,0 +1,34 @@
+name: Deploy Postgres Platform
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'infra/postgres/**'
+  workflow_dispatch:
+
+jobs:
+  db-deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Instalar CloudNativePG Operator
+        run: |
+          kubectl apply -f https://raw.githubusercontent.com/cloudnative-pg/cloudnative-pg/main/releases/cnpg-1.22.1.yaml
+
+      - name: Deploy Postgres Cluster
+        env:
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+        run: |
+          export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+          envsubst < infra/postgres/postgres-cluster.yaml | kubectl apply -f -
+
+
+      - name: Verificar Status do DB
+        run: |
+          export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+          kubectl get cluster -n postgres
