@@ -17,18 +17,22 @@ jobs:
 
       - name: Instalar CloudNativePG Operator
         run: |
+          # Instala o operador CNPG no cluster (idempotente)
           kubectl apply -f https://raw.githubusercontent.com/cloudnative-pg/cloudnative-pg/main/releases/cnpg-1.22.1.yaml
 
-      - name: Deploy Postgres Cluster
-        env:
-          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+      - name: Deploy Postgres Cluster & Metrics
         run: |
           export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
-          envsubst < infra/postgres/postgres-cluster.yaml | kubectl apply -f -
-
+          kubectl create namespace postgres --dry-run=client -o yaml | kubectl apply -f -
+          
+          kubectl apply -f infra/postgres/postgres-cluster.yaml
+          
+          if [ -f "infra/postgres/postgres-metrics-service.yaml" ]; then
+            kubectl apply -f infra/postgres/postgres-metrics-service.yaml
+          fi
 
       - name: Verificar Status do DB
         run: |
           export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
           kubectl get cluster -n postgres
+          kubectl get svc -n postgres -l role=metrics
