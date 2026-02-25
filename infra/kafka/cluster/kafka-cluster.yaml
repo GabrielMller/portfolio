@@ -25,8 +25,8 @@ metadata:
   name: kafka-cluster
   namespace: kafka
   annotations:
-    strimzi.io/node-pools: enabled
-    strimzi.io/kraft: enabled
+    strimzi.io/node-pools: "enabled"
+    strimzi.io/kraft: "enabled"
 spec:
   kafka:
     version: 4.0.0
@@ -53,3 +53,25 @@ spec:
   entityOperator:
     topicOperator: {}
     userOperator: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka-cluster-kafka-exporter
+  namespace: kafka
+  labels:
+    strimzi.io/cluster: kafka-cluster
+    strimzi.io/kind: Kafka
+    strimzi.io/name: kafka-cluster-kafka-exporter
+spec:
+  ports:
+    - name: http-metrics
+      port: 9404
+      protocol: TCP
+      targetPort: 9404
+  selector:
+    strimzi.io/cluster: kafka-cluster
+    strimzi.io/kind: Kafka
+    strimzi.io/name: kafka-cluster-kafka-exporter
+  type: ClusterIP
