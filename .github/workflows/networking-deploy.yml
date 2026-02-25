@@ -1,0 +1,49 @@
+name: Deploy Edge Networking (Cloudflare)
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'infra/networking/**'
+  workflow_dispatch:
+
+jobs:
+  edge-deploy:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Deploy Networking Infrastructure
+        env:
+          CLOUDFLARE_TOKEN: ${{ secrets.CLOUDFLARE_TOKEN }}
+        run: |
+          export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+          
+          kubectl create namespace mulesoft --dry-run=client -o yaml | kubectl apply -f -
+
+          kubectl create secret generic cloudflare-token \
+            --from-literal=token=$CLOUDFLARE_TOKEN \
+            --namespace mulesoft \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+          if [ -f "infra/networking/mule-ingress.yaml" ]; then
+            echo "Aplicando Ingress de borda..."
+            kubectl apply -f infra/networking/mule-ingress.yaml
+          fi
+
+          if [ -f "infra/networking/cloudflare-tunnel.yaml" ]; then
+            echo "Aplicando Túnel Cloudflare..."
+            kubectl apply -f infra/networking/cloudflare-tunnel.yaml
+          else
+            echo "Erro: Ficheiro cloudflare-tunnel.yaml não encontrado em infra/networking/"
+            exit 1
+          fi
+
+      - name: Verificar Status da Rede
+        run: |
+          export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+          echo "Status do Túnel:"
+          kubectl get pods -n mulesoft -l app=cloudflare-tunnel
+          echo "Status do Ingress:"
+          kubectl get ingress -n mulesoft

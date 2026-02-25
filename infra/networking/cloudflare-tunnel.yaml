@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: cloudflare-tunnel
+  namespace: mulesoft
 spec:
   replicas: 1
   selector:
@@ -21,7 +22,7 @@ spec:
           "run",
           "--token",
           "$(TUNNEL_TOKEN)",
-          "--url", "http://mule-service:80"
+          "--url", "http://mule-eapi.mulesoft.svc:8081"
         ]
         env:
         - name: TUNNEL_TOKEN
