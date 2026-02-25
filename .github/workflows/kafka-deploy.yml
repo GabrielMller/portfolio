@@ -1,0 +1,51 @@
+name: Deploy Kafka Platform
+
+# Gatilho ativado apenas por mudanças na pasta de infraestrutura do Kafka
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'infra/kafka/**'
+  workflow_dispatch: 
+
+jobs:
+  infra-deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Instalar/Atualizar Strimzi Operator
+        run: |
+          kubectl create namespace kafka --dry-run=client -o yaml | kubectl apply -f -
+          
+          kubectl create -f 'https://strimzi.io/install/latest?namespace=kafka' -n kafka --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Deploy Kafka Cluster (3 Brokers)
+        run: |
+          export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+          
+          if [ -f "infra/kafka/cluster/kafka-cluster.yaml" ]; then
+            kubectl apply -f infra/kafka/cluster/kafka-cluster.yaml
+          else
+            echo "Erro: Ficheiro kafka-cluster.yaml não encontrado em infra/kafka/cluster/"
+            exit 1
+          fi
+
+      - name: Provisionar Tópicos Kafka
+        run: |
+          export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+          
+          if [ -d "infra/kafka/topics/" ]; then
+            kubectl apply -f infra/kafka/topics/
+          else
+            echo "Aviso: Pasta de tópicos não encontrada ou vazia."
+          fi
+
+      - name: Verificar Status do Cluster
+        run: |
+          export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+          echo "Aguardando recursos do Kafka ficarem prontos..."
+          kubectl get kafka -n kafka
+          kubectl get kafkatopic -n kafka
