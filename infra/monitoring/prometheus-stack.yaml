@@ -10,12 +10,8 @@ data:
     scrape_configs:
       - job_name: 'kafka-exporter'
         static_configs:
-          # Endereço interno do exportador do Strimzi (porta padrão 9404)
-          - targets: ['kafka-cluster-kafka-exporter.kafka.svc:9404']
-      
-      - job_name: 'kubernetes-nodes'
-        kubernetes_sd_configs:
-          - role: node
+          # Endereço absoluto para evitar erros de DNS entre namespaces
+          - targets: ['kafka-cluster-kafka-exporter.kafka.svc.cluster.local:9404']
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -37,9 +33,16 @@ spec:
         image: prom/prometheus:latest
         args:
           - "--config.file=/etc/prometheus/prometheus.yml"
-          - "--storage.tsdb.retention.time=15d"
+          - "--storage.tsdb.retention.time=7d" # Reduzido para poupar disco
         ports:
         - containerPort: 9090
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
         volumeMounts:
         - name: config-volume
           mountPath: /etc/prometheus
@@ -59,36 +62,3 @@ spec:
   ports:
     - port: 9090
       targetPort: 9090
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: grafana
-  namespace: monitoring
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: grafana
-  template:
-    metadata:
-      labels:
-        app: grafana
-    spec:
-      containers:
-      - name: grafana
-        image: grafana/grafana:latest
-        ports:
-        - containerPort: 3000
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: grafana-service
-  namespace: monitoring
-spec:
-  selector:
-    app: grafana
-  ports:
-    - port: 3000
-      targetPort: 3000
