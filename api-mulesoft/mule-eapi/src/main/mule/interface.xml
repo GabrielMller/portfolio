@@ -10,7 +10,6 @@
             </http:cors-interceptor>
         </http:listener-interceptors>
     </http:listener-config>
-    <apikit:config name="Router" api="health.raml" outboundHeadersMapName="outboundHeadersMapName" httpStatusVarName="httpStatus" />
     <flow name="mule-eapiFlow" doc:id="2bc1c443-505a-4379-a349-9c1ea150d882">
         <http:listener doc:name="Listener" doc:id="76281905-148c-49db-b838-d984fa8316af" config-ref="HTTP_Listener_config" path="/health/*" >
 			<http:response statusCode="#[vars.httpStatus default 200]" >
@@ -21,7 +20,7 @@
 				<http:headers ><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
 			</http:error-response>
 		</http:listener>
-		<apikit:router doc:name="APIkit Router" doc:id="9aeac711-5c17-4c33-b82c-aabeea9aac4e" config-ref="Router" />
+		<set-payload value="#[payload]" doc:name="Set Payload" doc:id="fd9d1c24-bb7d-48cf-a702-840251fa1fcd" />
 		<error-handler ref="Error_Handler_Specs" />
     </flow>
     <flow name="get:\v1\kafka:Router">
