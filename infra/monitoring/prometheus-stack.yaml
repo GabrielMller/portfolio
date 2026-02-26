@@ -60,6 +60,10 @@ data:
             target_label: __metrics_path__
             replacement: /api/v1/nodes/${1}/proxy/metrics/cadvisor
 
+      - job_name: 'kube-state-metrics'
+        static_configs:
+          - targets: ['kube-state-metrics.kube-system.svc.cluster.local:8080']
+
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -111,7 +115,10 @@ metadata:
   name: prometheus-server-role
 rules:
   - apiGroups: [""]
-    resources: ["pods", "nodes", "nodes/metrics", "nodes/proxy", "services", "endpoints"]
+    resources: ["pods", "nodes", "nodes/metrics", "nodes/proxy", "services", "endpoints", "namespaces"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["apps"]
+    resources: ["deployments", "replicasets", "statefulsets"]
     verbs: ["get", "list", "watch"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
