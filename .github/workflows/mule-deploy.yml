@@ -6,51 +6,29 @@ on:
     paths:
       - 'api-mulesoft/**'
   workflow_dispatch:
-    inputs:
-      api_to_deploy:
-        description: 'Selecione a API para deploy manual (ou "all" para todas)'
-        required: true
-        default: 'all'
-        type: choice
-        options:
-          - all
-          - mule-eapi
-          - monitoring-sapi
 
 jobs:
   detect-changes:
     runs-on: ubuntu-latest
     outputs:
-      active_apis: ${{ steps.set-matrix.outputs.apis }}
+      active_apis: ${{ steps.filter.outputs.changes }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Check for API changes (Push)
-        if: github.event_name == 'push'
+      - name: Check for API changes
         uses: dorny/paths-filter@v2
         id: filter
         with:
           filters: |
             mule-eapi: 'api-mulesoft/mule-eapi/**'
+            orders-eapi: 'api-mulesoft/orders-eapi/**'
+            inventory-sapi: 'api-mulesoft/inventory-sapi/**'
             monitoring-sapi: 'api-mulesoft/monitoring-sapi/**'
-
-      - name: Set Matrix Output
-        id: set-matrix
-        run: |
-          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-            if [ "${{ github.event.inputs.api_to_deploy }}" == "all" ]; then
-              echo "apis=[\"mule-eapi\", \"monitoring-sapi\"]" >> $GITHUB_OUTPUT
-            else
-              echo "apis=[\"${{ github.event.inputs.api_to_deploy }}\"]" >> $GITHUB_OUTPUT
-            fi
-          else
-            echo "apis=${{ steps.filter.outputs.changes }}" >> $GITHUB_OUTPUT
-          fi
 
   build:
     needs: detect-changes
-    if: ${{ needs.detect-changes.outputs.active_apis != '[]' && needs.detect-changes.outputs.active_apis != '' }}
+    if: ${{ needs.detect-changes.outputs.active_apis != '[]' }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -100,7 +78,7 @@ jobs:
 
   deploy:
     needs: [detect-changes, build]
-    if: ${{ needs.detect-changes.outputs.active_apis != '[]' && needs.detect-changes.outputs.active_apis != '' }}
+    if: ${{ needs.detect-changes.outputs.active_apis != '[]' }}
     runs-on: self-hosted
     strategy:
       matrix:
@@ -120,9 +98,9 @@ jobs:
           MULE_ENV: prd
         run: |
           export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
-          
-          # Injetando as variáveis no template de deployment
-          envsubst '${DOCKERHUB_USERNAME} ${MULE_ENV} ${API_NAME} ${POSTGRES_USER} ${POSTGRES_PASSWORD} ${SECURE_KEY}' < api-mulesoft/k8s/mule-deployment-template.yaml > deploy-final.yaml
+          kubectl create namespace mulesoft --dry-run=client -o yaml | kubectl apply -f -
+
+          envsubst '${DOCKERHUB_USERNAME} ${API_NAME} ${POSTGRES_USER} ${POSTGRES_PASSWORD} ${SECURE_KEY} ${MULE_ENV}' < api-mulesoft/k8s/mule-deployment-template.yaml > deploy-final.yaml
           
           kubectl apply -f deploy-final.yaml
           kubectl rollout restart deployment/${{ matrix.api }} -n mulesoft
