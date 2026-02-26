@@ -11,4 +11,5 @@ RUN if [ ! -s /opt/mule/apps/${API_NAME}.jar ]; then \
     echo "ERRO: O ficheiro JAR não foi encontrado ou está vazio!" && exit 1; \
     fi
     
+    
 CMD ["sh", "-c", "/opt/mule/bin/mule -M-Danypoint.platform.gatekeeper=disabled -M-Dmule.env=$MULE_ENV -M-Dsecure.key=$SECURE_KEY"]

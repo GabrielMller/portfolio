@@ -22,7 +22,7 @@ spec:
         ports:
         - containerPort: 8081
         env:
-        - name: mule.env
+        - name: MULE_ENV
           value: "prd"
         - name: secure.key
           value: "${SECURE_KEY}"
