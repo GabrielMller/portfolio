@@ -8,11 +8,31 @@ on:
   workflow_dispatch:
 
 jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      active_apis: ${{ steps.filter.outputs.changes }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Check for API changes
+        uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            mule-eapi: 'api-mulesoft/mule-eapi/**'
+            orders-eapi: 'api-mulesoft/orders-eapi/**'
+            inventory-sapi: 'api-mulesoft/inventory-sapi/**'
+            monitoring-sapi: 'api-mulesoft/monitoring-sapi/**'
+
   build:
+    needs: detect-changes
+    if: ${{ needs.detect-changes.outputs.active_apis != '[]' }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        api: [mule-eapi, monitoring-sapi]
+        api: ${{ fromJson(needs.detect-changes.outputs.active_apis) }}
     
     steps:
       - name: Checkout Code
@@ -23,7 +43,14 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: maven
+
+      - name: Cache Maven packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
 
       - name: Build JAR with Maven
         run: |
@@ -44,15 +71,18 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ matrix.api }}:latest
           build-args: |
-            DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
             API_NAME=${{ matrix.api }}
+            DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
+            MULE_ENV=prd
+            SECURE_KEY=${{ secrets.SECURE_KEY }}
 
   deploy:
-    needs: build
+    needs: [detect-changes, build]
+    if: ${{ needs.detect-changes.outputs.active_apis != '[]' }}
     runs-on: self-hosted
     strategy:
       matrix:
-        api: [mule-eapi, monitoring-sapi]
+        api: ${{ fromJson(needs.detect-changes.outputs.active_apis) }}
     
     steps:
       - name: Checkout Code
@@ -67,16 +97,9 @@ jobs:
           SECURE_KEY: ${{ secrets.SECURE_KEY }}
         run: |
           export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
-
-          # 1. Garante o namespace
           kubectl create namespace mulesoft --dry-run=client -o yaml | kubectl apply -f -
 
-          # 2. Injeta variáveis e gera um arquivo temporário para conferência se houver erro
-          # Usamos aspas simples no envsubst para proteger variáveis do K8s
-          envsubst '${DOCKERHUB_USERNAME} ${API_NAME} ${POSTGRES_USER} ${POSTGRES_PASSWORD} ${SECURE_KEY}' < api-mulesoft/k8s/mule-deployment-template.yaml > final-deployment.yaml
+          envsubst '${DOCKERHUB_USERNAME} ${API_NAME} ${POSTGRES_USER} ${POSTGRES_PASSWORD} ${SECURE_KEY}' < api-mulesoft/k8s/mule-deployment-template.yaml > deploy-final.yaml
           
-          # 3. Aplica o arquivo gerado
-          kubectl apply -f final-deployment.yaml
-
-          # 4. Reinicia o deploy
+          kubectl apply -f deploy-final.yaml
           kubectl rollout restart deployment/${{ matrix.api }} -n mulesoft
