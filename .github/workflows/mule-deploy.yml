@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        api: [mule-eapi]
+        api: [mule-eapi, monitoring-sapi]
     
     steps:
       - name: Checkout Code
