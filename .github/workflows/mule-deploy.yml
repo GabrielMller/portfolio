@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        api: [mule-eapi, monitoring-sapi]
+        api: [mule-eapi]
     
     steps:
       - name: Checkout Code
@@ -52,7 +52,7 @@ jobs:
     runs-on: self-hosted
     strategy:
       matrix:
-        api: [mule-eapi, monitoring-sapi]
+        api: [mule-eapi]
     
     steps:
       - name: Checkout Code
