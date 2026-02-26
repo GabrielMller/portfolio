@@ -27,7 +27,7 @@ spec:
         - name: secure.key
           value: "${SECURE_KEY}"
         - name: MULE_JDK_OPTIONS
-          value: "-Dmule.env=prod -Dsecure.key=${SECURE_KEY}"
+          value: "-M-Dmule.env=prod -M-Dsecure.key=${SECURE_KEY}"
         - name: API_NAME
           value: "${API_NAME}"
         - name: KAFKA_BOOTSTRAP

@@ -5,7 +5,7 @@
     </http:listener-config>
 	<apikit:config outboundHeadersMapName="outboundHeadersMapName" httpStatusVarName="httpStatus" doc:name="Router" doc:id="1c3eb79e-694b-44fb-8701-f724aaa4fd62" name="Router" api="api\health.raml" />
 	<flow name="mule-eapiFlow" doc:id="2bc1c443-505a-4379-a349-9c1ea150d882">
-        <http:listener doc:name="Listener" doc:id="76281905-148c-49db-b838-d984fa8316af" config-ref="HTTP_Listener_config" path="/health/*" >
+        <http:listener doc:name="Listener" doc:id="76281905-148c-49db-b838-d984fa8316af" config-ref="HTTP_Listener_config" path="/monitoring/*" >
 			<http:response statusCode="#[vars.httpStatus default 200]" >
 				<http:headers ><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
 			</http:response>
@@ -23,4 +23,16 @@
     <flow name="get:\v1\postgres:Router">
 		<flow-ref doc:name="Flow Reference" doc:id="1569e9b1-db1c-4baa-8d7a-dbd6b18483b8" name="get-postgres-health" />
     </flow>
+	<flow name="health" doc:id="3669023e-852d-4906-8554-f4b9f53541eb" >
+		<http:listener doc:name="Listener" doc:id="32defde3-5804-4791-a754-1e5eb025c7b0" config-ref="HTTP_Listener_config" path="/health" >
+			<http:response statusCode="#[vars.httpStatus default 200]" >
+				<http:headers ><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+			</http:response>
+			<http:error-response statusCode="#[vars.httpStatus default 500]" >
+				<http:body ><![CDATA[#[payload]]]></http:body>
+				<http:headers ><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+			</http:error-response>
+		</http:listener>
+		<set-payload value='#[output json&#10;---&#10;"OK"]' doc:name="Set Payload" doc:id="316e1bcd-19a4-4dd3-82f3-e4ff41eb7da1" />
+	</flow>
 </mule>
