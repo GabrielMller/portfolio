@@ -25,6 +25,6 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
 		</http:request>
 			</route>
 		</scatter-gather>
-		<set-payload value="#[output json&#10;var brokers = payload.&quot;0&quot;.payload.data.result[0].value[1] as Number&#10;var totalBrokers = sizeOf(payload.&quot;1&quot;.payload.data.result)&#10;---&#10;{&#10;	status: if (brokers == 0)&#10;				'ERROR'&#10;			else if (brokers &lt;= totalBrokers)&#10;				'WARNING'&#10;			else&#10;				'OK',&#10;	nodes: brokers,&#10;	totalNodes: totalBrokers&#10;}]" doc:name="Set Payload" doc:id="91af33e1-cfd4-4178-9fe4-3263e45445d5" />
+		<set-payload value="#[output json&#10;var brokers = payload.&quot;0&quot;.payload.data.result[0].value[1] as Number&#10;var totalBrokers = sizeOf(payload.&quot;1&quot;.payload.data.result)&#10;---&#10;{&#10;	status: if (brokers == 0)&#10;				'ERROR'&#10;			else if (brokers &lt; totalBrokers)&#10;				'WARNING'&#10;			else&#10;				'OK',&#10;	nodes: brokers,&#10;	totalNodes: totalBrokers&#10;}]" doc:name="Set Payload" doc:id="91af33e1-cfd4-4178-9fe4-3263e45445d5" />
 	</flow>
 </mule>
