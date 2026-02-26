@@ -11,10 +11,6 @@ RUN wget https://repository.mulesoft.org/nexus/content/repositories/releases/org
     mv /opt/mule-standalone-4.9.0 $MULE_HOME && \
     rm /opt/mule-standalone-4.9.0.zip
 
-RUN sed -i 's/wrapper.logfile=.*/wrapper.logfile=\/dev\/null/' $MULE_HOME/conf/wrapper.conf && \
-    sed -i 's/wrapper.console.loglevel=.*/wrapper.console.loglevel=INFO/' $MULE_HOME/conf/wrapper.conf && \
-    sed -i 's/wrapper.console.format=.*/wrapper.console.format=PM/' $MULE_HOME/conf/wrapper.conf
-
 RUN rm -rf $MULE_HOME/apps/* && \
     mkdir -p $MULE_HOME/logs $MULE_HOME/.mule && \
     chown -R mule:mule $MULE_HOME && \
@@ -23,8 +19,8 @@ RUN rm -rf $MULE_HOME/apps/* && \
 WORKDIR $MULE_HOME
 USER mule
 
-ENV MULE_JDK_OPTIONS="-Djava.security.egd=file:/dev/./urandom -Xmx1g -Xms1g -XX:MaxMetaspaceSize=256m -Dmule.deployment.force.parse.config=true"
+ENV MULE_JDK_OPTIONS="-Djava.security.egd=file:/dev/./urandom -Xmx1536m -Xms512m -Dmule.deployment.force.parse.config=true -Dmule.system.healtcheck.disable=true"
 
 EXPOSE 8081
 
-CMD ["mule", "-M-Danypoint.platform.gatekeeper=disabled"]
+CMD ["mule"]
