@@ -5,19 +5,22 @@
     </http:listener-config>
     <apikit:config name="Router" api="monitoring.raml" outboundHeadersMapName="outboundHeadersMapName" httpStatusVarName="httpStatus" />
     <flow name="interfaceFlow" doc:id="9b6a575a-2e40-4721-b88a-59d02cadee28">
-        <http:listener doc:name="Listener" doc:id="c4e3811d-19fc-4815-8b0b-6d7ed9f51197" config-ref="HTTP_Listener_config" path="/*" >
-			<http:response statusCode="#[vars.httpStatus default 200]" >
-				<http:headers ><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
-			</http:response>
-			<http:error-response statusCode="#[vars.httpStatus default 500]" >
-				<http:body ><![CDATA[#[payload]]]></http:body>
-				<http:headers ><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
-			</http:error-response>
-		</http:listener>
+        <http:listener doc:name="Listener" doc:id="c4e3811d-19fc-4815-8b0b-6d7ed9f51197" config-ref="HTTP_Listener_config" path="/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body><![CDATA[#[payload]]]></http:body>
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:error-response>
+        </http:listener>
         <apikit:router doc:name="APIkit Router" doc:id="098e7752-f66a-46ba-8785-0b86f02b16d0" config-ref="Router" />
-		<error-handler ref="Error_Handler_Specs" />
+        <error-handler ref="Error_Handler_Specs" />
     </flow>
     <flow name="get:\v1\health\kafka:Router">
-		<flow-ref doc:name="Flow Reference" doc:id="5df96f31-6f99-4f28-94f3-b25f6a1024f2" name="get-kafka-health"/>
+        <flow-ref doc:name="Flow Reference" doc:id="5df96f31-6f99-4f28-94f3-b25f6a1024f2" name="get-kafka-health" />
+    </flow>
+    <flow name="get:\v1\health\postgres:Router">
+        <flow-ref doc:name="Flow Reference" doc:id="b8295a19-4160-4094-ae5b-c0744c8db3b1" name="get-postgres-health" />
     </flow>
 </mule>
