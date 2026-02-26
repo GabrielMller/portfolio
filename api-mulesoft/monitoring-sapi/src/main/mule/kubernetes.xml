@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<flow name="get-kubernetes-health" doc:id="a4e84562-6e50-4595-96bd-c04e85a4f105" >
+		<http:request method="GET" doc:name="Request" doc:id="6d9e5dc7-15ce-4e69-9472-bb7b057ae796" config-ref="Prometheus_Request_configuration" path="/query">
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"query" : 'kube_pod_status_phase{namespace=~"mulesoft|kafka|postgres"}'
+}]]]></http:query-params>
+		</http:request>
+		<set-payload value='#[output json&#10;var nodes = (payload.data.result filter $.metric.phase == "Running").value reduce ((item, acc=0) -&gt; item[1] as Number + acc)&#10;var totalNodes = payload.data.result.value reduce ((item, acc=0) -&gt; item[1] as Number + acc)&#10;---&#10;{&#10;	status: if (nodes == 0)&#10;				"ERROR"&#10;			else if (nodes &lt;= (totalNodes / 2))&#10;				"WARNING"&#10;			else&#10;				"OK",&#10;	nodes: nodes,&#10;	totalNodes: totalNodes&#10;}]' doc:name="Set Payload" doc:id="7dee4744-7a3d-4a7e-baa3-c1902df7e586" />
+	</flow>
+</mule>

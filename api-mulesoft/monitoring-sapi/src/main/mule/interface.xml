@@ -23,16 +23,19 @@
     <flow name="get:\v1\health\postgres:Router">
         <flow-ref doc:name="Flow Reference" doc:id="b8295a19-4160-4094-ae5b-c0744c8db3b1" name="get-postgres-health" />
     </flow>
-	<flow name="health" doc:id="34a4eef1-f98a-418f-aad4-1bb2f6d5aad5" >
-		<http:listener doc:name="Listener" doc:id="9d94cce3-208c-40d9-9b92-8dd7de084e1e" config-ref="HTTP_Listener_config" path="/health" >
-			<http:response statusCode="#[vars.httpStatus default 200]" >
-				<http:headers ><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
-			</http:response>
-			<http:error-response statusCode="#[vars.httpStatus default 500]" >
-				<http:body ><![CDATA[#[payload]]]></http:body>
-				<http:headers ><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
-			</http:error-response>
-		</http:listener>
-		<set-payload value='#[output json&#10;---&#10;"OK"]' doc:name="Set Payload" doc:id="7f3611ca-3691-40c8-85da-abec01a2f48a" />
-	</flow>
+    <flow name="health" doc:id="34a4eef1-f98a-418f-aad4-1bb2f6d5aad5">
+        <http:listener doc:name="Listener" doc:id="9d94cce3-208c-40d9-9b92-8dd7de084e1e" config-ref="HTTP_Listener_config" path="/health">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body><![CDATA[#[payload]]]></http:body>
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:error-response>
+        </http:listener>
+        <set-payload value="#[output json&#xA;---&#xA;&quot;OK&quot;]" doc:name="Set Payload" doc:id="7f3611ca-3691-40c8-85da-abec01a2f48a" />
+    </flow>
+    <flow name="get:\v1\health\kubernetes:Router">
+		<flow-ref doc:name="Flow Reference" doc:id="82a25a19-e721-4fd5-a6d4-94cacda32828" name="get-kubernetes-health"/>
+    </flow>
 </mule>

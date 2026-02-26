@@ -22,3 +22,11 @@ types:
           body:
             application/json:
               type: response.get.health
+  /kubernetes:
+    get:
+      description: Endpoint para verificar a saúde do Kubernetes
+      responses:
+        200:
+          body:
+            application/json:
+              type: response.get.health

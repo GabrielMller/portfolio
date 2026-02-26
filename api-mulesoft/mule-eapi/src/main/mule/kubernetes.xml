@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<flow name="get-kubernetes-health" doc:id="fa1fde2c-b882-4c1e-a2a2-aa65db71dab9" >
+		<http:request method="GET" doc:name="Request" doc:id="6e72fb1d-b67e-49ee-ae6c-5d5f5d85feda" config-ref="Monitoring_Request_configuration" path="/health/kubernetes" >
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"version" : 1
+}]]]></http:uri-params>
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"query" : "kafka_brokers"
+}]]]></http:query-params>
+		</http:request>
+	</flow>
+</mule>

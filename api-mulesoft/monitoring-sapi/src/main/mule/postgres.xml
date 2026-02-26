@@ -6,13 +6,26 @@
 http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
 	<flow name="get-postgres-health" doc:id="0d05de11-4396-4c7e-8e59-cb0ac3d9c890" >
-		<http:request method="GET" doc:name="Request" doc:id="0f801298-dfd7-4df4-8663-83a8bb5b76aa" config-ref="Prometheus_Request_configuration" path="/query" >
-			<http:query-params ><![CDATA[#[output application/java
+		<scatter-gather doc:name="Scatter-Gather" doc:id="8bb4d1c5-2464-486c-9094-a1fdb6f29895" >
+			<route >
+				<http:request method="GET" doc:name="Request" doc:id="0f801298-dfd7-4df4-8663-83a8bb5b76aa" config-ref="Prometheus_Request_configuration" path="/query">
+			<http:query-params><![CDATA[#[output application/java
 ---
 {
 	"query" : "cnpg_collector_nodes_used"
 }]]]></http:query-params>
 		</http:request>
-		<set-payload value="#[output json&#10;var nodes = sizeOf(payload.data.result)&#10;---&#10;{&#10;	status: if (nodes == 0)&#10;				'ERROR'&#10;			else if ((nodes &lt; (Mule::p('postgres.nodes') as Number default 3)))&#10;				'WARNING'&#10;			else&#10;				'OK',&#10;	nodes: nodes&#10;}]" doc:name="Set Payload" doc:id="fee47d93-152d-419b-9277-5a6bf99bd050" />
+			</route>
+			<route >
+				<http:request method="GET" doc:name="Request" doc:id="9b9f5871-8e4e-482b-b155-724f401ff707" config-ref="Prometheus_Request_configuration" path="/query">
+			<http:query-params><![CDATA[#[output application/java
+---
+{
+	"query" : "kube_pod_info{namespace='postgres'}"
+}]]]></http:query-params>
+		</http:request>
+			</route>
+		</scatter-gather>
+		<set-payload value="#[output json&#10;var nodes = sizeOf(payload.&quot;0&quot;.payload.data.result)&#10;var totalNodes = sizeOf(payload.&quot;1&quot;.payload.data.result)&#10;---&#10;{&#10;	status: if (nodes == 0)&#10;				'ERROR'&#10;			else if (nodes &lt; totalNodes)&#10;				'WARNING'&#10;			else&#10;				'OK',&#10;	nodes: nodes,&#10;	totalNodes: totalNodes&#10;}]" doc:name="Set Payload" doc:id="fee47d93-152d-419b-9277-5a6bf99bd050" />
 	</flow>
 </mule>
