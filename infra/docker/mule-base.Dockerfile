@@ -11,9 +11,9 @@ RUN wget https://repository.mulesoft.org/nexus/content/repositories/releases/org
     mv /opt/mule-standalone-4.9.0 $MULE_HOME && \
     rm /opt/mule-standalone-4.9.0.zip
 
-RUN ln -sf /dev/stdout $MULE_HOME/logs/mule.log && \
-    ln -sf /dev/stdout $MULE_HOME/logs/mule_ee.log && \
-    ln -sf /dev/stdout $MULE_HOME/logs/wrapper.log
+RUN sed -i 's/wrapper.logfile=.*/wrapper.logfile=\/dev\/null/' $MULE_HOME/conf/wrapper.conf && \
+    sed -i 's/wrapper.console.loglevel=.*/wrapper.console.loglevel=INFO/' $MULE_HOME/conf/wrapper.conf && \
+    sed -i 's/wrapper.console.format=.*/wrapper.console.format=PM/' $MULE_HOME/conf/wrapper.conf
 
 RUN rm -rf $MULE_HOME/apps/* && \
     mkdir -p $MULE_HOME/logs $MULE_HOME/.mule && \
