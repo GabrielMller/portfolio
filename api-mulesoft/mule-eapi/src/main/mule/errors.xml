@@ -39,7 +39,7 @@ else ({
 			<flow-ref doc:name="Flow Reference" doc:id="2c99fc75-1024-45c2-bf68-24979d7f5cdb" name="set-response" />
 		</on-error-continue>
 	</error-handler>
-	<error-handler name="Error_Handler_Specs">
+	<!-- [STUDIO:"Error_Handler_Specs"]<error-handler name="Error_Handler_Specs">
       <on-error-propagate type="APIKIT:BAD_REQUEST">
          <set-variable value="400" doc:name="httpStatus" doc:id="a3b2e4f1-765d-4631-a4a8-d1c46aeb5802" variableName="httpStatus" />
          <flow-ref doc:name="Default Body" doc:id="d60ae234-801b-476b-a06a-2f04f51c24bb" name="error-handler-specs-default-body" />
@@ -64,7 +64,7 @@ else ({
          <set-variable value="501" doc:name="httpStatus" doc:id="445dcd6c-4a01-4831-a868-d850565db1fd" variableName="httpStatus" />
          <flow-ref doc:name="Default Body" doc:id="9ad4460c-aa87-4a06-9132-d4209f37c3e5" name="error-handler-specs-default-body" />
       </on-error-propagate>
-   </error-handler>
+   </error-handler> [STUDIO] -->
    <sub-flow name="error-handler-specs-default-body" doc:id="54f451f3-2a6f-45dc-abe4-5de7b047e7a2">
       <ee:transform doc:name="Transform Message Payload" doc:id="c2648f39-ab60-4a67-b132-f5ca901e9632">
          <ee:message>

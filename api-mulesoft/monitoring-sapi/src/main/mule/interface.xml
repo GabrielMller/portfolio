@@ -15,7 +15,7 @@
             </http:error-response>
         </http:listener>
         <apikit:router doc:name="APIkit Router" doc:id="098e7752-f66a-46ba-8785-0b86f02b16d0" config-ref="Router" />
-        <error-handler ref="Error_Handler_Specs" />
+        <error-handler ref="propagate_error" />
     </flow>
     <flow name="get:\v1\health\kafka:Router">
         <flow-ref doc:name="Flow Reference" doc:id="5df96f31-6f99-4f28-94f3-b25f6a1024f2" name="get-kafka-health" />
