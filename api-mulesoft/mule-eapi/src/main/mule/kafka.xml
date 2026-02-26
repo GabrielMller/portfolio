@@ -4,18 +4,18 @@
 	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
-	<flow name="get-kafka-health" doc:id="c9da81a2-09a4-4319-8f78-0e768847407c" >
+	<!-- [STUDIO:"get-kafka-health"]<flow name="get-kafka-health" doc:id="c9da81a2-09a4-4319-8f78-0e768847407c" >
 		<http:request method="GET" doc:name="Request" doc:id="8b33ec1b-327e-4dbc-826f-d8f4937d510b" config-ref="Monitoring_Request_configuration" path='/health/kafka'>
 			<http:uri-params ><![CDATA[#[output application/java
----
+&#45;&#45;-
 {
 	"version" : 1
-}]]]></http:uri-params>
+}&#93;&#93;&#93;></http:uri-params>
 			<http:query-params ><![CDATA[#[output application/java
----
+&#45;&#45;-
 {
 	"query" : "kafka_brokers"
-}]]]></http:query-params>
+}&#93;&#93;&#93;></http:query-params>
 		</http:request>
-	</flow>
+	</flow> [STUDIO] -->
 </mule>

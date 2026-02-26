@@ -5,18 +5,18 @@
 	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
-	<flow name="get-postgres-health" doc:id="0d05de11-4396-4c7e-8e59-cb0ac3d9c890" >
+	<!-- [STUDIO:"get-postgres-health"]<flow name="get-postgres-health" doc:id="0d05de11-4396-4c7e-8e59-cb0ac3d9c890" >
 		<http:request method="GET" doc:name="Request" doc:id="0f801298-dfd7-4df4-8663-83a8bb5b76aa" config-ref="Monitoring_Request_configuration" path="/health/postgres" >
 			<http:uri-params ><![CDATA[#[output application/java
----
+&#45;&#45;-
 {
 	"version" : 1
-}]]]></http:uri-params>
+}&#93;&#93;&#93;></http:uri-params>
 			<http:query-params ><![CDATA[#[output application/java
----
+&#45;&#45;-
 {
 	"query" : "cnpg_collector_nodes_used"
-}]]]></http:query-params>
+}&#93;&#93;&#93;></http:query-params>
 		</http:request>
-	</flow>
+	</flow> [STUDIO] -->
 </mule>
