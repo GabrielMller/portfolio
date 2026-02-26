@@ -7,7 +7,7 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
 http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
 http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd">
 	<global-property doc:name="Global Property" doc:id="4a40155b-4fde-4bff-8ba2-8cc043e49270" name="mule.env" value="local" />
-	<configuration-properties doc:name="Configuration properties" doc:id="e91fcef9-6e22-48ee-883a-5ed2c33ab902" file="properties/${mule.env}.properties" />
+	<configuration-properties doc:name="Configuration properties" doc:id="e91fcef9-6e22-48ee-883a-5ed2c33ab902" file="properties/${MULE_ENV}.properties" />
 	<http:request-config name="Prometheus_Request_configuration" doc:name="HTTP Request configuration" doc:id="3487dae4-958c-4d12-9a5a-8f3475177e7a" basePath="${prometheus.basePath}" >
 		<http:request-connection protocol="${prometheus.protocol}" host="${prometheus.host}" port="${prometheus.port}" />
 	</http:request-config>
