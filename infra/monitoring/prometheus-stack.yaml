@@ -6,7 +6,7 @@ metadata:
 data:
   prometheus.yml: |
     global:
-      scrape_interval: 15s # Intervalo mais curto para o dashboard parecer mais "live"
+      scrape_interval: 15s 
       scrape_timeout: 10s
 
     scrape_configs:
@@ -31,6 +31,35 @@ data:
           - source_labels: [__meta_kubernetes_pod_name]
             target_label: instance
 
+      - job_name: 'kubernetes-nodes'
+        scheme: https
+        tls_config:
+          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+        kubernetes_sd_configs:
+          - role: node
+        relabel_configs:
+          - action: labelmap
+            regex: __meta_kubernetes_node_label_(.+)
+
+      - job_name: 'kubernetes-cadvisor'
+        scheme: https
+        tls_config:
+          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+          insecure_skip_verify: true
+        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+        kubernetes_sd_configs:
+          - role: node
+        relabel_configs:
+          - action: labelmap
+            regex: __meta_kubernetes_node_label_(.+)
+          - target_label: __address__
+            replacement: kubernetes.default.svc:443
+          - source_labels: [__meta_kubernetes_node_name]
+            regex: (.+)
+            target_label: __metrics_path__
+            replacement: /api/v1/nodes/${1}/proxy/metrics/cadvisor
+
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -54,7 +83,7 @@ spec:
         args:
           - "--config.file=/etc/prometheus/prometheus.yml"
           - "--storage.tsdb.retention.time=7d"
-          - "--web.enable-lifecycle" 
+          - "--web.enable-lifecycle"
         ports:
         - containerPort: 9090
         resources:
@@ -82,7 +111,7 @@ metadata:
   name: prometheus-server-role
 rules:
   - apiGroups: [""]
-    resources: ["pods", "nodes", "nodes/metrics", "services", "endpoints"]
+    resources: ["pods", "nodes", "nodes/metrics", "nodes/proxy", "services", "endpoints"]
     verbs: ["get", "list", "watch"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
