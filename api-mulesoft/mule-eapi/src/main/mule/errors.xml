@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core"
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
 	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
-http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
 	<error-handler name="propagate_error" doc:id="68cc57f3-7f2e-43f0-94fe-b495eff941e1" >
 		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="543c887b-6a7e-40df-a34c-813058ff06a5" >
 			<flow-ref doc:name="Flow Reference" doc:id="f8d45009-0d17-4b20-9a63-95ad29bb661f" name="set-response"/>
@@ -12,24 +11,8 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 	<sub-flow name="set-response" doc:id="3779e7f7-4018-41a8-8e32-f28f031cb9b4" >
 		<choice doc:name="Choice" doc:id="431d76f9-121c-4207-b119-c9cc4d5682d9" >
 			<when expression="#[isBlank(vars.httpStatus)]">
-				<ee:transform doc:name="Transform Message" doc:id="fb8e5561-865c-4aa6-af12-8eb057d8249f" >
-					<ee:message >
-						<ee:set-payload ><![CDATA[%dw 2.0
-output application/json duplicateKeyAsArray=true
-
-var vTypeOfError = typeOf(error.errorMessage.payload) 
----
-if ( (error.errorMessage.payload != null) and (vTypeOfError == "Object" or
-		vTypeOfError == "Array") ) (error.errorMessage.payload)
-else ({
-	message: error.errorType.identifier,
-	details: error.detailedDescription as String
-})]]></ee:set-payload>
-					</ee:message>
-					<ee:variables >
-						<ee:set-variable variableName="httpStatus" ><![CDATA[error.errorMessage.attributes.StatusCode default 400]]></ee:set-variable>
-					</ee:variables>
-				</ee:transform>
+				<set-payload value='#[%dw 2.0&#10;output application/json duplicateKeyAsArray=true&#10;&#10;var vTypeOfError = typeOf(error.errorMessage.payload) &#10;---&#10;if ( (error.errorMessage.payload != null) and (vTypeOfError == "Object" or&#10;		vTypeOfError == "Array") ) (error.errorMessage.payload)&#10;else ({&#10;	message: error.errorType.identifier,&#10;	details: error.detailedDescription as String&#10;})]' doc:name="Set Payload" doc:id="b06970d0-94c4-4abe-9f70-68e9cd79bc01" />
+				<set-variable value="#[error.errorMessage.attributes.StatusCode default 400]" doc:name="Set Variable" doc:id="cb86e2b6-de27-449f-ac41-d8ff6b377571" variableName="httpStatus"/>
 			</when>
 		</choice>
 		<logger level="INFO" doc:name="Logger" doc:id="faf7d169-9919-4a44-bfbb-1b33a30a3f3f" message='#[%dw 2.0  &#10;output application/json  &#10;---  &#10;{  &#10;   title: "ERROR",  &#10;   date: now(),  &#10;   status: vars.httpStatus default "vazio",  &#10;   error: write(payload default error) default "vazio"  &#10;}]'/>
@@ -66,20 +49,7 @@ else ({
       </on-error-propagate>
    </error-handler> [STUDIO] -->
    <sub-flow name="error-handler-specs-default-body" doc:id="54f451f3-2a6f-45dc-abe4-5de7b047e7a2">
-      <ee:transform doc:name="Transform Message Payload" doc:id="c2648f39-ab60-4a67-b132-f5ca901e9632">
-         <ee:message>
-            <ee:set-payload><![CDATA[%dw 2.0
-output application/json
----
-{
-    message: error.errorType.identifier,
-    details: error.detailedDescription
-}]]></ee:set-payload>
-         </ee:message>
-			<ee:variables >
-			</ee:variables>
-      
-</ee:transform>
+		<set-payload value="#[%dw 2.0&#10;output application/json&#10;---&#10;{&#10;    message: error.errorType.identifier,&#10;    details: error.detailedDescription&#10;}]" doc:name="Set Payload" doc:id="d7512729-ca00-4c96-aa7f-b167fe561117" />
 		<logger level="INFO" doc:name="Logger" doc:id="81023d73-fa60-43ae-a518-e74207ff92ec" message='#[%dw 2.0  &#10;output application/json  &#10;---  &#10;{  &#10;   title: "ERROR",  &#10;   date: now(),  &#10;   status: vars.httpStatus default "vazio",  &#10;   error: write(payload default error) default "vazio"  &#10;}]' />
    
 </sub-flow>
