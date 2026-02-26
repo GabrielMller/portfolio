@@ -17,5 +17,7 @@ RUN if [ ! -s /opt/mule/apps/${API_NAME}.jar ]; then \
 
 ARG MULE_ENV
 ARG SECURE_KEY
+ENV MULE_ENV=$MULE_ENV
+ENV SECURE_KEY=$SECURE_KEY
     
-CMD ["sh", "-c", "/opt/mule/bin/mule -M-Danypoint.platform.gatekeeper=disabled -M-Dmule.env=teste -M-Dsecure.key=$SECURE_KEY"]
+CMD ["sh", "-c", "/opt/mule/bin/mule -M-Danypoint.platform.gatekeeper=disabled -M-Dmule.env=$MULE_ENV -M-Dsecure.key=$SECURE_KEY"]
