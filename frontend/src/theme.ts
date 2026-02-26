@@ -35,8 +35,8 @@ let theme = createTheme({
         primary: { main: '#3b82f6' },
         secondary: { main: '#a855f7' },
         background: { 
-          default: '#f8fafc', 
-          paper: '#ffffff' 
+          default: '#a7e0fd', 
+          paper: '#d1edfe' 
         },
         text: { 
           primary: '#0f172a', 
@@ -53,7 +53,7 @@ let theme = createTheme({
         mode: 'dark',
         primary: { main: '#3b82f6' },
         secondary: { main: '#a855f7' },
-        background: { default: '#020617', paper: '#0f172a' },
+        background: { default: '#0f172a', paper: '#0f172a' },
         text: { primary: '#ffffff', secondary: '#94a3b8' },
         cosmic: {
           particleChannel: '255 255 255',

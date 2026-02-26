@@ -93,17 +93,6 @@ const AdaptiveBackground: FC = () => {
   const { mode } = useColorScheme();
 
   useEffect(() => {
-    async function request() {
-      const data = await fetch('http://localhost:8081/api/health/v1/kafka', {
-        headers: { 'Content-Type': 'application/json' },
-        method: 'GET',
-      });
-      console.log(await data.json());
-    }
-    request();
-  }, []);
-
-  useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');

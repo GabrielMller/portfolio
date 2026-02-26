@@ -6,32 +6,28 @@ metadata:
 data:
   prometheus.yml: |
     global:
-      scrape_interval: 30s
-      scrape_timeout: 25s
+      scrape_interval: 15s # Intervalo mais curto para o dashboard parecer mais "live"
+      scrape_timeout: 10s
 
     scrape_configs:
       - job_name: 'kafka-exporter'
         static_configs:
           - targets: ['kafka-cluster-kafka-exporter.kafka.svc.cluster.local:9404']
 
-      # MUDANÇA CRUCIAL: Usar kubernetes_sd_configs para encontrar todos os pods
-      - job_name: 'postgres'
+      - job_name: 'postgres-nodes'
         kubernetes_sd_configs:
           - role: pod
             namespaces:
               names: ['postgres']
         relabel_configs:
-          # Filtra apenas pods que pertencem ao cluster postgres-core
           - source_labels: [__meta_kubernetes_pod_label_cnpg_io_cluster]
             action: keep
             regex: postgres-core
-          # Garante que ele tenta a porta de métricas 9187
           - source_labels: [__address__]
             action: replace
             regex: ([^:]+)(?::\d+)?
             replacement: $1:9187
             target_label: __address__
-          # Dá um nome bonito para cada instância no dashboard
           - source_labels: [__meta_kubernetes_pod_name]
             target_label: instance
 
@@ -51,16 +47,20 @@ spec:
       labels:
         app: prometheus
     spec:
-      # Permissão para o Prometheus "listar" pods nos outros namespaces
       serviceAccountName: prometheus-sa
       containers:
       - name: prometheus
-        image: prom/prometheus:latest
+        image: prom/prometheus:v2.45.0
         args:
           - "--config.file=/etc/prometheus/prometheus.yml"
           - "--storage.tsdb.retention.time=7d"
+          - "--web.enable-lifecycle" 
         ports:
         - containerPort: 9090
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
         volumeMounts:
         - name: config-volume
           mountPath: /etc/prometheus
@@ -70,7 +70,6 @@ spec:
           name: prometheus-config
 
 ---
-# Permissões necessárias para o Service Discovery funcionar
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -98,3 +97,17 @@ subjects:
   - kind: ServiceAccount
     name: prometheus-sa
     namespace: monitoring
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus-service
+  namespace: monitoring
+spec:
+  selector:
+    app: prometheus
+  ports:
+    - port: 9090
+      targetPort: 9090
+  type: ClusterIP
