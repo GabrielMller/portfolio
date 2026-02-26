@@ -6,23 +6,20 @@ metadata:
 data:
   prometheus.yml: |
     global:
-      scrape_interval: 15s
+      scrape_interval: 30s
+      scrape_timeout: 25s      
+      evaluation_interval: 30s
+
     scrape_configs:
       - job_name: 'kafka-exporter'
         static_configs:
           - targets: ['kafka-cluster-kafka-exporter.kafka.svc.cluster.local:9404']
-      - job_name: 'postgres-operator'
+
+      - job_name: 'postgres'
+        scrape_timeout: 28s    
         static_configs:
-          - targets: ['postgres-core-rw.postgres.svc.cluster.local:9187']
-      - job_name: 'postgres-nodes'
-        kubernetes_sd_configs:
-          - role: pod
-            namespaces:
-              names: ['postgres']
-        relabel_configs:
-          - source_labels: [__meta_kubernetes_pod_container_port_name]
-            action: keep
-            regex: metrics
+          - targets: ['postgres-metrics.postgres.svc.cluster.local:9187']
+
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -44,16 +41,9 @@ spec:
         image: prom/prometheus:latest
         args:
           - "--config.file=/etc/prometheus/prometheus.yml"
-          - "--storage.tsdb.retention.time=7d" 
+          - "--storage.tsdb.retention.time=7d"
         ports:
         - containerPort: 9090
-        resources:
-          limits:
-            memory: "512Mi"
-            cpu: "500m"
-          requests:
-            memory: "256Mi"
-            cpu: "250m"
         volumeMounts:
         - name: config-volume
           mountPath: /etc/prometheus
