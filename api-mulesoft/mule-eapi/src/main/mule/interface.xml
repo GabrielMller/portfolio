@@ -3,6 +3,7 @@
     <http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="3c6e1dc1-cd1c-4428-a446-b29adf62c22b" basePath="api">
         <http:listener-connection host="0.0.0.0" port="8081" />
     </http:listener-config>
+	<apikit:config outboundHeadersMapName="outboundHeadersMapName" httpStatusVarName="httpStatus" doc:name="Router" doc:id="1c3eb79e-694b-44fb-8701-f724aaa4fd62" name="Router" api="api\health.raml" />
 	<flow name="mule-eapiFlow" doc:id="2bc1c443-505a-4379-a349-9c1ea150d882">
         <http:listener doc:name="Listener" doc:id="76281905-148c-49db-b838-d984fa8316af" config-ref="HTTP_Listener_config" path="/health/*" >
 			<http:response statusCode="#[vars.httpStatus default 200]" >
@@ -13,7 +14,7 @@
 				<http:headers ><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
 			</http:error-response>
 		</http:listener>
-		<set-payload value='#[output json&#10;---&#10;""]' doc:name="Set Payload" doc:id="9044398d-4aad-470f-bfe7-cd2e6cf5d3e7" />
+		<apikit:router doc:name="APIkit Router" doc:id="b7161cf0-af0e-484d-ba2d-e3f45abbf38d" config-ref="Router"/>
 		<error-handler ref="propagate_error" />
     </flow>
     <flow name="get:\v1\kafka:Router">
