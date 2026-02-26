@@ -24,7 +24,7 @@ spec:
         env:
         - name: MULE_ENV
           value: "prd"
-        - name: secure.key
+        - name: SECURE_KEY
           value: "${SECURE_KEY}"
         - name: MULE_JDK_OPTIONS
           value: "-M-Dmule.env=prod -M-Dsecure.key=${SECURE_KEY}"
