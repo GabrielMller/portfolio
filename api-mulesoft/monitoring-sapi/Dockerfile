@@ -1,4 +1,5 @@
 ARG DOCKERHUB_USERNAME
+ARG API_NAME
 FROM ${DOCKERHUB_USERNAME}/mule-runtime-base:4.9.0
 
 COPY ./target/*.jar /opt/mule/apps/${API_NAME}.jar

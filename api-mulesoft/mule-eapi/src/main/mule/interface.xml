@@ -12,7 +12,7 @@
     </http:listener-config>
     <apikit:config outboundHeadersMapName="outboundHeadersMapName" httpStatusVarName="httpStatus" doc:name="Router" doc:id="acc65b14-bdb0-44d5-b08c-c0c31e231d98" name="Router" api="api\health.raml" />
 	<flow name="mule-eapiFlow" doc:id="2bc1c443-505a-4379-a349-9c1ea150d882">
-        <http:listener doc:name="Listener" doc:id="76281905-148c-49db-b838-d984fa8316af" config-ref="HTTP_Listener_config" path="/health/*" >
+        <http:listener doc:name="Listener" doc:id="76281905-148c-49db-b838-d984fa8316af" config-ref="HTTP_Listener_config" path="/monitoring/*" >
 			<http:response statusCode="#[vars.httpStatus default 200]" >
 				<http:headers ><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
 			</http:response>
@@ -30,4 +30,8 @@
     <flow name="get:\v1\postgres:Router">
 		<flow-ref doc:name="Flow Reference" doc:id="1569e9b1-db1c-4baa-8d7a-dbd6b18483b8" name="get-postgres-health" />
     </flow>
+	<flow name="interfaceFlow" doc:id="f1b37f01-2f6e-4f3c-975a-d6748037af0a" >
+		<http:listener doc:name="Listener" doc:id="3899ffea-46e0-4fd4-a5d4-56169ae932c8" config-ref="HTTP_Listener_config" path="/health"/>
+		<set-payload value='#[output json&#10;---&#10;"OK"]' doc:name="Set Payload" doc:id="801c1691-4a0b-4ba1-8c6a-9084bdd19b1b" />
+	</flow>
 </mule>
