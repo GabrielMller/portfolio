@@ -16,10 +16,10 @@
 		<set-payload value='#[output json&#10;---&#10;""]' doc:name="Set Payload" doc:id="9044398d-4aad-470f-bfe7-cd2e6cf5d3e7" />
 		<error-handler ref="propagate_error" />
     </flow>
-    <!-- [STUDIO:"get:\v1\kafka:Router"]<flow name="get:\v1\kafka:Router">
+    <flow name="get:\v1\kafka:Router">
 		<flow-ref doc:name="Flow Reference" doc:id="34871c16-6a94-4d45-9e77-9d4a5fdc04fe" name="get-kafka-health"/>
-    </flow> [STUDIO] -->
-    <!-- [STUDIO:"get:\v1\postgres:Router"]<flow name="get:\v1\postgres:Router">
+    </flow>
+    <flow name="get:\v1\postgres:Router">
 		<flow-ref doc:name="Flow Reference" doc:id="1569e9b1-db1c-4baa-8d7a-dbd6b18483b8" name="get-postgres-health" />
-    </flow> [STUDIO] -->
+    </flow>
 </mule>
