@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:dbserver="http://www.mulesoft.org/schema/mule/dbserver"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+	xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+http://www.mulesoft.org/schema/mule/dbserver http://www.mulesoft.org/schema/mule/dbserver/current/mule-dbserver.xsd">
+	<munit:config name="account-test.xml" />
+	<dbserver:config name="MUnit_DB_Server_Config" doc:name="MUnit DB Server Config" doc:id="2a2d5b6a-cd04-4af9-aa5e-b53bc1757a43" >
+		<dbserver:connection database="mulesoft_db" connectionStringParameters="MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE" sqlFile="db/account.sql"/>
+	</dbserver:config>
+	<global-property doc:name="Global Property" doc:id="c68a6de1-bf98-4249-a204-b93db1ae3b67" name="MULE_ENV" value="qa" />
+	<munit:test name="account-get-by-email-test" doc:id="a53c987a-81c9-4f18-9aeb-421191abef75" >
+		<munit:execution >
+			<set-variable value='#[output json&#10;---&#10;{&#10;	email: "john.doe@example.com"&#10;}]' doc:name="Set Variable" doc:id="2302f5ea-233a-4611-b5a4-29c27dfce642" variableName="query"/>
+			<flow-ref doc:name="Flow Reference" doc:id="1c9d7b5a-43b2-49fc-b50f-e205d89533a9" name="getAccounts"/>
+		</munit:execution>
+		<munit:validation >
+			<set-payload value="#[output json&#10;---&#10;payload[0]]" doc:name="Set Payload" doc:id="4f59c757-3a06-4bcb-ad18-ead180f702d7" />
+			<munit-tools:assert-that doc:name="Assert that" doc:id="897ad809-7cc8-4105-a71d-5804edea03cb" expression="#[payload]" is="#[MunitTools::notNullValue()]"/>
+			<munit-tools:assert doc:name="Assert expression" doc:id="0d5978e8-5b51-4b87-9e6f-d7f3bbd1c52b" >
+				<munit-tools:that ><![CDATA[#[import * from dw::test::Asserts 
+ ---
+payload.email must equalTo("john.doe@example.com")]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="users-get-by-email-test" doc:id="c8e923dc-992c-4b3c-9dbd-d627e8e2b114" >
+		<munit:execution >
+			<set-variable value='#[output json&#10;---&#10;{&#10;	email: "john.doe@example.com"&#10;}]' doc:name="Set Variable" doc:id="9d6528e8-b7c6-4caa-a692-26cbb3e464f1" variableName="query" />
+			<flow-ref doc:name="Flow Reference" doc:id="bffd6533-430b-4473-8921-bf670c4005b6" name="getUsers" />
+		</munit:execution>
+		<munit:validation >
+			<set-payload value="#[output json&#10;---&#10;payload[0]]" doc:name="Set Payload" doc:id="89b77d47-5318-4dda-ac90-c78b3911e6df" />
+			<munit-tools:assert-that doc:name="Assert that" doc:id="753b7850-81fb-431e-8a8b-75eb7e5daeea" expression="#[payload]" is="#[MunitTools::notNullValue()]" />
+			<munit-tools:assert doc:name="Assert expression" doc:id="787d8573-9a90-44c3-b6fa-173adccb6386" >
+				<munit-tools:that ><![CDATA[#[import * from dw::test::Asserts 
+ ---
+payload.email must equalTo("john.doe@example.com")]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="create-users-test" doc:id="56d28ee2-41a4-4c9a-a186-7ca2dc925173" >
+		<munit:execution >
+			<set-payload value='#[output json&#10;---&#10;{&#10;	"email": "teste@gmail.com",&#10;	"username": "teste"&#10;}]' doc:name="Set Payload" doc:id="5d64c48d-cb2d-4fcd-ae9a-f552a2f582ef" />
+			<flow-ref doc:name="Flow Reference" doc:id="3e04c11f-f8cc-47d8-96c9-390cb966e191" name="createUser"/>
+		</munit:execution>
+		<munit:validation>
+			<dbserver:execute-query doc:name="Execute query" doc:id="19173f06-6935-439d-9ceb-ff83a77a370e" config-ref="MUnit_DB_Server_Config" sql="SELECT id FROM users WHERE email = 'teste@gmail.com'" target="validate"/>
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="d8965e3d-9955-4499-aad9-a0adea9b17ee" actual="#[payload.id]" expected="#[vars.validate[0].id as Number]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="create-clients-test" doc:id="5cea6085-801e-445b-a37b-1dc6412fb963" >
+		<munit:execution >
+			<set-payload value='#[output json&#10;---&#10;{&#10;	userId: 1,&#10;	name: "John Doe"&#10;}]' doc:name="Set Payload" doc:id="65182040-4857-4dbb-85f3-cd9a4e62f319" />
+			<flow-ref doc:name="Flow Reference" doc:id="e9b468cd-e064-4be0-9e27-bd8bae9d9932" name="createClient" />
+		</munit:execution>
+		<munit:validation >
+			<dbserver:execute-query doc:name="Execute query" doc:id="cb6277c3-147d-4fe7-8d55-62df9523997c" config-ref="MUnit_DB_Server_Config" sql="SELECT id FROM clients WHERE user_id = 1" target="validate" />
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="06d97e51-3be4-45f0-976f-4d9f388e0a57" actual="#[payload.id]" expected="#[vars.validate[0].id as Number]" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="create-account-test" doc:id="aa7c198b-0d3b-4eaf-b8f2-77922cc7fb8b" >
+		<munit:execution >
+			<set-payload value='#[output json&#10;---&#10;{&#10;	userId: 3,&#10;	username: "John Doe3",&#10;	email: "test@gmail.com",&#10;	password: "encryptedPasswodHashedSalt"&#10;}]' doc:name="Set Payload" doc:id="e9ef4ccd-c32a-482f-9fa8-ec1b7a161514" />
+			<flow-ref doc:name="Flow Reference" doc:id="7beac6b0-d14a-4b28-bd58-0f5dcd276621" name="createAccount" />
+		</munit:execution>
+		<munit:validation >
+			<dbserver:execute-query doc:name="Execute query" doc:id="1cb81107-9f8b-4410-9086-170a50f18c3d" config-ref="MUnit_DB_Server_Config" sql="SELECT id FROM accounts WHERE user_id = 3" target="validate" />
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="33b686d8-5bac-46d4-844a-1dd4c1fffede" actual="#[payload.id]" expected="#[vars.validate[0].id as Number]" />
+		</munit:validation>
+	</munit:test>
+
+
+</mule>

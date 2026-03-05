@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd">
+    <http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="11f56cee-7b5b-4b07-9cf0-1b8e9d297c03" basePath="api">
+        <http:listener-connection host="0.0.0.0" port="${http.port}" />
+    </http:listener-config>
+    <apikit:config name="Router" api="users.raml" outboundHeadersMapName="outboundHeadersMapName" httpStatusVarName="httpStatus" />
+    <flow name="account-interface" doc:id="cbc3a0be-fc2c-476d-a44e-7dd40925172b">
+        <http:listener doc:name="Listener" doc:id="c56db81d-8230-4527-8bb4-b959619b4bef" config-ref="HTTP_Listener_config" path="/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body><![CDATA[#[payload]]]></http:body>
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:router doc:name="APIkit Router" doc:id="f07987da-40ad-4f1d-97ce-37511b396f2f" config-ref="Router" />
+    </flow>
+    <flow name="get:\v1\accounts:Router">
+        <set-variable value="#[output json&#xA;---&#xA;attributes.queryParams]" doc:name="Set Variable" doc:id="59e7460b-ac02-462c-a65d-98eafb0c4848" variableName="query" />
+        <flow-ref doc:name="Flow Reference" doc:id="394d23d7-6ac2-4e81-8370-fc13d60b2e2b" name="getAccounts" />
+    </flow>
+    <flow name="get:\v1\:Router">
+        <set-variable value="#[output json&#xA;---&#xA;attributes.queryParams]" doc:name="Set Variable" doc:id="f09fa841-d748-415b-8b4c-2e4e4923df06" variableName="query" />
+        <flow-ref doc:name="Flow Reference" doc:id="10edb8c5-ba48-4641-b9c7-968218bcb983" name="getUsers" />
+    </flow>
+    <flow name="post:\v1\:application\json:Router">
+        <flow-ref doc:name="Flow Reference" doc:id="049cabec-e14b-461b-ac23-7d7131c5ba74" name="createUser" />
+    </flow>
+    <flow name="post:\v1\clients:application\json:Router">
+        <flow-ref doc:name="Flow Reference" doc:id="dea14e4d-4a10-41d6-a179-c6da1fa7f2ac" name="createClient" />
+    </flow>
+    <flow name="post:\v1\accounts:application\json:Router">
+		<flow-ref doc:name="Flow Reference" doc:id="9d6066d9-4329-4d2a-a2bd-e8c9ee3d1e45" name="createAccount"/>
+    </flow>
+</mule>

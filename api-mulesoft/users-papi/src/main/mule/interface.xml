@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
+    <apikit:config name="Router" api="users.raml" outboundHeadersMapName="outboundHeadersMapName" httpStatusVarName="httpStatus" />
+    <flow name="account-interface" doc:id="9d562b6b-50ac-4558-b194-098f1dbf8762">
+        <http:listener doc:name="Listener" doc:id="09135788-f8ca-4a85-9301-e3ee5023ebab" config-ref="HTTP_Listener_config" path="/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body><![CDATA[#[payload]]]></http:body>
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:router doc:id="cc87d68c-cc8f-4b03-9962-347b8892ec98" config-ref="Router" doc:name="APIkit Router" />
+        <error-handler ref="Error_Handler_Specs" />
+    </flow>
+    <flow name="patch:\v1\sync:application\json:Router">
+        <logger level="INFO" message="patch:\v1\sync:application\json:Router" />
+    </flow>
+    <flow name="post:\v1\accounts:application\json:Router">
+        <flow-ref doc:name="Flow Reference" doc:id="8aefe926-b281-4b5e-85cf-c56fbc09dac2" name="createAccout" />
+    </flow>
+    <flow name="post:\v1\accounts\auth:application\json:Router">
+		<flow-ref doc:name="Flow Reference" doc:id="43f2b0ae-8b35-4542-ac76-372f3dc25e24" name="authAccount"/>
+    </flow>
+</mule>

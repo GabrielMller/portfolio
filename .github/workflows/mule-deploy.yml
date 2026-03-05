@@ -22,9 +22,9 @@ jobs:
         with:
           filters: |
             mule-eapi: 'api-mulesoft/mule-eapi/**'
-            orders-eapi: 'api-mulesoft/orders-eapi/**'
-            inventory-sapi: 'api-mulesoft/inventory-sapi/**'
             monitoring-sapi: 'api-mulesoft/monitoring-sapi/**'
+            users-sapi: 'api-mulesoft/users-sapi/**'
+            users-papi: 'api-mulesoft/users-papi/**'
 
   build:
     needs: detect-changes

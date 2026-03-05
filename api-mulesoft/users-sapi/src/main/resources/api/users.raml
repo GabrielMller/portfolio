@@ -1,0 +1,86 @@
+#%RAML 1.0
+title: Users API
+version: v1
+
+traits: 
+  accountQuery: !include traits/account-query.raml
+  usersQuery: !include traits/users-query.raml
+
+types:
+  request.post.users: !include types/requests/post/users.raml
+  response.post.users: !include types/responses/post/users.raml
+  request.post.clients: !include types/requests/post/clients.raml
+  response.post.clients: !include types/responses/post/clients.raml
+  request.post.accounts: !include types/requests/post/accounts.raml
+  response.post.accounts: !include types/responses/post/accounts.raml
+
+/{version}:
+  /:
+    post:
+      description: Endpoint para criar um novo usuário
+      body:
+        application/json:
+          type: request.post.users
+      responses:
+        201:
+          description: Usuário criado com sucesso
+          body:
+            application/json:
+              type: response.post.users
+        400:
+          description: Requisição inválida, verifique os dados enviados
+        500:
+          description: Erro interno do servidor, tente novamente mais tarde
+    get:
+      is: [usersQuery]
+      description: Endpoint para consultar os usuários cadastrados
+      responses:
+        200:
+          description: Lista de usuários retornada com sucesso
+        400:
+          description: Requisição inválida, verifique os parâmetros de consulta
+        500:
+          description: Erro interno do servidor, tente novamente mais tarde
+
+  /accounts:
+    post:
+      description: Endpoint para criar uma nova conta associada a um usuário
+      body:
+        application/json:
+          type: request.post.accounts
+      responses:
+        201:
+          description: Conta criada com sucesso
+          body:
+            application/json:
+              type: response.post.accounts
+        400:
+          description: Requisição inválida, verifique os dados enviados
+        500:
+          description: Erro interno do servidor, tente novamente mais tarde
+    get:
+      description: Endpoint para consultar as contas associadas a um usuário
+      is: [accountQuery]
+      responses:
+        200:
+          description: Lista de contas retornada com sucesso
+        400:
+          description: Requisição inválida, verifique os parâmetros de consulta
+        500:
+          description: Erro interno do servidor, tente novamente mais tarde
+  /clients:
+    post:
+      description: Endpoint para criar um novo cliente
+      body:
+        application/json:
+          type: request.post.clients
+      responses:
+        201:
+          description: Cliente criado com sucesso
+          body:
+            application/json:
+              type: response.post.clients
+        400:
+          description: Requisição inválida, verifique os dados enviados
+        500:
+          description: Erro interno do servidor, tente novamente mais tarde

@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="accounts-test.xml" />
+	<munit:test name="Test-encrypt-decrypt-password" doc:id="7df7ad60-1115-45ae-b53d-5e6fabb5afb0" >
+		<munit:execution >
+			<set-payload value='#[output json&#10;---&#10;java!com::users::papi::internal::PasswordHasher::hashPassword("P@sword123")]' doc:name="Set Payload" doc:id="e3d37a4a-0ebd-4b23-92ca-684829dfc963" />
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="9ce6a763-a5c9-42ad-a872-cdc38e04e9d2" actual='#[output json&#10;---&#10;java!com::users::papi::internal::PasswordHasher::checkPassword("P@sword123", payload)]' expected="#[true]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="Test-transform-password-success" doc:id="16a9449c-c71a-46e3-8d61-a0cca24080a8" >
+		<munit:execution >
+			<set-payload value='#[output json&#10;---&#10;{&#10;	password: "P@sword123"&#10;}]' doc:name="Set Payload" doc:id="9352709f-1ca0-47c7-85f9-8527787fa95f" />
+			<flow-ref doc:name="Flow Reference" doc:id="f5082654-61c1-4fc3-b79a-0c4dd2d8e1da" name="passwordTransform"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="a23c8a02-8271-4436-9509-98fcdf3484f9" expression="#[payload.password]" is="#[MunitTools::notNullValue()]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="Test-transform-password-error" doc:id="5c47b758-5c4c-4d3b-94ed-d4d2b7c79c9a" expectedErrorType="VALIDATION:MISMATCH">
+		<munit:execution >
+			<set-payload value='#[output json&#10;---&#10;{&#10;	password: "sword123"&#10;}]' doc:name="Set Payload" doc:id="854df541-f876-42f1-8569-9cd62735f543" />
+			<flow-ref doc:name="Flow Reference" doc:id="705127a4-4506-4fd1-be7f-e887a4be38c2" name="passwordTransform" />
+		</munit:execution>
+	</munit:test>
+	<munit:test name="Test-create-account" doc:id="4555ca8d-75ec-4ab7-b5ab-883aa60e8f1a">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="ce3c455f-bbbb-41ed-b9d5-e9d334c49957" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="d9d47868-5b92-43e7-9709-ad12dafe85ea" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:variables >
+						<munit-tools:variable key="exists" value="#[output json --- false]" mediaType="application/json" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when" doc:id="59af98bf-cf95-4dd3-a468-0e39cde8fb07" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="4646bfb8-ffb3-4da1-bf32-795318b91a3c" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:variables >
+						<munit-tools:variable key="user" value="#[output json --- readUrl('classpath://mocks/getUser.json','json')]" mediaType="application/json" encoding="UTF-8" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:spy doc:name="Spy" doc:id="c56dd6fb-3760-4b25-996b-38bac3f8b1f4" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="d06a11de-0f78-48ed-a9b3-b44ca8c44baa" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:before-call>
+					<munit-tools:assert doc:name="Assert expression" doc:id="983b2a6f-89e0-4818-842b-2b5cccdcfb82" >
+						<munit-tools:that ><![CDATA[#[import * from dw::test::Asserts 
+ ---
+payload.userId must equalTo(4)]]]></munit-tools:that>
+					</munit-tools:assert>
+				</munit-tools:before-call>
+			</munit-tools:spy>
+			<munit-tools:mock-when doc:name="Mock when" doc:id="36c4e178-d8bb-4de6-894d-7d30eca7bb41" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="d06a11de-0f78-48ed-a9b3-b44ca8c44baa" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<set-payload value='#[output json&#10;---&#10;{&#10;	"password": "P@ssword123",&#10;	"email": "teste@gmail.com",&#10;	"username": "teste"&#10;}]' doc:name="Set Payload" doc:id="d53de163-4e73-4ca2-81b1-ba1cb295b6c2" />
+			<flow-ref doc:name="Flow Reference" doc:id="66b685c4-7f78-4717-862f-50bc61d33f5b" name="createAccout" />
+		</munit:execution>
+	</munit:test>
+	<munit:test name="Test-create-account-with-client" doc:id="6ea49e08-9fd3-498b-a47d-720728bc4592">
+		<munit:behavior>
+			<munit-tools:mock-when doc:name="Mock when" doc:id="ef7578b3-0e4c-4ea4-b18c-9d855f09bce4" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="d9d47868-5b92-43e7-9709-ad12dafe85ea" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:variables >
+						<munit-tools:variable key="exists" value="#[output json --- false]" mediaType="application/json" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when" doc:id="60f9b6a3-4bc3-4c5c-abc8-da94d8a05e69" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="4646bfb8-ffb3-4da1-bf32-795318b91a3c" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:variables >
+						<munit-tools:variable key="user" value="#[output json --- null]" mediaType="application/json" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when" doc:id="2d24777a-f278-497d-a8dc-63392feee4d3" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="bae7eb88-91ac-445e-a911-9071b40a4f3a" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:variables >
+						<munit-tools:variable key="user" value="#[output json --- readUrl('classpath://mocks/getUser.json','json')]" mediaType="application/json" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:spy doc:name="Spy" doc:id="61f1bfce-2f4f-410a-873d-3272c9fb849c" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="edf917ac-8144-4496-be64-09f607ac2c6d" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:before-call >
+					<munit-tools:assert doc:name="Assert expression" doc:id="815892ec-d458-47e3-999e-3dfd8b20ca3f" >
+						<munit-tools:that ><![CDATA[#[import * from dw::test::Asserts 
+ ---
+vars.user.id must equalTo(4)]]]></munit-tools:that>
+					</munit-tools:assert>
+					<munit-tools:assert-that doc:name="Assert that" doc:id="b72686f9-a7e7-4c55-b1a3-5a939126ac19" expression="#[payload.username]" is="#[MunitTools::notNullValue()]"/>
+				</munit-tools:before-call>
+			</munit-tools:spy>
+			<munit-tools:mock-when doc:name="Mock when" doc:id="f716e732-8948-4251-b45a-b60d6e5eab3f" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="edf917ac-8144-4496-be64-09f607ac2c6d" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when" doc:id="559cb99f-d08e-43d5-81ca-1453565b237d" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="d06a11de-0f78-48ed-a9b3-b44ca8c44baa" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="302c994f-bd76-4371-a24b-de5ddb86c59c" >
+				<munit:payload value='#[output json&#10;---&#10;{&#10;	"password": "P@ssword123",&#10;	"email": "teste@gmail.com",&#10;	"username": "teste"&#10;}]' mediaType="application/json" />
+			</munit:set-event>
+			<flow-ref doc:name="Flow Reference" doc:id="ed67b446-416b-4f2a-a8b0-4c351ce7b814" name="createAccout" />
+		</munit:execution>
+	</munit:test>
+
+
+</mule>

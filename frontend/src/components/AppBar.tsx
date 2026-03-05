@@ -9,7 +9,7 @@ export default function AppBar() {
   return (
     <MuiAppBar elevation={1} color="transparent" position="static">
       <Container maxWidth="xl">
-        <Toolbar disableGutters sx={{ display: 'flex', justifyContent: 'space-between' }}>
+        <Toolbar disableGutters sx={{ display: 'flex', justifyContent: 'space-between', height: '60px' }}>
           <Box href={'/'} component={Link} sx={{ display: 'flex', alignItems: 'center', gap: 1.5, textDecoration: 'none' }}>
             <Avatar variant="rounded"  sx={{ width: 40, height: 40, backgroundColor: 'primary.main' }}>
               <TerminalOutlinedIcon color="action" />

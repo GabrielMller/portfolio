@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	<flow name="getAccounts" doc:id="4ac6fa5a-3d9a-46f0-90fb-e61c14135ebd" >
+		<set-payload value='#[output text&#10;import queryStringByParams from modules::utils&#10;var params = {&#10;	email: " email = :email ",&#10;	username: " username = :username "&#10;}&#10;---&#10;queryStringByParams(vars.query,params)]' doc:name="Set Payload" doc:id="bc6a5a03-ad64-408c-845d-9057b336351e" />
+		<db:select doc:name="Select" doc:id="0549b4b2-6e94-4f40-b222-74239cca7bca" config-ref="Database_Config">
+			<db:sql ><![CDATA[#["SELECT id, email, username, password, user_id FROM public.accounts $(payload)"]]]></db:sql>
+			<db:input-parameters ><![CDATA[#[vars.query]]]></db:input-parameters>
+		</db:select>
+		<set-payload value="#[output json&#10;---&#10;payload]" doc:name="Set Payload" doc:id="54cb45b2-3261-4dc5-a574-8bb152126709" />
+	</flow>
+	<flow name="createAccount" doc:id="c6c0bfb6-75ba-4c83-b575-c73413a0576f" >
+		<db:insert doc:name="Insert" doc:id="f24244aa-9b50-42d5-a6a9-e4b015c972db" config-ref="Database_Config" autoGenerateKeys="true">
+			<db:sql ><![CDATA[${file::db/queries/insert/accounts.sql}]]></db:sql>
+			<db:input-parameters ><![CDATA[#[payload]]]></db:input-parameters>
+			<db:auto-generated-keys-column-names >
+				<db:auto-generated-keys-column-name value="id" />
+				<db:auto-generated-keys-column-name value="user_id" />
+				<db:auto-generated-keys-column-name value="email" />
+				<db:auto-generated-keys-column-name value="username" />
+			</db:auto-generated-keys-column-names>
+		</db:insert>
+		<set-payload value="#[output json&#10;---&#10;payload.generatedKeys]" doc:name="Set Payload" doc:id="093c3e8a-f34d-4f91-abde-8dfbc6979eaf" />
+	</flow>
+</mule>

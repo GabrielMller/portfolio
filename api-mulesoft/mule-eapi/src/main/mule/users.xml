@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<flow name="createAccount" doc:id="c99abd6c-cee5-477f-a486-e1f536ac64cb" >
+		<http:request method="POST" doc:name="Request" doc:id="49eaef32-ab57-4f62-a4fa-10256cdeb469" config-ref="Users_Request_configuration" path="/accounts">
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"version" : 1
+}]]]></http:uri-params>
+		</http:request>
+	</flow>
+	<flow name="authAccount" doc:id="a3a96e6d-6711-47f2-8c12-0f1a65c1746b" >
+		<http:request method="POST" doc:name="Request" doc:id="39947f09-3c89-4747-a853-bf25d9e3905c" config-ref="Users_Request_configuration" path="/accounts/auth" >
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"version" : 1
+}]]]></http:uri-params>
+		</http:request>
+	</flow>
+</mule>

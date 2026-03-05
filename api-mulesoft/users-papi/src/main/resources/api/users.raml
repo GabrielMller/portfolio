@@ -1,0 +1,53 @@
+#%RAML 1.0
+title: Accounts API
+version: v1
+
+types: 
+  request.post.accounts: !include types/requests/post/accounts.raml
+  request.post.users-auth: !include types/requests/post/accounts-auth.raml
+  request.patch.users-sync: !include types/requests/patch/users-sync.raml
+
+/{version}:
+  /accounts:
+    post:
+      description: Endpoint para criar uma nova conta
+      body:
+        application/json:
+          type: request.post.accounts
+      responses:
+        201:
+          description: Conta criada com sucesso
+        400:
+          description: Requisição inválida, verifique os dados enviados
+        500:
+          description: Erro interno do servidor, tente novamente mais tarde
+    /auth:
+      post:
+        description: Endpoint para autenticar um usuário
+        body:
+          application/json:
+            type: request.post.users-auth
+        responses:
+          200:
+            description: Autenticação bem-sucedida
+          400:
+            description: Requisição inválida, verifique os dados enviados
+          401:
+            description: Credenciais inválidas, acesso negado
+          500:
+            description: Erro interno do servidor, tente novamente mais tarde
+  /sync:
+    patch:
+      description: Endpoint para sincronizar os dados de um usuário
+      body:
+        application/json:
+          type: request.patch.users-sync
+      responses:
+        200:
+          description: Sincronização bem-sucedida
+        400:
+          description: Requisição inválida, verifique os dados enviados
+        404:
+          description: Usuário não encontrado para sincronização
+        500:
+          description: Erro interno do servidor, tente novamente mais tarde

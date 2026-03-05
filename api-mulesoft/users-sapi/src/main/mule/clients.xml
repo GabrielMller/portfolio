@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	<flow name="createClient" doc:id="db55fcd6-f6ed-4dc3-bb88-44a54b313755" >
+		<set-payload value='#[output json&#10;---&#10;payload update {&#10;	case .documentType! -&gt; $&#10;	case .document! -&gt; $&#10;	case .status! -&gt; $ default "LEAD"&#10;}]' doc:name="Set Payload" doc:id="d692efd8-3bd0-4ea0-bc78-ce70fa800241" />
+		<db:insert doc:name="Insert" doc:id="3462e4cd-3145-4927-a4b7-d24e9202f979" config-ref="Database_Config" autoGenerateKeys="true">
+			<db:sql ><![CDATA[${file::db/queries/insert/clients.sql}]]></db:sql>
+			<db:input-parameters ><![CDATA[#[payload]]]></db:input-parameters>
+			<db:auto-generated-keys-column-names >
+				<db:auto-generated-keys-column-name value="id" />
+				<db:auto-generated-keys-column-name value="user_id" />
+				<db:auto-generated-keys-column-name value="status" />
+				<db:auto-generated-keys-column-name value="name" />
+				<db:auto-generated-keys-column-name value="document" />
+				<db:auto-generated-keys-column-name value="documenttype" />
+			</db:auto-generated-keys-column-names>
+		</db:insert>
+		<set-payload value="#[output json&#10;---&#10;payload.generatedKeys]" doc:name="Set Payload" doc:id="3982d8f1-4176-4f1b-ba60-96da09a372c9" />
+	</flow>
+</mule>

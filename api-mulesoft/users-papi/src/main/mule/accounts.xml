@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:validation="http://www.mulesoft.org/schema/mule/validation"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<flow name="passwordTransform" doc:id="6a8ae09a-dfaf-4905-86ec-e59ab18aa1ee" >
+		<validation:matches-regex doc:name="Matches regex" doc:id="3e05c0e3-8586-4ee8-b801-5e5862563fbe" value="#[payload.password]" regex="^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&amp;])[A-Za-z\d@$!%*#?&amp;]{8,}$" message="A senha deve conter ao menos 8 caractéres, um número, uma letra e um caractére especial" />
+		<set-payload value="#[output json&#10;---&#10;payload update {&#10; case .password -&gt; java!com::users::papi::internal::PasswordHasher::hashPassword($)&#10;}]" doc:name="Set Payload" doc:id="d061490d-0a49-4037-93f2-e6eb50553c10" />
+	</flow>
+	<flow name="authAccount" doc:id="a126ea42-b2e0-4cc6-89e8-1ffc3bdf3d90" >
+		<http:request method="GET" doc:name="Find Account By Email" doc:id="dbd944ff-ca8a-4249-87ca-54ca3a9ea1b6" config-ref="Users_Request_configuration" path="/accounts" target="account" targetValue="#[payload[0]]">
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"version" : 1
+}]]]></http:uri-params>
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"email" : payload.email
+}]]]></http:query-params>
+		</http:request>
+		<validation:is-not-null doc:name="Is not null" doc:id="9c2feff0-adf5-408d-a700-046f047eb588" value="#[vars.account.password]" message="Email ou senha inválida"/>
+		<validation:is-true doc:name="Is true" doc:id="d9e5a5ea-a94e-4640-986e-11777329451b" expression='#[java!com::users::papi::internal::PasswordHasher::checkPassword(payload.password, vars.account.password)]' message="Email ou senha inválida"/>
+		<set-payload value='#[output json&#10;---&#10;vars.account -- ["password"]]' doc:name="Set Payload" doc:id="d4d6f7dd-dd7e-4318-8685-084768dd6c2f" />
+	</flow>
+	<flow name="createAccout" doc:id="608c78a4-a4a9-4107-8443-2558084f3b0d" >
+		<flow-ref doc:name="Flow Reference" doc:id="437de68f-f40b-45c4-92b9-722fb1270e88" name="passwordTransform"/>
+		<http:request method="GET" doc:name="Find Account By Email" doc:id="d9d47868-5b92-43e7-9709-ad12dafe85ea" config-ref="Users_Request_configuration" path="/accounts" target="exists" targetValue="#[!isEmpty(payload)]" >
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"version" : 1
+}]]]></http:uri-params>
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"email" : payload.email
+}]]]></http:query-params>
+		</http:request>
+		<validation:is-false doc:name="Is false" doc:id="b1f38dc0-2082-4ff4-adb3-d42cf014a89c" expression="#[vars.exists]" message="Já existe um usuário cadastrado com esse email" />
+		<http:request method="GET" doc:name="Find User By email" doc:id="4646bfb8-ffb3-4da1-bf32-795318b91a3c" config-ref="Users_Request_configuration" path="/" target="user" targetValue="#[payload[0]]" >
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"version" : 1
+}]]]></http:uri-params>
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"email" : payload.email
+}]]]></http:query-params>
+		</http:request>
+		<choice doc:name="Choice" doc:id="e67752c0-6990-4aa0-a58c-80918d934e81" >
+			<when expression="#[isEmpty(vars.user)]" >
+				<http:request method="POST" doc:name="Create User" doc:id="bae7eb88-91ac-445e-a911-9071b40a4f3a" config-ref="Users_Request_configuration" path="/" target="user" >
+					<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"version" : 1
+}]]]></http:uri-params>
+					<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"email" : payload.email
+}]]]></http:query-params>
+				</http:request>
+				<http:request method="POST" doc:name="Create Client" doc:id="edf917ac-8144-4496-be64-09f607ac2c6d" config-ref="Users_Request_configuration" path="/clients" target="client" >
+					<http:body ><![CDATA[#[output json
+---
+{
+	userId: vars.user.id,
+	name: payload.username
+}]]]></http:body>
+					<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"version" : 1
+}]]]></http:uri-params>
+					<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"email" : payload.email
+}]]]></http:query-params>
+				</http:request>
+			</when>
+		</choice>
+		<set-payload value="#[output json&#10;---&#10;payload ++ {&#10;	userId: vars.user.id&#10;}]" doc:name="Set Payload" doc:id="d0cdb28a-f31c-416c-8b89-db59d88db8c4" />
+		<http:request method="POST" doc:name="Create Account" doc:id="d06a11de-0f78-48ed-a9b3-b44ca8c44baa" config-ref="Users_Request_configuration" path="/accounts" >
+			<http:body ><![CDATA[#[output json
+---
+payload]]]></http:body>
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"version" : 1
+}]]]></http:uri-params>
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"email" : payload.email
+}]]]></http:query-params>
+		</http:request>
+	</flow>
+</mule>

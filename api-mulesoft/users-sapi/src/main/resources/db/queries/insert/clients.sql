@@ -1,0 +1,1 @@
+INSERT INTO clients (user_id, name, status, document, documenttype) VALUES (:userId, :name, :status, :document, :documentType)

@@ -1,0 +1,11 @@
+{
+    "classLoaderModelLoaderDescriptor": {
+        "attributes": {"exportedResources": [
+            "/db/migration",
+            "/db/migration/**"
+        ]},
+        "id": "mule"
+    },
+    "minMuleVersion": "4.9.0",
+    "javaSpecificationVersions": ["17"]
+}
