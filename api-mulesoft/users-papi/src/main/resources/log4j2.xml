@@ -9,6 +9,9 @@
         see them in the mule_ee.log file. -->
 
     <Appenders>
+     	<Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%-5p %d [%t] [processor: %X{processorPath}; event: %X{correlationId}] %c: %m%n"/>
+        </Console>
         <RollingFile name="file" fileName="${sys:mule.home}${sys:file.separator}logs${sys:file.separator}accounts-papi.log"
                  filePattern="${sys:mule.home}${sys:file.separator}logs${sys:file.separator}accounts-papi-%i.log">
             <PatternLayout pattern="%-5p %d [%t] [processor: %X{processorPath}; event: %X{correlationId}] %c: %m%n"/>
@@ -27,6 +30,7 @@
         <AsyncLogger name="org.mule.runtime.core.internal.processor.LoggerMessageProcessor" level="INFO"/>
 
         <AsyncRoot level="INFO">
+        	<AppenderRef ref="Console"/>
             <AppenderRef ref="file"/>
         </AsyncRoot>
     </Loggers>
