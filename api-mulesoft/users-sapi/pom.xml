@@ -3,8 +3,8 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.mycompany</groupId>
-	<artifactId>accounts-sapi</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
+	<artifactId>users-sapi</artifactId>
+	<version>1.0.0</version>
 	<packaging>mule-application</packaging>
 
 	<name>users-sapi</name>
@@ -20,19 +20,6 @@
 
 	<build>
 		<plugins>
-			<plugin>
-				<groupId>org.flywaydb</groupId>
-				<artifactId>flyway-maven-plugin</artifactId>
-				<version>10.17.0</version>
-				<configuration>
-					<url>${spring.datasource.url}</url>
-					<user>seu_usuario</user>
-					<password>sua_senha</password>
-					<locations>
-						<location>filesystem:src/main/resources/db/migrations</location>
-					</locations>
-				</configuration>
-			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-clean-plugin</artifactId>
