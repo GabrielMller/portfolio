@@ -11,7 +11,7 @@
 	<sub-flow name="set-response" doc:id="3779e7f7-4018-41a8-8e32-f28f031cb9b4" >
 		<choice doc:name="Choice" doc:id="431d76f9-121c-4207-b119-c9cc4d5682d9" >
 			<when expression="#[isBlank(vars.httpStatus)]">
-				<set-payload value='#[%dw 2.0&#10;output application/json duplicateKeyAsArray=true&#10;&#10;var vTypeOfError = typeOf(error.errorMessage.payload) &#10;---&#10;if ( (error.errorMessage.payload != null) and (vTypeOfError == "Object" or&#10;		vTypeOfError == "Array") ) (error.errorMessage.payload)&#10;else ({&#10;	message: error.errorType.identifier,&#10;	details: error.detailedDescription as String&#10;})]' doc:name="Set Payload" doc:id="b06970d0-94c4-4abe-9f70-68e9cd79bc01" />
+				<set-payload value='#[%dw 2.0&#10;output application/json duplicateKeyAsArray=true&#10;&#10;var vTypeOfError = typeOf(error.exception.errorMessage.payload) &#10;---&#10;if ( (error.exception.errorMessage.payload != null) and (vTypeOfError ~= "Object" or&#10;		vTypeOfError ~= "Array") ) (error.exception.errorMessage.payload)&#10;else ({&#10;	message: error.errorType.identifier,&#10;	details: error.detailedDescription as String&#10;})]' doc:name="Set Payload" doc:id="b06970d0-94c4-4abe-9f70-68e9cd79bc01" />
 				<set-variable value="#[error.errorMessage.attributes.StatusCode default 400]" doc:name="Set Variable" doc:id="cb86e2b6-de27-449f-ac41-d8ff6b377571" variableName="httpStatus"/>
 			</when>
 		</choice>
