@@ -33,4 +33,16 @@
     <flow name="post:\v1\accounts:application\json:Router">
 		<flow-ref doc:name="Flow Reference" doc:id="9d6066d9-4329-4d2a-a2bd-e8c9ee3d1e45" name="createAccount"/>
     </flow>
+	<flow name="health" doc:id="c3e85208-7431-4d70-b81c-cbd861026626" >
+		<http:listener doc:name="Listener" doc:id="5222fc80-c097-4d1c-a987-e05c5822e0ec" config-ref="HTTP_Listener_config" path="/health" >
+			<http:response statusCode="#[vars.httpStatus default 200]" >
+				<http:headers ><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+			</http:response>
+			<http:error-response statusCode="#[vars.httpStatus default 500]" >
+				<http:body ><![CDATA[#[payload]]]></http:body>
+				<http:headers ><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+			</http:error-response>
+		</http:listener>
+		<set-payload value='#[output json&#10;---&#10;"OK"]' doc:name="Set Payload" doc:id="700e4ea7-e55b-4b40-b4f9-c1fcf80c100f" />
+	</flow>
 </mule>
