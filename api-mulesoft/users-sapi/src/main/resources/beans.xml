@@ -12,8 +12,8 @@ xsi:schemaLocation="http://www.springframework.org/schema/beans
   <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
     <property name="driverClassName" value="${db.driver}" />
     <property name="url" value="${db.url}" />
-    <property name="username" value="${secure::db.username}" />
-    <property name="password" value="${secure::db.password}" />
+    <property name="username" value="${DB_USER}" />
+    <property name="password" value="${DB_PASS}" />
   </bean>
 
   <bean id="flywayRunner" class="com.users.sapi.FlywayRunner" init-method="init">

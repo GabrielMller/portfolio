@@ -10,11 +10,9 @@ http://www.mulesoft.org/schema/mule/spring http://www.mulesoft.org/schema/mule/s
 	<global-property doc:name="Global Property" doc:id="8666ff06-205b-45d0-a1e1-9a2687b11f64" name="MULE_ENV" value="local" />
 	<configuration-properties doc:name="Configuration properties" doc:id="e49be8e2-68e8-4cdc-be48-f56f70267762" file="properties/${MULE_ENV}.properties" />
 	<configuration doc:name="Configuration" doc:id="74270d59-4d0b-4991-9ef8-b68fc63fd80a" defaultErrorHandler-ref="propagate_error" correlationIdGeneratorExpression="#[uuid()]" />
-	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="1e3eecc2-6f3d-4915-897f-fffa7e28ddfe" file="properties/${MULE_ENV}.secure.properties" key="${SECURE_KEY}" />
-	<global-property doc:name="Global Property" doc:id="a9ddcb44-1d28-42fc-b528-04f3b0312b44" name="SECURE_KEY" value="fR0msz0n8ExixmsXgHPtzQ==" />
 	<spring:config name="Spring_Config" doc:name="Spring Config" doc:id="aa561ec8-7818-44d0-9945-3a182f674341" files="beans.xml" />
 	<db:config name="Database_Config" doc:name="Database Config" doc:id="76819f38-11ed-49c7-b9d5-a111eec81b11" >
-		<db:generic-connection url="${db.url}" driverClassName="${db.driver}" user="${secure::db.username}" password="${secure::db.password}">
+		<db:generic-connection url="${db.url}" driverClassName="${db.driver}" user="${DB_USER}" password="${DB_PASS}">
 			<db:pooling-profile maxPoolSize="15" minPoolSize="2" maxWait="60" maxIdleTime="60" maxStatements="100" />
 		</db:generic-connection>
 	</db:config>
