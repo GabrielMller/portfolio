@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mule xmlns:os="http://www.mulesoft.org/schema/mule/os" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd
-http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+<mule xmlns:os="http://www.mulesoft.org/schema/mule/os" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd
 http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd">
     <http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="3c6e1dc1-cd1c-4428-a446-b29adf62c22b" basePath="api">
         <http:listener-connection host="0.0.0.0" port="8081" />
@@ -13,9 +12,7 @@ http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/cu
         </http:listener-interceptors>
     </http:listener-config>
     <apikit:config name="Router" api="health.raml" outboundHeadersMapName="outboundHeadersMapName" httpStatusVarName="httpStatus" />
-    <ee:object-store-caching-strategy name="Monitoring_Caching_Strategy" doc:name="Caching Strategy" doc:id="99d708bb-457b-4cd0-8d71-eb9c31d8684e" keyGenerationExpression="#[attributes.relativePath]">
-		<os:private-object-store persistent="false" entryTtl="10" expirationInterval="10" />
-	</ee:object-store-caching-strategy>
+    <os:object-store name="Object_store" doc:name="Object store" doc:id="5acf7cc5-436e-42cc-9fd2-4e8d57c66303" persistent="false" entryTtl="10" expirationInterval="10" expirationIntervalUnit="SECONDS" />
 	<flow name="mule-eapiFlow" doc:id="2bc1c443-505a-4379-a349-9c1ea150d882">
         <http:listener doc:name="Listener" doc:id="76281905-148c-49db-b838-d984fa8316af" config-ref="HTTP_Listener_config" path="/monitoring/*">
             <http:response statusCode="#[vars.httpStatus default 200]">
@@ -30,19 +27,13 @@ http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/cu
         <error-handler ref="Error_Handler_Specs" />
     </flow>
     <flow name="get:\v1\kafka:Router">
-		<ee:cache doc:name="Cache" doc:id="e1640350-addb-433e-849d-048b53f6428a" cachingStrategy-ref="Monitoring_Caching_Strategy">
-			<flow-ref doc:name="Flow Reference" doc:id="34871c16-6a94-4d45-9e77-9d4a5fdc04fe" name="get-kafka-health" />
-		</ee:cache>
+        <flow-ref doc:name="Flow Reference" doc:id="34871c16-6a94-4d45-9e77-9d4a5fdc04fe" name="get-kafka-health" />
     </flow>
     <flow name="get:\v1\postgres:Router">
-        <ee:cache doc:name="Cache" doc:id="ae3fe0ce-bf58-4fcb-9466-159b7d7b8073" cachingStrategy-ref="Monitoring_Caching_Strategy">
-			<flow-ref doc:name="Flow Reference" doc:id="1569e9b1-db1c-4baa-8d7a-dbd6b18483b8" name="get-postgres-health" />
-		</ee:cache>
+        <flow-ref doc:name="Flow Reference" doc:id="1569e9b1-db1c-4baa-8d7a-dbd6b18483b8" name="get-postgres-health" />
     </flow>
     <flow name="get:\v1\kubernetes:Router">
-		<ee:cache doc:name="Cache" doc:id="75ef2a33-ed1d-47b6-93c6-94c12f61d058" >
-			<flow-ref doc:name="Flow Reference" doc:id="be84482e-29c5-42bf-84d9-3c8afdcde843" name="get-kubernetes-health" />
-		</ee:cache>
+        <flow-ref doc:name="Flow Reference" doc:id="be84482e-29c5-42bf-84d9-3c8afdcde843" name="get-kubernetes-health" />
     </flow>
     <flow name="health" doc:id="3669023e-852d-4906-8554-f4b9f53541eb">
         <http:listener doc:name="Listener" doc:id="32defde3-5804-4791-a754-1e5eb025c7b0" config-ref="HTTP_Listener_config" path="/health">
