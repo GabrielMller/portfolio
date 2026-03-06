@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<flow name="sync" doc:id="f9455aec-4d51-4a02-9c02-57579b3bfbf9" >
+		<http:request method="GET" doc:name="Find User By email" doc:id="815764c1-2bf2-4b0c-89ab-d0d98c76ce5a" config-ref="Users_Request_configuration" path="/" target="user" targetValue="#[payload[0]]" >
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"version" : 1
+}]]]></http:uri-params>
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"email" : payload.email
+}]]]></http:query-params>
+		</http:request>
+		<choice doc:name="Choice" doc:id="4e9e5c58-2a43-42c1-a677-aab5623c0c9e" >
+			<when expression="#[isEmpty(vars.user)]" >
+				<http:request method="POST" doc:name="Create User" doc:id="83c0bfbf-789d-4c29-a5c4-85d954deafb0" config-ref="Users_Request_configuration" path="/" target="user" >
+					<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"version" : 1
+}]]]></http:uri-params>
+					<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"email" : payload.email
+}]]]></http:query-params>
+				</http:request>
+				<http:request method="POST" doc:name="Create Client" doc:id="888088b1-ccdf-4262-beed-da3500bf87ef" config-ref="Users_Request_configuration" path="/clients" target="client" >
+					<http:body ><![CDATA[#[output json
+---
+{
+	userId: vars.user.id,
+	name: payload.username
+}]]]></http:body>
+					<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"version" : 1
+}]]]></http:uri-params>
+					<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"email" : payload.email
+}]]]></http:query-params>
+				</http:request>
+			</when>
+		</choice>
+		<set-payload value="#[output json&#10;---&#10;vars.user]" doc:name="Set Payload" doc:id="11d0edb0-92e1-4dba-a99a-0d608bc4b894" />
+	</flow>
+</mule>

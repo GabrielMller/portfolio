@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mule xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd
-http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
     <apikit:config name="Users" api="users.raml" outboundHeadersMapName="outboundHeadersMapName" httpStatusVarName="httpStatus" />
     <flow name="users-interface" doc:id="0d2b9f2e-37e6-4553-9933-d85845388323">
         <http:listener doc:name="Listener" doc:id="78216f18-d7ee-4ffb-919c-b37fde7cef9e" config-ref="HTTP_Listener_config" path="/users/*">
@@ -16,13 +15,14 @@ http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mu
         <error-handler ref="Error_Handler_Specs" />
     </flow>
     <flow name="patch:\v1\public\sync:application\json:Users">
-        <logger level="INFO" message="patch:\v1\public\sync:application\json:Users" />
+        <validation:is-email doc:name="Is email" doc:id="dc42d71f-93f3-4edf-9d21-d9f5f78ade3d" email="#[payload.email]" message="Invalid email" />
+		<flow-ref doc:name="Flow Reference" doc:id="61287acb-3413-42c1-a280-061bf8063237" name="sync"/>
     </flow>
     <flow name="post:\v1\public\accounts:application\json:Users">
-		<validation:is-email doc:name="Is email" doc:id="c14e7ec6-1548-49f8-8555-7264d50ddacb" email="#[payload.email]" message="Invalid email"/>
-		<flow-ref doc:name="Flow Reference" doc:id="f498d073-d2bb-45ea-9230-3be866f390fe" name="createAccount"/>
+        <validation:is-email doc:name="Is email" doc:id="c14e7ec6-1548-49f8-8555-7264d50ddacb" email="#[payload.email]" message="Invalid email" />
+        <flow-ref doc:name="Flow Reference" doc:id="f498d073-d2bb-45ea-9230-3be866f390fe" name="createAccount" />
     </flow>
     <flow name="post:\v1\public\accounts\auth:application\json:Users">
-		<flow-ref doc:name="Flow Reference" doc:id="c9820a66-5670-47a4-b0ca-ae9f8418f9c7" name="authAccount"/>
+        <flow-ref doc:name="Flow Reference" doc:id="c9820a66-5670-47a4-b0ca-ae9f8418f9c7" name="authAccount" />
     </flow>
 </mule>

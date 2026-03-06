@@ -15,24 +15,24 @@
         <error-handler ref="Error_Handler_Specs" />
     </flow>
     <flow name="patch:\v1\sync:application\json:Router">
-        <logger level="INFO" message="patch:\v1\sync:application\json:Router" />
+		<flow-ref doc:name="Flow Reference" doc:id="778cbe89-2f8e-4717-9574-b7341b0002fb" name="sync"/>
     </flow>
     <flow name="post:\v1\accounts:application\json:Router">
         <flow-ref doc:name="Flow Reference" doc:id="8aefe926-b281-4b5e-85cf-c56fbc09dac2" name="createAccout" />
     </flow>
     <flow name="post:\v1\accounts\auth:application\json:Router">
-		<flow-ref doc:name="Flow Reference" doc:id="43f2b0ae-8b35-4542-ac76-372f3dc25e24" name="authAccount"/>
+        <flow-ref doc:name="Flow Reference" doc:id="43f2b0ae-8b35-4542-ac76-372f3dc25e24" name="authAccount" />
     </flow>
-	<flow name="health" doc:id="4cec76c0-e838-4c61-9122-c2c2c2745e0c" >
-		<http:listener doc:name="Listener" doc:id="980910e0-2aec-4340-8dc1-9042eaa5be09" config-ref="HTTP_Listener_config" path="/health" >
-			<http:response statusCode="#[vars.httpStatus default 200]" >
-				<http:headers ><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
-			</http:response>
-			<http:error-response statusCode="#[vars.httpStatus default 500]" >
-				<http:body ><![CDATA[#[payload]]]></http:body>
-				<http:headers ><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
-			</http:error-response>
-		</http:listener>
-		<set-payload value='#[output json&#10;---&#10;"OK"]' doc:name="Set Payload" doc:id="cdc086b6-2ce9-43cb-adc4-809ff75f68a9" />
-	</flow>
+    <flow name="health" doc:id="4cec76c0-e838-4c61-9122-c2c2c2745e0c">
+        <http:listener doc:name="Listener" doc:id="980910e0-2aec-4340-8dc1-9042eaa5be09" config-ref="HTTP_Listener_config" path="/health">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body><![CDATA[#[payload]]]></http:body>
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:error-response>
+        </http:listener>
+        <set-payload value="#[output json&#xA;---&#xA;&quot;OK&quot;]" doc:name="Set Payload" doc:id="cdc086b6-2ce9-43cb-adc4-809ff75f68a9" />
+    </flow>
 </mule>

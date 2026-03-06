@@ -22,6 +22,7 @@ import {
   DiagramGroupButtonsAutosize,
 } from "@/components/DiagramButton";
 import SupervisorAccountOutlinedIcon from "@mui/icons-material/SupervisorAccountOutlined";
+import { mulesoftAPI } from "@/lib/mulesoft-client";
 
 type Infra = {
   status?: "OK" | "WARNING" | "ERROR";
@@ -77,20 +78,10 @@ export default async function Mulesoft() {
     infra.map(async (service) => {
       if (!service.path) return;
       try {
-        const res = await fetch(
-          `${process.env.MULESOFT_URL}/api/monitoring/v1/${service.path}`,
-          {
-            cache: "no-store",
-          },
-        );
-        if (res.ok) {
-          const data = await res.json();
-          service.status = data.status;
-          service.nodes = data.nodes;
-          service.totalNodes = data.totalNodes;
-        } else {
-          throw new Error(`Failed to fetch ${service.name} status`);
-        }
+        const data = await mulesoftAPI.getMonitoring(service.path);
+        service.status = data.status;
+        service.nodes = data.nodes;
+        service.totalNodes = data.totalNodes;
       } catch (error) {
         console.error(error);
         service.status = "ERROR";

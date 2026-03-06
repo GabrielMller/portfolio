@@ -4,6 +4,8 @@ import TerminalOutlinedIcon from '@mui/icons-material/TerminalOutlined';
 import { ThemeToggleButton } from "@/components/ColorModeSelect";
 import { GitHub, LinkedIn } from "@mui/icons-material";
 import Link from "@/components/Link";
+import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
+import { signOut } from "@/lib/auth";
 
 export default function AppBar() {
   return (
@@ -22,6 +24,16 @@ export default function AppBar() {
             <IconButton size="small" color="inherit" href="https://github.com/GabrielMller" target="_blank" ><GitHub /></IconButton>
             <IconButton size="small" color="inherit" href="https://www.linkedin.com/in/gabriel-muller-5a5136249/" target="_blank" ><LinkedIn /></IconButton>
             <ThemeToggleButton />
+            <form
+              action={async () => {
+                "use server"
+                await signOut()
+              }}
+            >
+              <IconButton size="small" color="inherit" type="submit">
+                <LogoutOutlinedIcon />
+              </IconButton>
+            </form>
           </Box>
         </Toolbar>
       </Container>

@@ -1,9 +1,13 @@
 import { jwtVerify, SignJWT } from "jose";
 import NextAuth, { NextAuthConfig } from "next-auth"
-import { encode } from "next-auth/jwt";
 import Credentials from "next-auth/providers/credentials"
-import zod from "zod";
-
+import { mulesoftAPI } from "./mulesoft-client";
+import Google from "next-auth/providers/google";
+declare module "next-auth" {
+  interface Session {
+    mode: "mulesoft";
+  }
+}
 export const config : NextAuthConfig = {
   basePath: "/api/auth/mulesoft",
   session: {
@@ -11,38 +15,50 @@ export const config : NextAuthConfig = {
   },
   secret: process.env.AUTH_SECRET,
   providers: [
+    Google({
+      clientId: process.env.GOOGLE_CLIENT_ID || "",
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+    }),
     Credentials({
       name: "Credentials",
+      type: "credentials",
       credentials: {
-        username: { label: "Username", type: "text", placeholder: "jsmith" },
         password: { label: "Password", type: "password" },
         email: { label: "Email", type: "email", placeholder: "john.doe@example.com" }
       },
       async authorize(credentials) {
         try {
-          const user = await fetch(`${process.env.MULESOFT_URL}/api/users/v1/accounts/auth`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify(credentials)
+          const userData = await mulesoftAPI.login({
+            email: credentials?.email,
+            password: credentials?.password
           });
-          const userData = await user.json();
-          if (!userData) {
-            throw new Error("Invalid credentials");
-          }
-          return userData;
+          return {
+            id: userData.user_id.toString(),
+            username: userData.username,
+            email: userData.email,
+          };
         } catch (error) {
-          console.error("Authorization error:", error);
-          throw new Error("Invalid credentials");
+          throw error;
         }
       }
     })
   ],
   pages: {
-    signIn: "/mulesoft/demo",
+    signIn: "/demo"
   },
   callbacks: {
+    signIn: async ({ user }) => {
+      console.log("User signed in:", user);
+      return true;
+    },
+    session: async ({ session, token }) => {
+      session.mode = "mulesoft";
+      return session;
+    },
+    authorized: async ({ auth  }) => {
+      console.log("Checking authorization with auth callback:", auth);
+      return !!auth;
+    },
     jwt: async ({ token, user }) => {
       if (user) {
         token.id = user.id;

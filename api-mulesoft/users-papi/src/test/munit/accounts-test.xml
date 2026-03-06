@@ -139,6 +139,61 @@ vars.user.id must equalTo(4)]]]></munit-tools:that>
 			<flow-ref doc:name="Flow Reference" doc:id="ed67b446-416b-4f2a-a8b0-4c351ce7b814" name="createAccout" />
 		</munit:execution>
 	</munit:test>
+	<munit:test name="Test-sync-user-with-client" doc:id="e75af305-1ac5-4751-a467-124d8518b77a" >
+		<munit:behavior>
+			<munit-tools:mock-when doc:name="Mock when" doc:id="e0a8974b-ffea-4a75-b906-2263ccdd8330" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="815764c1-2bf2-4b0c-89ab-d0d98c76ce5a" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:variables >
+						<munit-tools:variable key="user" value="#[output json --- null]" mediaType="application/json" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when" doc:id="2f347056-7d32-4a90-81ef-46b3188a7283" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="83c0bfbf-789d-4c29-a5c4-85d954deafb0" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:variables >
+						<munit-tools:variable key="user" value="#[output json --- readUrl('classpath://mocks/getUser.json','json')]" mediaType="application/json" />
+					</munit-tools:variables>
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:spy doc:name="Spy" doc:id="6d9d2fef-4656-4487-ae04-d7dd5880adb0" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="888088b1-ccdf-4262-beed-da3500bf87ef" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:before-call >
+					<munit-tools:assert doc:name="Assert expression" doc:id="d6c87121-e7c7-44e7-95c2-29ab2298649d" >
+						<munit-tools:that ><![CDATA[#[import * from dw::test::Asserts 
+ ---
+vars.user.id must equalTo(4)]]]></munit-tools:that>
+					</munit-tools:assert>
+					<munit-tools:assert-that doc:name="Assert that" doc:id="71aa1a6b-6817-476f-b11a-c0478acd2e8e" expression="#[payload.username]" is="#[MunitTools::notNullValue()]" />
+				</munit-tools:before-call>
+			</munit-tools:spy>
+			<munit-tools:mock-when doc:name="Mock when" doc:id="0002afdb-18c4-4cdc-a371-6b0d157d619e" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="888088b1-ccdf-4262-beed-da3500bf87ef" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="c8c10d02-58b2-476f-a57c-38709f623c20">
+				<munit:payload value='#[output json&#10;---&#10;{&#10;	"email": "teste@gmail.com",&#10;	"username": "teste"&#10;}]' mediaType="application/json" />
+			</munit:set-event>
+			<flow-ref doc:name="Flow Reference" doc:id="4c1e0166-5b76-422c-a361-b6b8ed196f91" name="sync"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert expression" doc:id="2daf48b5-5f42-4740-b509-7ad127b03ef8" >
+				<munit-tools:that ><![CDATA[#[import * from dw::test::Asserts 
+ ---
+payload.id must equalTo(4)]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
 
 
 </mule>
