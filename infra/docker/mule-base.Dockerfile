@@ -25,8 +25,6 @@ RUN rm -rf $MULE_HOME/apps/* && \
 WORKDIR $MULE_HOME
 USER mule
 
-ENV MULE_JDK_OPTIONS="-Djava.security.egd=file:/dev/./urandom"
-
 EXPOSE 8081
 
-CMD ["mule", "-M-Danypoint.platform.gatekeeper=disabled -Xms512m -Xmx768m -XX:MaxMetaspaceSize=256m"]
+CMD ["mule", "-M-Danypoint.platform.gatekeeper=disabled -XX:+UseContainerSupport -XX:MaxRAMPercentage=50.0 -XX:MaxMetaspaceSize=192m -XX:ReservedCodeCacheSize=128m -Djava.security.egd=file:/dev/./urandom"]
