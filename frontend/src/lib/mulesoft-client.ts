@@ -1,29 +1,22 @@
-/**
- * MuleClient - SDK Interno para comunicação com o ecossistema MuleSoft.
- * Centraliza autenticação, gestão de headers e logs de integração.
- */
+if (!process.env.NEXT_PUBLIC_MULE_API_URL) {
+  throw new Error("MuleSoft API URL must be defined in environment variables.");
+}
+abstract class MuleBaseClient {
+  protected readonly apiURL: string;
+  protected readonly clientId: string;
+  protected readonly clientSecret: string;
+  
+  protected abstract basePath: string;
 
-const MULE_API_URL = process.env.NEXT_PUBLIC_MULE_API_URL || "https://api.mule-gabriel-muller.online";
-
-class MuleClient {
-  private static instance: MuleClient;
-  private clientId: string;
-  private clientSecret: string;
-
-  private constructor() {
-    this.clientId = process.env.CF_CLIENT_ID || "";
-    this.clientSecret = process.env.CF_CLIENT_SECRET || "";
+  // Construtor protegido para que apenas as subclasses possam invocar o super()
+  protected constructor() {
+    this.apiURL = process.env.NEXT_PUBLIC_MULE_API_URL!;
+    this.clientId = process.env.CF_CLIENT_ID!;
+    this.clientSecret = process.env.CF_CLIENT_SECRET!;
   }
 
-  public static getInstance(): MuleClient {
-    if (!MuleClient.instance) {
-      MuleClient.instance = new MuleClient();
-    }
-    return MuleClient.instance;
-  }
-
-  private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-    const url = `${MULE_API_URL}/api${endpoint}`;
+  protected async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+    const url = `${this.apiURL}/api/${this.basePath}${endpoint}`;;
     
     const headers = {
       'Content-Type': 'application/json',
@@ -47,24 +40,62 @@ class MuleClient {
       throw error;
     }
   }
+}
+
+class UsersClient extends MuleBaseClient {
+  private static instance: UsersClient;
+  protected basePath = "users/v1/public";
+
+  private constructor() {
+    super();
+  }
+
+  public static getInstance(): UsersClient {
+    if (!UsersClient.instance) {
+      UsersClient.instance = new UsersClient();
+    }
+    return UsersClient.instance;
+  }
 
   public async login(credentials: any): Promise<UserData> {
-    return this.request<UserData>('/users/v1/public/accounts/auth', {
+    return this.request<UserData>('/accounts/auth', {
       method: 'POST',
       body: JSON.stringify(credentials)
     });
   }
 
   public async register(userData: any): Promise<UserData> {
-    return this.request<UserData>('/users/v1/public/accounts', {
+    return this.request<UserData>('/accounts', {
       method: 'POST',
       body: JSON.stringify(userData)
     });
   }
 
-  // Chamadas de Negócio
+  public async sync(email: string, username: string): Promise<UserData> {
+    return this.request<UserData>('/sync', {
+      method: 'PATCH',
+      body: JSON.stringify({ email, username })
+    });
+  }
+}
+
+class MonitoringClient extends MuleBaseClient {
+  private static instance: MonitoringClient;
+  protected basePath = "monitoring/v1";
+
+  private constructor() {
+    super();
+  }
+
+  public static getInstance(): MonitoringClient {
+    if (!MonitoringClient.instance) {
+      MonitoringClient.instance = new MonitoringClient();
+    }
+    return MonitoringClient.instance;
+  }
+
   public async getMonitoring(service: string): Promise<MonitoringData> {
-    return this.request<MonitoringData>(`/monitoring/v1/${service}`);
+    return this.request<MonitoringData>(`/${service}`);
   }
 }
 
@@ -81,4 +112,5 @@ type UserData = {
   user_id: number
 };
 
-export const mulesoftAPI = MuleClient.getInstance();
+export const usersApi = UsersClient.getInstance();
+export const monitoringApi = MonitoringClient.getInstance();

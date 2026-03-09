@@ -9,17 +9,21 @@ import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import ResetIcon from '@mui/icons-material/Refresh';
 import StorageOutlinedIcon from '@mui/icons-material/StorageOutlined';
+import CachedOutlinedIcon from '@mui/icons-material/CachedOutlined';
+import MonitorHeartOutlinedIcon from '@mui/icons-material/MonitorHeartOutlined';
 
-type NodeType = "POSTGRES" | "MULESOFT" | "NEXT";
+export type NodeType = "POSTGRES" | "MULESOFT" | "NEXT" | "CACHE" | "MONITORING";
 
 const nodeIcons : Record<NodeType, React.ReactNode> = {
   "POSTGRES": <StorageOutlinedIcon color="secondary" />,
   "MULESOFT": <Mulesoft color="primary" />,
   "NEXT": <Monitor />,
+  "CACHE": <CachedOutlinedIcon color="secondary" />,
+  "MONITORING": <MonitorHeartOutlinedIcon color="primary" />
 }
 
-type Node = {
-  id: number;
+export type Node = {
+  id: string;
   name: string;
   type: NodeType;
   description: string;
@@ -132,7 +136,7 @@ type Edge = {
 
 const AnimatedSvgTree = ({ data } : { data: Node }) => {
   const isSmallScreen = useMediaQuery((theme: Theme) => theme.breakpoints.down('sm'));
-  const [expandedNodes, setExpandedNodes] = useState<Record<number, boolean>>({});
+  const [expandedNodes, setExpandedNodes] = useState<Record<string, boolean>>({});
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [transform, setTransform] = useState({ x: 0, y: 0, scale: 0.5 });
@@ -147,7 +151,7 @@ const AnimatedSvgTree = ({ data } : { data: Node }) => {
   const containerRef = useRef(null);
   const svgWidth = 600;
 
-  const toggleNode = (id : number) => {
+  const toggleNode = (id : string) => {
     setExpandedNodes(prev => ({ ...prev, [id]: !prev[id] }));
   };
 

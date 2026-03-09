@@ -1,8 +1,8 @@
 "use server";
 import { redirect } from "next/navigation";
-import { signIn } from "../auth";
+import { signIn, signOut } from "../auth";
 import { z } from "zod";
-import { mulesoftAPI } from "../mulesoft-client";
+import { usersApi } from "../mulesoft-client";
 
 const loginSchema = z.object({
   email: z.email(),
@@ -29,7 +29,7 @@ export async function login(initialState: ActionState, formData: FormData) : Pro
       };
     }
     try {
-      await mulesoftAPI.register({
+      await usersApi.register({
         username: input.username,
         email: input.email,
         password: input.password,
@@ -72,4 +72,9 @@ export async function login(initialState: ActionState, formData: FormData) : Pro
     };
   }
   return initialState;
+}
+
+export async function logout() {
+  await signOut();
+  redirect("/mulesoft/demo");
 }

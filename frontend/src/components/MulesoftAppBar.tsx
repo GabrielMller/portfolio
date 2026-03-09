@@ -2,13 +2,13 @@
 import { Avatar, Box, Container, IconButton, Toolbar, Typography } from "@mui/material";
 import { AppBar as MuiAppBar } from "@mui/material";
 import TerminalOutlinedIcon from '@mui/icons-material/TerminalOutlined';
-import { ThemeToggleButton } from "@/components/ColorModeSelect";
 import { GitHub, LinkedIn } from "@mui/icons-material";
 import Link from "@/components/Link";
-import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
-import { auth, signOut } from "@/lib/auth";
+import MulesoftConfigButton from "./MulesoftConfigButton";
+import { auth } from "@/lib/auth";
 
-export default async function AppBar() {
+export default async function MulesoftAppBar() {
+  const session = await auth();
   return (
     <MuiAppBar elevation={1} color="transparent" position="static">
       <Container maxWidth="xl">
@@ -24,7 +24,7 @@ export default async function AppBar() {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <IconButton size="small" color="inherit" href="https://github.com/GabrielMller" target="_blank" ><GitHub /></IconButton>
             <IconButton size="small" color="inherit" href="https://www.linkedin.com/in/gabriel-muller-5a5136249/" target="_blank" ><LinkedIn /></IconButton>
-            <ThemeToggleButton />
+            <MulesoftConfigButton hasSession={!!session && session.mode == "mulesoft"} />
           </Box>
         </Toolbar>
       </Container>

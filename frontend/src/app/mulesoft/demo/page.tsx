@@ -1,7 +1,9 @@
+'use server';
 import LoginForm from "@/components/LoginForm";
-import { Avatar, Box, Container, Fade, Grow, Paper, Stack, Typography } from "@mui/material";
-import { cookies, headers } from "next/headers";
+import { Avatar, Button, Container, Divider, Fade, Grow, Paper, Stack, Typography } from "@mui/material";
 import TerminalOutlinedIcon from '@mui/icons-material/TerminalOutlined';
+import { GitHub, Google } from "@mui/icons-material";
+import { signIn } from "@/lib/auth";
 
 export default async function Page() {
   return (
@@ -15,7 +17,26 @@ export default async function Page() {
             Acesso a Demonstração
           </Typography>
           <Grow in timeout={1000}>
-            <Paper elevation={3} sx={{ p: { xs: 3, md: 5 }, width: '100%', borderRadius: 6 }}>
+            <Paper elevation={3} sx={{ p: { xs: 3, md: 5 }, width: '100%', borderRadius: 6, gap: 1, display: 'flex', flexDirection: 'column', }}>
+              <Stack direction={"row"} spacing={2} alignItems={"center"}>
+                <form style={{ width: '100%' }} action={async () => {
+                  "use server"
+                  await signIn("google")
+                }}>
+                  <Button type="submit" color="inherit" variant="outlined" startIcon={<Google />} fullWidth sx={{ mb: 2 }}>
+                    Google
+                  </Button>
+                </form>
+                <form style={{ width: '100%' }} action={async () => {
+                  "use server"
+                  await signIn("github")
+                }}>
+                  <Button type="submit" color="inherit" variant="outlined" startIcon={<GitHub />} fullWidth sx={{ mb: 2 }}>
+                    GitHub
+                  </Button>
+                </form>
+              </Stack>
+              <Divider sx={{ my: 1 }}><Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 700 }}>OU VIA E-MAIL</Typography></Divider>
               <LoginForm />
             </Paper>
           </Grow>

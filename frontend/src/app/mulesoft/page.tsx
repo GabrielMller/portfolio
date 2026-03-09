@@ -22,7 +22,9 @@ import {
   DiagramGroupButtonsAutosize,
 } from "@/components/DiagramButton";
 import SupervisorAccountOutlinedIcon from "@mui/icons-material/SupervisorAccountOutlined";
-import { mulesoftAPI } from "@/lib/mulesoft-client";
+import { monitoringApi } from "@/lib/mulesoft-client";
+import { node } from "@/lib/utils/Nodes";
+import LoginOutlinedIcon from '@mui/icons-material/LoginOutlined';
 
 type Infra = {
   status?: "OK" | "WARNING" | "ERROR";
@@ -78,7 +80,7 @@ export default async function Mulesoft() {
     infra.map(async (service) => {
       if (!service.path) return;
       try {
-        const data = await mulesoftAPI.getMonitoring(service.path);
+        const data = await monitoringApi.getMonitoring(service.path);
         service.status = data.status;
         service.nodes = data.nodes;
         service.totalNodes = data.totalNodes;
@@ -207,51 +209,78 @@ export default async function Mulesoft() {
 const diagrams: Diagram[] = [
   {
     id: 1,
+    name: "Monitoramento",
+    icon: <HubOutlinedIcon sx={{ fontSize: 32 }} color="info" />,
+    nodes: {
+      ...node("Frontend", "NEXT", "Monitoramento da infraestrutura"),
+      nodes: [
+        {
+          ...node("Mule EAPI", "MULESOFT", "Coleta de métricas e status dos serviços"),
+          sideNodes: [
+            node("CACHE", "CACHE", "Cache de status para reduzir latência"),
+          ],
+          nodes: [
+            {
+              ...node("Monitoring SAPI", "MULESOFT", "Processamento e armazenamento de métricas"),
+              nodes: [
+                node("Prometheus", "MONITORING", "Coleta e armazenamento de métricas"),
+              ],
+            }
+          ]
+        }
+      ]
+    }
+  }, 
+  {
+    id: 2,
+    name: "Login",
+    icon: <LoginOutlinedIcon sx={{ fontSize: 32, color: "primary.main" }} />,
+    nodes: {
+      ...node("Login", "NEXT", "Criação e gestão de token"),
+      nodes: [
+        {
+          ...node("Mule EAPI", "MULESOFT", "Contrato de API e validação dos dados"),
+          nodes: [
+            {
+              ...node("Users PAPI", "MULESOFT", "Validação de regras de negócio e e sincronização de dados do usuário"),
+              sideNodes: [
+                {
+                  ...node("Users SAPI", "MULESOFT", ""),
+                }
+              ],
+              nodes: [
+                {
+                  ...node("Users SAPI", "MULESOFT", "Criação de conta e gestão de dados do usuário"),
+                  nodes: [
+                    node("Users Table", "POSTGRES", "Tabela de usuários"),
+                  ],
+                }
+              ],
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    id: 3,
     name: "Criar Conta",
     icon: <SupervisorAccountOutlinedIcon sx={{ fontSize: 32, color: "primary.main" }} />,
     nodes: {
-      id: 1,
-      name: "Login",
-      type: "NEXT",
-      description: "Criação e gestão de token",
+      ...node("Criar Conta", "NEXT", "Criação e gestão de token"),
       nodes: [
         {
-          id: 2,
-          name: "Mule EAPI",
-          type: "MULESOFT",
-          description: "Contrato de API e validação dos dados",
+          ...node("Mule EAPI", "MULESOFT", "Contrato de API e validação dos dados"),
           nodes: [
             {
-              id: 3,
-              name: "Users PAPI",
-              type: "MULESOFT",
-              description:
-                "Validação de regras de negócio e orquestração da criação de conta",
+              ...node("Users PAPI", "MULESOFT", "Validação de regras de negócio e orquestração da criação de conta"),
               nodes: [
                 {
-                  id: 4,
-                  name: "Users SAPI",
-                  type: "MULESOFT",
-                  description: "Criação de conta e gestão de dados do usuário",
+                  ...node("Users SAPI", "MULESOFT", "Criação de conta e gestão de dados do usuário"),
                   nodes: [
-                    {
-                      id: 7,
-                      name: "Accounts Table",
-                      description: "Tabela de contas",
-                      type: "POSTGRES",
-                    },
-                    {
-                      id: 5,
-                      name: "Clients Table",
-                      description: "Tabela de clientes como LEAD",
-                      type: "POSTGRES",
-                    },
-                    {
-                      id: 6,
-                      name: "Users Table",
-                      description: "Tabela de usuários",
-                      type: "POSTGRES",
-                    },
+                    node("Accounts Table", "POSTGRES", "Tabela de contas"),
+                    node("Clients Table", "POSTGRES", "Tabela de clientes como LEAD"),
+                    node("Users Table", "POSTGRES", "Tabela de usuários"),
                   ],
                 }
               ],

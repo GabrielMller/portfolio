@@ -29,7 +29,6 @@ export default function RootLayout({
             <ThemeProvider theme={theme}>
               <CssBaseline enableColorScheme/>
               <AdaptiveBackground />
-              <AppBar />
               {children}
             </ThemeProvider>
           </AppRouterCacheProvider>

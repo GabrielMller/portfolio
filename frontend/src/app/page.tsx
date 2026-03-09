@@ -1,3 +1,4 @@
+import AppBar from "@/components/AppBar";
 import Mulesoft from "@/components/Mulesoft";
 import { Container, Box, Typography, Stack, Chip, Button } from "@mui/material";
 import { Sparkles } from "lucide-react";
@@ -6,6 +7,7 @@ import Image from "next/image";
 export default async function Home() {
   return (
     <>
+      <AppBar />
       <Box sx={{ pt: { xs: 8, md: 18 }, pb: 10 }}>
         <Container maxWidth="md">
           <Stack spacing={4} alignItems="center" sx={{ textAlign: 'center' }}>
