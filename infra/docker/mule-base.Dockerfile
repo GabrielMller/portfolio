@@ -13,7 +13,9 @@ RUN wget https://repository.mulesoft.org/nexus/content/repositories/releases/org
 
 RUN sed -i 's/wrapper.logfile=.*/wrapper.logfile=\/dev\/null/' $MULE_HOME/conf/wrapper.conf && \
     sed -i 's/wrapper.console.loglevel=.*/wrapper.console.loglevel=INFO/' $MULE_HOME/conf/wrapper.conf && \
-    sed -i 's/wrapper.console.format=.*/wrapper.console.format=PM/' $MULE_HOME/conf/wrapper.conf
+    # COMENTA AS LINHAS DE MEMÓRIA PADRÃO
+    sed -i 's/^wrapper.java.initmemory=/#wrapper.java.initmemory=/' $MULE_HOME/conf/wrapper.conf && \
+    sed -i 's/^wrapper.java.maxmemory=/#wrapper.java.maxmemory=/' $MULE_HOME/conf/wrapper.conf
 
 RUN rm -rf $MULE_HOME/apps/* && \
     mkdir -p $MULE_HOME/logs $MULE_HOME/.mule && \
@@ -23,7 +25,7 @@ RUN rm -rf $MULE_HOME/apps/* && \
 WORKDIR $MULE_HOME
 USER mule
 
-ENV MULE_JDK_OPTIONS="-Djava.security.egd=file:/dev/./urandom -Xms512m -Xmx768m -XX:MaxMetaspaceSize=256m -Dmule.deployment.force.parse.config=true"
+ENV MULE_JDK_OPTIONS="-Djava.security.egd=file:/dev/./urandom"
 
 EXPOSE 8081
 
