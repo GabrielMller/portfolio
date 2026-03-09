@@ -47,8 +47,8 @@ spec:
             memory: "1Gi"
             cpu: "1"
           requests:
-            memory: "500Mi"
-            cpu: "0.2"
+            memory: "700Mi"
+            cpu: "0.5"
         livenessProbe:
           httpGet:
             path: /api/health
