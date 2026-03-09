@@ -4,7 +4,7 @@
 
 	<groupId>com.mycompany</groupId>
 	<artifactId>mule-eapi</artifactId>
-	<version>1.0.6</version>
+	<version>1.0.7</version>
 	<packaging>mule-application</packaging>
 
 	<name>mule-eapi</name>
