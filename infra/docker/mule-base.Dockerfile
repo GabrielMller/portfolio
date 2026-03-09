@@ -23,7 +23,7 @@ RUN rm -rf $MULE_HOME/apps/* && \
 WORKDIR $MULE_HOME
 USER mule
 
-ENV MULE_JDK_OPTIONS="-Djava.security.egd=file:/dev/./urandom -Xmx1g -Xms1g -XX:MaxMetaspaceSize=256m -Dmule.deployment.force.parse.config=true"
+ENV MULE_JDK_OPTIONS="-Djava.security.egd=file:/dev/./urandom -Xmx512g -Xms512m -XX:MaxMetaspaceSize=256m -Dmule.deployment.force.parse.config=true"
 
 EXPOSE 8081
 
