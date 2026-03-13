@@ -16,7 +16,7 @@
     </flow>
     <flow name="patch:\v1\public\sync:application\json:Users">
         <validation:is-email doc:name="Is email" doc:id="dc42d71f-93f3-4edf-9d21-d9f5f78ade3d" email="#[payload.email]" message="Invalid email" />
-		<flow-ref doc:name="Flow Reference" doc:id="61287acb-3413-42c1-a280-061bf8063237" name="sync"/>
+        <flow-ref doc:name="Flow Reference" doc:id="61287acb-3413-42c1-a280-061bf8063237" name="sync" />
     </flow>
     <flow name="post:\v1\public\accounts:application\json:Users">
         <validation:is-email doc:name="Is email" doc:id="c14e7ec6-1548-49f8-8555-7264d50ddacb" email="#[payload.email]" message="Invalid email" />

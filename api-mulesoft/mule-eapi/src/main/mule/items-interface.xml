@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:os="http://www.mulesoft.org/schema/mule/os" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd">
+    <apikit:config name="Items" api="items.raml" outboundHeadersMapName="outboundHeadersMapName" httpStatusVarName="httpStatus" />
+    <flow name="items-interfaceFlow" doc:id="96f8f7a2-1500-4b7f-afdf-c6af9d6109f1">
+        <http:listener doc:name="Listener" doc:id="fe1b6d1d-91b9-4f6c-8040-a9fc0065d491" config-ref="HTTP_Listener_config" path="/items/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body><![CDATA[#[payload]]]></http:body>
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:error-response>
+        </http:listener>
+		<apikit:router doc:name="APIkit Router" doc:id="236f1194-a48c-4c09-b4b8-1b559e461a8d" config-ref="Items" />
+        <error-handler ref="Error_Handler_Specs" />
+    </flow>
+    <flow name="post:\v1\:Items">
+		<flow-ref doc:name="Flow Reference" doc:id="60426efc-3dfb-4576-9ce9-14bfb91830b7" name="validateJWT" target="client"/>
+    </flow>
+</mule>

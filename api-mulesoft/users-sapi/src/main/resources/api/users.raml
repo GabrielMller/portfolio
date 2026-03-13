@@ -15,6 +15,22 @@ types:
   response.post.accounts: !include types/responses/post/accounts.raml
 
 /{version}:
+  /{userId}:
+    uriParameters: 
+      userId:
+        type: integer
+        description: ID do usuário a ser consultado
+    get:
+      description: Endpoint para consultar um usuário específico pelo ID
+      responses:
+        200:
+          description: Usuário retornado com sucesso
+        400:
+          description: Requisição inválida, verifique os parâmetros de consulta
+        404:
+          description: Usuário não encontrado, verifique o ID fornecido
+        500:
+          description: Erro interno do servidor, tente novamente mais tarde
   /:
     post:
       description: Endpoint para criar um novo usuário

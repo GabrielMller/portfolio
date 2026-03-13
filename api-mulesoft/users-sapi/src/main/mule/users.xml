@@ -25,4 +25,15 @@ http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/cu
 		</db:insert>
 		<set-payload value="#[output json&#10;---&#10;payload.generatedKeys]" doc:name="Set Payload" doc:id="0f8a8970-54a2-48b9-afbb-35e5fa480184" />
 	</flow>
+	<flow name="getUser" doc:id="2efe57a7-c80c-4f94-ac89-c6367d2f0db3" >
+		<db:query-single doc:name="Query single" doc:id="025e3086-bc01-469b-b376-66ef97d11513" config-ref="Database_Config">
+			<db:sql ><![CDATA[SELECT id, email, username FROM users WHERE id = :id]]></db:sql>
+			<db:input-parameters ><![CDATA[#[output json
+---
+{
+	id: vars.id
+}]]]></db:input-parameters>
+		</db:query-single>
+		<set-payload value="#[output json&#10;---&#10;payload]" doc:name="Set Payload" doc:id="37819a61-c8d2-4a9d-b30a-c81c1ce94e74" />
+	</flow>
 </mule>

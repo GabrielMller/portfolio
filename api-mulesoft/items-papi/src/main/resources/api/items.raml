@@ -1,0 +1,15 @@
+#%RAML 1.0
+title: Items API
+version: v1
+
+/{version}:
+  /:
+    post:
+      description: Endpoint para criar um novo item
+      responses:
+        201:
+          description: Item criado com sucesso
+        400:
+          description: Requisição inválida, verifique os dados enviados
+        500:
+          description: Erro interno do servidor, tente novamente mais tarde

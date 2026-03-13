@@ -73,6 +73,20 @@ payload.email must equalTo("john.doe@example.com")]]]></munit-tools:that>
 			<munit-tools:assert-equals doc:name="Assert equals" doc:id="33b686d8-5bac-46d4-844a-1dd4c1fffede" actual="#[payload.id]" expected="#[vars.validate[0].id as Number]" />
 		</munit:validation>
 	</munit:test>
+	<munit:test name="user-get-by-id" doc:id="d32035fa-59f9-451e-b3d4-ec4a49e7eaa0" >
+		<munit:execution >
+			<set-variable value='#[output json&#10;---&#10;1]' doc:name="Set Variable" doc:id="23618f6f-5265-4fec-93e3-4b3e95c7cae0" variableName="id" />
+			<flow-ref doc:name="Flow Reference" doc:id="2f79d1d9-5961-432a-9532-97136a1e9acf" name="getUsers" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="9e31c068-fcfb-424c-9cd6-99a85bada3da" expression="#[payload]" is="#[MunitTools::notNullValue()]" />
+			<munit-tools:assert doc:name="Assert expression" doc:id="a684b8c1-2991-4103-97e1-1bc3ac1c6622" >
+				<munit-tools:that ><![CDATA[#[import * from dw::test::Asserts 
+ ---
+payload.email must equalTo("john.doe@example.com")]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
 
 
 </mule>

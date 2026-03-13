@@ -31,18 +31,22 @@
         <flow-ref doc:name="Flow Reference" doc:id="dea14e4d-4a10-41d6-a179-c6da1fa7f2ac" name="createClient" />
     </flow>
     <flow name="post:\v1\accounts:application\json:Router">
-		<flow-ref doc:name="Flow Reference" doc:id="9d6066d9-4329-4d2a-a2bd-e8c9ee3d1e45" name="createAccount"/>
+        <flow-ref doc:name="Flow Reference" doc:id="9d6066d9-4329-4d2a-a2bd-e8c9ee3d1e45" name="createAccount" />
     </flow>
-	<flow name="health" doc:id="c3e85208-7431-4d70-b81c-cbd861026626" >
-		<http:listener doc:name="Listener" doc:id="5222fc80-c097-4d1c-a987-e05c5822e0ec" config-ref="HTTP_Listener_config" path="/health" >
-			<http:response statusCode="#[vars.httpStatus default 200]" >
-				<http:headers ><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
-			</http:response>
-			<http:error-response statusCode="#[vars.httpStatus default 500]" >
-				<http:body ><![CDATA[#[payload]]]></http:body>
-				<http:headers ><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
-			</http:error-response>
-		</http:listener>
-		<set-payload value='#[output json&#10;---&#10;"OK"]' doc:name="Set Payload" doc:id="700e4ea7-e55b-4b40-b4f9-c1fcf80c100f" />
-	</flow>
+    <flow name="health" doc:id="c3e85208-7431-4d70-b81c-cbd861026626">
+        <http:listener doc:name="Listener" doc:id="5222fc80-c097-4d1c-a987-e05c5822e0ec" config-ref="HTTP_Listener_config" path="/health">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body><![CDATA[#[payload]]]></http:body>
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:error-response>
+        </http:listener>
+        <set-payload value="#[output json&#xA;---&#xA;&quot;OK&quot;]" doc:name="Set Payload" doc:id="700e4ea7-e55b-4b40-b4f9-c1fcf80c100f" />
+    </flow>
+    <flow name="get:\v1\(userId):Router" doc:id="0d887df4-734e-4b0d-b705-141ce923819d">
+		<set-variable value="#[output json&#10;---&#10;attributes.uriParams.userId]" doc:name="Set Variable" doc:id="0ef02572-3f11-45da-85ac-c65c5d270d90" variableName="id"/>
+		<flow-ref doc:name="Flow Reference" doc:id="17ce5a3e-23a9-4003-9c4b-faa74684f42a" name="getUser"/>
+    </flow>
 </mule>

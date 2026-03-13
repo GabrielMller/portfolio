@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties" xmlns:db="http://www.mulesoft.org/schema/mule/db"
-	xmlns:http="http://www.mulesoft.org/schema/mule/http"
-	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+<mule xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
-http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd">
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd
+http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd">
 	<global-property doc:name="Global Property" doc:id="4a40155b-4fde-4bff-8ba2-8cc043e49270" name="MULE_ENV" value="local" />
 	<configuration-properties doc:name="Configuration properties" doc:id="e91fcef9-6e22-48ee-883a-5ed2c33ab902" file="properties/${MULE_ENV}.properties" />
 	<http:request-config name="Users_Request_configuration" doc:name="HTTP Request configuration" doc:id="3c65f5c3-9dfc-4622-a3c9-0771890a3338" basePath="${users.basePath}" responseTimeout="10000">
@@ -15,4 +16,15 @@ http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/sc
 		<http:request-connection protocol="${monitoring.protocol}" host="${monitoring.host}" port="${monitoring.port}" />
 	</http:request-config>
 	<configuration doc:name="Configuration" doc:id="c553650b-1f93-4c4b-8858-a84e87d0973d" defaultErrorHandler-ref="propagate_error" correlationIdGeneratorExpression="#[uuid()]" />
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="329a5a68-6778-4e55-83dd-ade89f707ed5" basePath="api">
+        <http:listener-connection host="0.0.0.0" port="8081" />
+        <http:listener-interceptors>
+            <http:cors-interceptor>
+                <http:origins>
+                    <http:public-resource />
+                </http:origins>
+            </http:cors-interceptor>
+        </http:listener-interceptors>
+    </http:listener-config>
+	<apikit:config outboundHeadersMapName="outboundHeadersMapName" httpStatusVarName="httpStatus" doc:name="Router" doc:id="4de20479-9d9f-431e-9ebb-ee17fcffe340" name="Router1" api="api\items.raml" />
 </mule>

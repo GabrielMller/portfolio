@@ -4,7 +4,7 @@
 	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
-	<flow name="itemsFlow" doc:id="63f71b61-0d3a-41fa-a382-7641429f9c54" >
+	<flow name="generateItem" doc:id="63f71b61-0d3a-41fa-a382-7641429f9c54" >
 		<http:request method="POST" doc:name="Request" doc:id="34073d19-d603-4f33-b8f1-064807949f6c" config-ref="AI_Request_configuration" path="/gemini-3.1-flash-lite-preview:generateContent">
 			<http:body ><![CDATA[#[output json
 ---

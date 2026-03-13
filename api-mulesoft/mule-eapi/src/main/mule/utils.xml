@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+	<flow name="validateJWT" doc:id="2d15f94a-c552-435e-a177-744243d6bff4" >
+		<set-payload value="#[output json&#10;var token = (attributes.headers.authorization splitBy &quot; &quot;)[1]&#10;---&#10;java!com::eapi::internal::JwtAuthenticator::authenticate(token, Mule::p('JWT_SECRET'))]" doc:name="Set Payload" doc:id="dd9da4a9-80b8-41e5-a07a-10e4cabd20ae" />
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="e650cefa-2063-4d6f-a8d7-7e42b0d75472" >
+				<set-payload value="#[output json&#10;---&#10;{&#10;	message: 'UNAUTHORIZED',&#10;	description: 'Invalid Token'	&#10;}]" doc:name="Set Payload" doc:id="484630a7-fb76-4a64-ab61-ad368fa9dad0" />
+				<set-variable value="#[401]" doc:name="Set Variable" doc:id="7934a237-2300-4998-9c56-a03264701daa" variableName="httpStatus"/>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+</mule>

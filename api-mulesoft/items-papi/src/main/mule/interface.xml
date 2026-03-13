@@ -1,19 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
-	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
-http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
-	<flow name="health" doc:id="362755f8-990e-47ff-9776-05431e06d372" >
-		<http:listener doc:name="Listener" doc:id="d5e5c724-1734-4096-a392-b1606460e376" config-ref="HTTP_Listener_config" path="/health" >
-			<http:response statusCode="#[vars.httpStatus default 200]" >
-				<http:headers ><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
-			</http:response>
-			<http:error-response statusCode="#[vars.httpStatus default 500]" >
-				<http:body ><![CDATA[#[payload]]]></http:body>
-				<http:headers ><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
-			</http:error-response>
-		</http:listener>
-		<set-payload value='#[output json&#10;---&#10;"OK"]' doc:name="Set Payload" doc:id="58a750a5-fe70-4d4c-b35c-c843781d9071" />
-	</flow>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd">
+    <apikit:config name="Router" api="items.raml" outboundHeadersMapName="outboundHeadersMapName" httpStatusVarName="httpStatus" />
+    <flow name="health" doc:id="362755f8-990e-47ff-9776-05431e06d372">
+        <http:listener doc:name="Listener" doc:id="d5e5c724-1734-4096-a392-b1606460e376" config-ref="HTTP_Listener_config" path="/health">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body><![CDATA[#[payload]]]></http:body>
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:error-response>
+        </http:listener>
+        <set-payload value="#[output json&#xA;---&#xA;&quot;OK&quot;]" doc:name="Set Payload" doc:id="58a750a5-fe70-4d4c-b35c-c843781d9071" />
+    </flow>
+    <flow name="interface" doc:id="a40ffbff-d2f6-4b10-b71e-134e48eee88a">
+        <http:listener doc:name="Listener" doc:id="b4c9f52f-95ee-4364-afcb-d015f4338ca6" config-ref="HTTP_Listener_config" path="/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body><![CDATA[#[payload]]]></http:body>
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:router doc:name="APIkit Router" doc:id="853aafd0-6145-4607-8dae-3027774901bf" config-ref="Router" />
+    </flow>
+    <flow name="post:\v1\:Router">
+		<flow-ref doc:name="Flow Reference" doc:id="6a0bad93-b97d-43e3-b751-237efb988326" name="createItem"/>
+    </flow>
 </mule>
