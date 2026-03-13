@@ -57,9 +57,9 @@ jobs:
           cd api-mulesoft/${{ matrix.api }}
           mvn clean package 
             -M-DAPI_NAME=${{ matrix.api }} 
-            -M-SECURE_KEY=${{ secrets.SECURE_KEY }} 
-            -M-DB_PASS=${{ secrets.POSTGRES_PASSWORD }}
-            -M-DB_USER=${{ secrets.POSTGRES_USER }}
+            -M-DSECURE_KEY=${{ secrets.SECURE_KEY }} 
+            -M-DDB_PASS=${{ secrets.POSTGRES_PASSWORD }}
+            -M-DDB_USER=${{ secrets.POSTGRES_USER }}
 
       - name: Login to Docker Hub
         uses: docker/login-action@v2
