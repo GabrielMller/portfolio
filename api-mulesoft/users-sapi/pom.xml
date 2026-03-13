@@ -118,6 +118,7 @@
 						<formats>
 							<format>console</format>
 							<format>json</format>
+							<format>xml</format>
 						</formats>
 					</coverage>
 				</configuration>
