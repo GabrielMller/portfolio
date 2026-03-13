@@ -30,6 +30,12 @@ jobs:
     needs: detect-changes
     if: ${{ needs.detect-changes.outputs.active_apis != '[]' }}
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
+      
     strategy:
       fail-fast: false
       matrix:
