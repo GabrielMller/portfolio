@@ -55,7 +55,11 @@ jobs:
       - name: Build JAR with Maven
         run: |
           cd api-mulesoft/${{ matrix.api }}
-          mvn clean package -DAPI_NAME=${{ matrix.api }} -DSECURE_KEY=${{ secrets.SECURE_KEY }} -DPOSTGRES_USER=${{ secrets.POSTGRES_USER }} -DPOSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+          mvn clean package 
+            -DAPI_NAME=${{ matrix.api }} 
+            -DSECURE_KEY=${{ secrets.SECURE_KEY }} 
+            -DB_PASS=${{ secrets.POSTGRES_PASSWORD }}
+            -DDB_USER=${{ secrets.POSTGRES_USER }}
 
       - name: Login to Docker Hub
         uses: docker/login-action@v2
