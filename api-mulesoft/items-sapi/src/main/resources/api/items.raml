@@ -1,0 +1,19 @@
+#%RAML 1.0
+title: Items API
+version: v1
+
+types: 
+  response.get.generate: !include types/responses/get/generate.raml
+
+/{version}:
+  /generate:
+    get:
+      description: Endpoint para gerar um item de exemplo
+      responses:
+        200:
+          description: Item gerado com sucesso
+          body:
+            application/json:
+              type: response.get.generate
+        500:
+          description: Erro interno do servidor, tente novamente mais tarde

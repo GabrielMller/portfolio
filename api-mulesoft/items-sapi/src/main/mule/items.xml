@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<flow name="itemsFlow" doc:id="63f71b61-0d3a-41fa-a382-7641429f9c54" >
+		<http:request method="POST" doc:name="Request" doc:id="34073d19-d603-4f33-b8f1-064807949f6c" config-ref="AI_Request_configuration" path="/gemini-3.1-flash-lite-preview:generateContent">
+			<http:body ><![CDATA[#[output json
+---
+{
+  "systemInstruction": {
+    "parts": [{
+      "text": "Você é o Agente de Operações do ecossistema MuleSoft de Gabriel Müller. 
+			Se sua ação for 'CREATE_ITEM', gere um JSON de um item físico como por exemplo um laptop, com campos (sku, name, price, description, image). 
+			REGRAS: Responda apenas o JSON. Não use Markdown. Seja realista. O campo image deve ser um link do lorem picsum"
+    }]
+  },
+  "contents": [{
+    "parts": [{
+      "text": "Executar ação: CREATE_ITEM"
+    }]
+  }],
+  "generationConfig": {
+    "responseMimeType": "application/json"
+  }
+}]]]></http:body>
+		</http:request>
+		<set-payload value='#[output json&#10;---&#10;read(payload.candidates[0].content.parts[0].text, "json")]' doc:name="Set Payload" doc:id="3092fa4e-6186-4747-8b45-4baef3ae621e" />
+	</flow>
+</mule>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:kafka="http://www.mulesoft.org/schema/mule/kafka" xmlns:spring="http://www.mulesoft.org/schema/mule/spring"
+	xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd
+http://www.mulesoft.org/schema/mule/spring http://www.mulesoft.org/schema/mule/spring/current/mule-spring.xsd
+http://www.mulesoft.org/schema/mule/kafka http://www.mulesoft.org/schema/mule/kafka/current/mule-kafka.xsd">
+	<global-property doc:name="Global Property" doc:id="8666ff06-205b-45d0-a1e1-9a2687b11f64" name="MULE_ENV" value="local" />
+	<configuration-properties doc:name="Configuration properties" doc:id="e49be8e2-68e8-4cdc-be48-f56f70267762" file="properties/${MULE_ENV}.properties" />
+	<configuration doc:name="Configuration" doc:id="74270d59-4d0b-4991-9ef8-b68fc63fd80a" defaultErrorHandler-ref="propagate_error" correlationIdGeneratorExpression="#[uuid()]" />
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="461544fd-1ee2-437b-a820-5e98851d35c0" basePath="api">
+        <http:listener-connection host="0.0.0.0" port="${http.port}" />
+    </http:listener-config>
+	<http:request-config name="AI_Request_configuration" doc:name="HTTP Request configuration" doc:id="3944a651-0283-4a79-a9ae-2f8d832d25fa" basePath="${ai.basePath}" responseTimeout="60000">
+		<http:request-connection protocol="${ai.protocol}" host="${ai.host}" port="${ai.port}" />
+		<http:default-headers >
+			<http:default-header key="X-goog-api-key" value="${AI_KEY}" />
+		</http:default-headers>
+	</http:request-config>
+	<kafka:producer-config name="Apache_Kafka_Producer_configuration" doc:name="Apache Kafka Producer configuration" doc:id="2fa8055e-5a0c-4dd8-9f26-e32f84bd9274" topic="default" >
+		<kafka:producer-plaintext-connection >
+			<kafka:bootstrap-servers >
+				<kafka:bootstrap-server value="${kafka.brokers}" />
+			</kafka:bootstrap-servers>
+		</kafka:producer-plaintext-connection>
+	</kafka:producer-config>
+    
+</mule>

@@ -7,7 +7,6 @@ import LinearProgress from "@mui/material/LinearProgress";
 import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import AdaptiveBackground from "@/components/AdaptiveBackground";
-import AppBar from "@/components/AppBar";
 import './globals.css';
 
 export const metadata: Metadata = {
