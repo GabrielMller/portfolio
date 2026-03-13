@@ -76,7 +76,7 @@ payload.email must equalTo("john.doe@example.com")]]]></munit-tools:that>
 	<munit:test name="user-get-by-id" doc:id="d32035fa-59f9-451e-b3d4-ec4a49e7eaa0" >
 		<munit:execution >
 			<set-variable value='#[output json&#10;---&#10;1]' doc:name="Set Variable" doc:id="23618f6f-5265-4fec-93e3-4b3e95c7cae0" variableName="id" />
-			<flow-ref doc:name="Flow Reference" doc:id="2f79d1d9-5961-432a-9532-97136a1e9acf" name="getUsers" />
+			<flow-ref doc:name="Flow Reference" doc:id="2f79d1d9-5961-432a-9532-97136a1e9acf" name="getUser" />
 		</munit:execution>
 		<munit:validation >
 			<munit-tools:assert-that doc:name="Assert that" doc:id="9e31c068-fcfb-424c-9cd6-99a85bada3da" expression="#[payload]" is="#[MunitTools::notNullValue()]" />
