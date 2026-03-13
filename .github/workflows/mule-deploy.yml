@@ -52,15 +52,19 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
+      - name: Run MUnit Tests
+        run: |
+          cd api-mulesoft/${{ matrix.api }}
+          mvn test \
+            -DSECURE_KEY=${{ secrets.SECURE_KEY }} \
+            -DDB_USER= \
+            -DDB_PASS= \
+            -DAPI_NAME=${{ matrix.api }}
+
       - name: Build JAR with Maven
         run: |
           cd api-mulesoft/${{ matrix.api }}
-          mvn clean package \
-            -DskipTests=false \
-            -DSECURE_KEY=${{ secrets.SECURE_KEY }} \
-            -DDB_USER=${{ secrets.POSTGRES_USER }} \
-            -DDB_PASS=${{ secrets.POSTGRES_PASSWORD }} \
-            -DAPI_NAME=${{ matrix.api }}
+          mvn clean package -DskipTests
 
       - name: Login to Docker Hub
         uses: docker/login-action@v2
