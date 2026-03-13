@@ -62,6 +62,24 @@ jobs:
             -DDB_PASS= \
             -DAPI_NAME=${{ matrix.api }}
 
+      - name: Publish MUnit Test Results
+        uses: mikepenz/action-junit-report@v4
+        if: always() 
+        with:
+          report_paths: 'api-mulesoft/${{ matrix.api }}/target/munit-reports/report-*.xml'
+          check_name: 'MUnit Result: ${{ matrix.api }}'
+          fail_on_failure: false 
+
+      - name: Archive MUnit Reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: munit-reports-${{ matrix.api }}
+          path: |
+            api-mulesoft/${{ matrix.api }}/target/munit-reports/
+            api-mulesoft/${{ matrix.api }}/target/site/munit/
+          retention-days: 7
+
       - name: Build JAR with Maven
         run: |
           cd api-mulesoft/${{ matrix.api }}
