@@ -104,7 +104,7 @@
 				</executions>
 				<configuration>
 					<environmentVariables>
-						<mule.env>qa</mule.env>
+						<MULE_ENV>qa</MULE_ENV>
 					</environmentVariables>
 					<coverage>
 						<runCoverage>true</runCoverage>
@@ -118,7 +118,6 @@
 						<formats>
 							<format>console</format>
 							<format>json</format>
-							<format>xml</format>
 						</formats>
 					</coverage>
 				</configuration>
