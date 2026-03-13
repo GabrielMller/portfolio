@@ -60,7 +60,7 @@ jobs:
             -DSECURE_KEY=${{ secrets.SECURE_KEY }} \
             -DDB_USER= \
             -DDB_PASS= \
-            -DAPI_NAME=${{ matrix.api }}
+            -DAPI_NAME=${{ matrix.api }} \
             -DMULE_ENV=qa
 
       - name: Publish Test Results
@@ -68,7 +68,6 @@ jobs:
         if: always() 
         with:
           report_paths: |
-            api-mulesoft/${{ matrix.api }}/target/munit-reports/report-*.xml
             api-mulesoft/${{ matrix.api }}/target/surefire-reports/TEST-*.xml
           check_name: 'Test Results: ${{ matrix.api }}'
           fail_on_failure: false 
@@ -79,9 +78,7 @@ jobs:
         with:
           name: all-reports-${{ matrix.api }}
           path: |
-            api-mulesoft/${{ matrix.api }}/target/munit-reports/
             api-mulesoft/${{ matrix.api }}/target/surefire-reports/
-            api-mulesoft/${{ matrix.api }}/target/sonar/
           retention-days: 7
 
       - name: Build JAR with Maven
