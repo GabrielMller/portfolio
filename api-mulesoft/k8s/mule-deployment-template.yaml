@@ -40,6 +40,10 @@ spec:
           value: "${POSTGRES_USER}"
         - name: DB_PASS
           value: "${POSTGRES_PASSWORD}"
+        - name: AI_KEY
+          value: "${AI_KEY}"
+        - name: JWT_SECRET
+          value: "${JWT_SECRET}"
         resources:
           limits:
             memory: "1.2Gi"
