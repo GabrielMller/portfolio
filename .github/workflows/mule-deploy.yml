@@ -51,6 +51,7 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
+          server-id: github
 
       - name: Cache Maven packages
         uses: actions/cache@v3
@@ -63,13 +64,16 @@ jobs:
       - name: Run MUnit Tests
         run: |
           cd api-mulesoft/${{ matrix.api }}
-          mvn test \
+          mvn test -s settings.xml \
             -DSECURE_KEY=${{ secrets.SECURE_KEY }} \
             -DDB_USER= \
             -DDB_PASS= \
             -DAPI_NAME=${{ matrix.api }} \
             -DMULE_ENV=qa \
             -Dmunit.failIfNoTests=false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
 
       - name: Publish Test Results
         uses: mikepenz/action-junit-report@v4
