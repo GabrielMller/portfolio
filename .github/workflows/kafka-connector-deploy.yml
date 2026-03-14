@@ -5,6 +5,7 @@ on:
     paths:
       - 'connectors/kafka/**'
     branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   publish:
