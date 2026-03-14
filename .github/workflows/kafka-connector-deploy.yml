@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write
+      packages: write 
 
     steps:
       - uses: actions/checkout@v4
@@ -26,7 +26,7 @@ jobs:
 
       - name: Publish Kafka Connector
         working-directory: connectors/kafka
-        run: mvn --batch-mode deploy
+        run: mvn --batch-mode deploy -s $GITHUB_WORKSPACE/settings.xml
         env:
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
