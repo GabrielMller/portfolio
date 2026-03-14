@@ -7,7 +7,7 @@
 		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
 		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
-	<munit:config name="items.xml" />
+	<munit:config name="items-tests.xml" />
 	<munit:test name="test-create-item-normal-user" doc:id="77b4124e-0510-4e09-af37-c78665b9d10c" expectedErrorType="VALIDATION:INVALID_BOOLEAN">
 		<munit:behavior >
 			<munit-tools:mock-when doc:name="Mock when" doc:id="95c4ea3a-92e8-4d3b-a812-ed27bae55431" processor="http:request">
