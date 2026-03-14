@@ -14,13 +14,6 @@ http://www.mulesoft.org/schema/mule/kafka http://www.mulesoft.org/schema/mule/ka
 	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="461544fd-1ee2-437b-a820-5e98851d35c0" basePath="api">
         <http:listener-connection host="0.0.0.0" port="${http.port}" />
     </http:listener-config>
-	<kafka:producer-config name="Apache_Kafka_Producer_configuration" doc:name="Apache Kafka Producer configuration" doc:id="2fa8055e-5a0c-4dd8-9f26-e32f84bd9274" topic="default" >
-		<kafka:producer-plaintext-connection idempotence="true" producerAck="ALL">
-			<kafka:bootstrap-servers >
-				<kafka:bootstrap-server value="${kafka.brokers}" />
-			</kafka:bootstrap-servers>
-		</kafka:producer-plaintext-connection>
-	</kafka:producer-config>
 	<http:request-config name="Items_HTTP_Request_config" doc:name="HTTP Request config" doc:id="76525cba-e60c-4906-9b7d-e8d239f4a81a" basePath="${items.basePath}" >
 		<http:request-connection host="${items.host}" port="${items.port}" />
 	</http:request-config>

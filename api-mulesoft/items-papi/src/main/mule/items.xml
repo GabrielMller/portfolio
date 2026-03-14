@@ -32,16 +32,6 @@ http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mu
 }]]]></http:uri-params>
 		</http:request>
 		<set-payload value="#[output json&#10;---&#10;payload ++ {&#10;	id: uuid()&#10;}]" doc:name="Set Payload" doc:id="15a419a0-9311-4425-84a2-dcd306afb5d6" />
-		<kafka:publish doc:name="Publish" doc:id="cb02ab3c-389e-4894-b020-363d0528d587" config-ref="Apache_Kafka_Producer_configuration" topic="items" key="#[payload.sku]">
-			<kafka:message ><![CDATA[#[output json
----
-payload]]]></kafka:message>
-			<kafka:headers ><![CDATA[#[output json
----
-{
-	correlationId: correlationId
-}]]]></kafka:headers>
-		</kafka:publish>
 		<set-payload value="#[output json&#10;---&#10;payload]" doc:name="Set Payload" doc:id="f46b6a48-3f40-4e5d-9815-fb443353dbe3" />
 	</flow>
 </mule>
