@@ -27,7 +27,7 @@ http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/cu
 	</flow>
 	<flow name="getUser" doc:id="2efe57a7-c80c-4f94-ac89-c6367d2f0db3" >
 		<db:query-single doc:name="Query single" doc:id="025e3086-bc01-469b-b376-66ef97d11513" config-ref="Database_Config">
-			<db:sql ><![CDATA[SELECT id, email, username FROM users WHERE id = :id]]></db:sql>
+			<db:sql ><![CDATA[SELECT id, email, username, role FROM users WHERE id = :id]]></db:sql>
 			<db:input-parameters ><![CDATA[#[output json
 ---
 {

@@ -15,6 +15,9 @@ http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/m
 	<http:request-config name="Monitoring_Request_configuration" doc:name="HTTP Request configuration" doc:id="8ee4bd4d-b984-434d-83a8-319774babe37" basePath="${monitoring.basePath}" >
 		<http:request-connection protocol="${monitoring.protocol}" host="${monitoring.host}" port="${monitoring.port}" />
 	</http:request-config>
+	<http:request-config name="Items_Request_configuration" doc:name="HTTP Request configuration" doc:id="4b29ad03-abd0-4651-b2ec-4deeececeb71" basePath="${items.basePath}" >
+		<http:request-connection protocol="${items.protocol}" host="${items.host}" port="${items.port}" />
+	</http:request-config>
 	<configuration doc:name="Configuration" doc:id="c553650b-1f93-4c4b-8858-a84e87d0973d" defaultErrorHandler-ref="propagate_error" correlationIdGeneratorExpression="#[uuid()]" />
 	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="329a5a68-6778-4e55-83dd-ade89f707ed5" basePath="api">
         <http:listener-connection host="0.0.0.0" port="8081" />

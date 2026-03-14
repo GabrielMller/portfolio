@@ -25,6 +25,7 @@ jobs:
             monitoring-sapi: 'api-mulesoft/monitoring-sapi/**'
             users-sapi: 'api-mulesoft/users-sapi/**'
             users-papi: 'api-mulesoft/users-papi/**'
+            items-papi: 'api-mulesoft/items-papi/**'
 
   build:
     needs: detect-changes
@@ -35,7 +36,7 @@ jobs:
       contents: read
       checks: write
       pull-requests: write
-      
+
     strategy:
       fail-fast: false
       matrix:
@@ -67,7 +68,8 @@ jobs:
             -DDB_USER= \
             -DDB_PASS= \
             -DAPI_NAME=${{ matrix.api }} \
-            -DMULE_ENV=qa
+            -DMULE_ENV=qa \
+            -Dmunit.failIfNoTests=false
 
       - name: Publish Test Results
         uses: mikepenz/action-junit-report@v4
@@ -110,6 +112,8 @@ jobs:
             DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
             MULE_ENV=prd
             SECURE_KEY=${{ secrets.SECURE_KEY }}
+            AI_KEY=${{ secrets.AI_KEY }}
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
 
   deploy:
     needs: [detect-changes, build]
@@ -131,11 +135,13 @@ jobs:
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           SECURE_KEY: ${{ secrets.SECURE_KEY }}
           MULE_ENV: prd
+          AI_KEY: ${{ secrets.AI_KEY }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
         run: |
           export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
           kubectl create namespace mulesoft --dry-run=client -o yaml | kubectl apply -f -
 
-          envsubst '${DOCKERHUB_USERNAME} ${API_NAME} ${POSTGRES_USER} ${POSTGRES_PASSWORD} ${SECURE_KEY} ${MULE_ENV}' < api-mulesoft/k8s/mule-deployment-template.yaml > deploy-final.yaml
+          envsubst '${DOCKERHUB_USERNAME} ${API_NAME} ${POSTGRES_USER} ${POSTGRES_PASSWORD} ${SECURE_KEY} ${MULE_ENV} ${AI_KEY} ${JWT_SECRET}' < api-mulesoft/k8s/mule-deployment-template.yaml > deploy-final.yaml
           
           kubectl apply -f deploy-final.yaml
           kubectl rollout restart deployment/${{ matrix.api }} -n mulesoft

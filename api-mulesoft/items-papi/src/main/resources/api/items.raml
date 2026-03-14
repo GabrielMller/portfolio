@@ -5,6 +5,12 @@ version: v1
 /{version}:
   /:
     post:
+      headers: 
+        userId:
+          description: ID do usuário que está criando o item
+          type: string
+          example: "12345"
+          required: true
       description: Endpoint para criar um novo item
       responses:
         201:

@@ -41,10 +41,21 @@
 					</execution>
 				</executions>
 				<configuration>
+					<environmentVariables>
+						<MULE_ENV>qa</MULE_ENV>
+					</environmentVariables>
 					<coverage>
 						<runCoverage>true</runCoverage>
+						<failBuild>true</failBuild>
+						<requiredApplicationCoverage>80</requiredApplicationCoverage>
+						<ignoreFiles>
+							<ignoreFile>interface.xml</ignoreFile>
+							<ignoreFile>global.xml</ignoreFile>
+							<ignoreFile>errors.xml</ignoreFile>
+						</ignoreFiles>
 						<formats>
-							<format>html</format>
+							<format>console</format>
+							<format>json</format>
 						</formats>
 					</coverage>
 				</configuration>

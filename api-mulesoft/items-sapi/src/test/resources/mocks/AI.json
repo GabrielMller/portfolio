@@ -1,0 +1,30 @@
+{
+	"candidates": [
+		{
+			"content": {
+				"parts": [
+					{
+						"text": "{\n  \"sku\": \"MULE-LT-2024-X1\",\n  \"name\": \"MuleSoft Certified Developer Laptop\",\n  \"price\": \"2499.99\",\n  \"description\": \"High-performance laptop optimized for Anypoint Platform development, featuring 32GB RAM, 1TB SSD, and pre-configured MuleSoft runtime environment.\",\n  \"image\": \"https://picsum.photos/id/1/800/600\"\n}",
+						"thoughtSignature": "EjQKMgG+Pvb76yakoc37wK2Rm0jcxuLbS1om+WTGxgMbyVJjMIjGBMK5TG6J6dBmbwFMBjhF"
+					}
+				],
+				"role": "model"
+			},
+			"finishReason": "STOP",
+			"index": 0
+		}
+	],
+	"usageMetadata": {
+		"promptTokenCount": 88,
+		"candidatesTokenCount": 113,
+		"totalTokenCount": 201,
+		"promptTokensDetails": [
+			{
+				"modality": "TEXT",
+				"tokenCount": 88
+			}
+		]
+	},
+	"modelVersion": "gemini-3.1-flash-lite-preview",
+	"responseId": "bwC0aeLqK7a_qtsPoJnL2Ak"
+}

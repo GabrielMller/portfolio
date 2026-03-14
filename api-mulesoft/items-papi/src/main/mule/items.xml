@@ -1,12 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:kafka="http://www.mulesoft.org/schema/mule/kafka" xmlns:http="http://www.mulesoft.org/schema/mule/http"
-	xmlns="http://www.mulesoft.org/schema/mule/core"
-	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+<mule xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:kafka="http://www.mulesoft.org/schema/mule/kafka"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
-http://www.mulesoft.org/schema/mule/kafka http://www.mulesoft.org/schema/mule/kafka/current/mule-kafka.xsd">
+http://www.mulesoft.org/schema/mule/kafka http://www.mulesoft.org/schema/mule/kafka/current/mule-kafka.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
 	<flow name="createItem" doc:id="6f2bc13a-df10-4085-b34f-dfe626df08d4" >
-		<http:request doc:name="Request" doc:id="16f3a85e-1b9f-46cb-8403-b6e1bc83eb72" config-ref="items_HTTP_Request_config" path="/generate" method="GET">
+		<http:request method="GET" doc:name="Request" doc:id="e4598c0b-9e37-44a9-9b72-1e9ec2151739" config-ref="Users_Request_configuration" path="/{userId}">
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"userId" : vars.userId,
+	"version" : 1
+}]]]></http:uri-params>
+		</http:request>
+		<try doc:name="Try" doc:id="7171d65a-e35a-4e68-b0ba-4133dfc7f275" >
+			<validation:is-true doc:name="Is true" doc:id="2412abf1-31d3-4f8b-beb7-7e42c9314d1a" expression="#[payload.role == 'admin']" />
+			<error-handler >
+				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="5d9a22c8-eac3-40a2-b96e-66e93cef72e0" >
+					<set-payload value="#[output json&#10;---&#10;{&#10;	message: 'FORBIDDEN',&#10;	description: 'O usuário não tem permição para essa operação'	&#10;}]" doc:name="Set Payload" doc:id="9a7db767-a753-4ba6-b39e-f2faf55c27cf" />
+					<set-variable value="#[403]" doc:name="Set Variable" doc:id="d02d9d5f-e008-4a6f-b073-c4bc936c8adf" variableName="httpStatus" />
+				</on-error-propagate>
+			</error-handler>
+		</try>
+		<http:request doc:name="Request" doc:id="16f3a85e-1b9f-46cb-8403-b6e1bc83eb72" config-ref="Items_HTTP_Request_config" path="/generate" method="GET">
 			<http:uri-params ><![CDATA[#[output application/java
 ---
 {

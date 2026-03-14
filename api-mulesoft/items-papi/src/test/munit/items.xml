@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="items.xml" />
+	<munit:test name="test-create-item-normal-user" doc:id="77b4124e-0510-4e09-af37-c78665b9d10c" expectedErrorType="VALIDATION:INVALID_BOOLEAN">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="95c4ea3a-92e8-4d3b-a812-ed27bae55431" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="e4598c0b-9e37-44a9-9b72-1e9ec2151739" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output json&#10;---&#10;readUrl('classpath://mocks/user.json','json')]" mediaType="application/json" encoding="UTF-8" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow Reference" doc:id="1a14686f-17d3-4cdb-8511-8ea1fa88813b" name="createItem"/>
+		</munit:execution>
+	</munit:test>
+	<munit:test name="test-create-item-admin-user" doc:id="32b8891e-3b04-47d2-ab16-25876ec9f76e" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="18b79ca1-6181-42d0-800b-aa4fdc786b8b" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="e4598c0b-9e37-44a9-9b72-1e9ec2151739" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output json&#10;---&#10;readUrl('classpath://mocks/admin.json','json')]" mediaType="application/json" encoding="UTF-8" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when" doc:id="8be8e5a6-49f9-4f78-bdbd-b748be29be8a" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="16f3a85e-1b9f-46cb-8403-b6e1bc83eb72" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output json&#10;---&#10;readUrl('classpath://mocks/item.json','json')]" mediaType="application/json" encoding="UTF-8" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:spy doc:name="Spy" doc:id="1b28037d-34e7-43c6-94a3-bfc747918d6a" processor="kafka:publish">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="cb02ab3c-389e-4894-b020-363d0528d587" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:before-call >
+					<munit-tools:assert-that doc:name="Assert that" doc:id="15b2dd8c-5f5c-4f45-a3a8-e7d354dfde33" expression="#[payload.id]" is="#[MunitTools::notNullValue()]"/>
+				</munit-tools:before-call>
+			</munit-tools:spy>
+			<munit-tools:mock-when doc:name="Mock when" doc:id="067fd09d-1891-4640-ae3b-ec6cddf74bd6" processor="kafka:publish">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="cb02ab3c-389e-4894-b020-363d0528d587" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow Reference" doc:id="70670f1f-3840-4f0f-bff1-ea5e59b2a2f8" name="createItem" />
+		</munit:execution>
+	</munit:test>
+
+
+</mule>

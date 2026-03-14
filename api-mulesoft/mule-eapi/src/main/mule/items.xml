@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<flow name="createItem" doc:id="57140e99-e9d3-498b-86ea-e7b92be9be77" >
+		<http:request method="POST" doc:name="Request" doc:id="bc5a3c5a-d189-4581-81fc-c8d0635737a9" config-ref="Items_Request_configuration" path="/">
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	"userId" : vars.user.id
+}]]]></http:headers>
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"version" : 1
+}]]]></http:uri-params>
+		</http:request>
+	</flow>
+</mule>

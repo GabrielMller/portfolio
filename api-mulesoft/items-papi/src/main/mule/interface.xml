@@ -26,6 +26,7 @@
         <apikit:router doc:name="APIkit Router" doc:id="853aafd0-6145-4607-8dae-3027774901bf" config-ref="Router" />
     </flow>
     <flow name="post:\v1\:Router">
+		<set-variable value="#[output json&#10;---&#10;attributes.headers.userId]" doc:name="Set Variable" doc:id="66101c1d-1b64-4f63-9475-b7e151e06e67" variableName="userId"/>
 		<flow-ref doc:name="Flow Reference" doc:id="6a0bad93-b97d-43e3-b751-237efb988326" name="createItem"/>
     </flow>
 </mule>

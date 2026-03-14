@@ -9,9 +9,26 @@
 		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
 	<munit:config name="items.xml" />
 	<munit:test name="generate-item-test" doc:id="400c8af6-1af5-4eb9-bea3-fef5bab396b5" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="8c33e979-edfb-46d7-a022-a6fa44ac9a46" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="34073d19-d603-4f33-b8f1-064807949f6c" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output json&#10;---&#10;readUrl('classpath://mocks/AI.json','json')]" mediaType="application/json" encoding="UTF-8" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
 		<munit:execution >
 			<flow-ref doc:name="Flow Reference" doc:id="ea1fb62a-2b89-4c77-a978-b29b97c532de" name="generateItem"/>
 		</munit:execution>
+		<munit:validation>
+			<munit-tools:assert doc:name="Assert expression" doc:id="390e41fb-734d-4677-abf0-504894ac4924" >
+				<munit-tools:that ><![CDATA[#[import * from dw::test::Asserts 
+ ---
+payload.sku must equalTo('MULE-LT-2024-X1')]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
 	</munit:test>
 
 
