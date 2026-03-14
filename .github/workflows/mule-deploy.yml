@@ -64,7 +64,7 @@ jobs:
       - name: Run MUnit Tests
         run: |
           cd api-mulesoft/${{ matrix.api }}
-          mvn test -s settings.xml \
+          mvn test -s ../../settings.xml \
             -DSECURE_KEY=${{ secrets.SECURE_KEY }} \
             -DDB_USER= \
             -DDB_PASS= \
@@ -74,6 +74,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_ACTOR: ${{ github.actor }}
 
       - name: Publish Test Results
         uses: mikepenz/action-junit-report@v4
