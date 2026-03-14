@@ -27,7 +27,7 @@ public class JwtAuthenticator {
                 throw new Exception("Token expirado");
             }
             return Map.of(
-                "userId", claims.get("user_id", String.class),
+                "userId", claims.get("user_id", Integer.class),
                 "email", claims.get("email", String.class)
             );
         } catch (Exception e) {
