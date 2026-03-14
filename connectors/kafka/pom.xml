@@ -17,7 +17,7 @@
     </parent>
 
     <properties>
-        <min.mule.version>4.11</min.mule.version>
+        <min.mule.version>4.9</min.mule.version>
         <java.release.version>17</java.release.version>
     </properties>
 
