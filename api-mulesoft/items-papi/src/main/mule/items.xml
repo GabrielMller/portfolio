@@ -32,7 +32,7 @@ http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mu
 	"version" : 1
 }]]]></http:uri-params>
 		</http:request>
-		<set-payload value="#[output json&#10;---&#10;payload ++ {&#10;	id: uuid()&#10;}]" doc:name="Set Payload" doc:id="15a419a0-9311-4425-84a2-dcd306afb5d6" />
+		<set-payload value='#[output json&#10;---&#10;payload ++ {&#10;	id: uuid(),&#10;	action: "create"&#10;}]' doc:name="Set Payload" doc:id="15a419a0-9311-4425-84a2-dcd306afb5d6" />
 		<kafka:publish-message doc:name="Publish message" doc:id="6be96b40-a2ef-4c09-89c5-5083b995687f" topic="items" key="#[payload.sku]" config-ref="Kafka_Producer_config">
 			<kafka:message ><![CDATA[#[output json
 ---
