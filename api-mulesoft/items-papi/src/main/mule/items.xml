@@ -19,6 +19,7 @@ http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mu
 			<validation:is-true doc:name="Is true" doc:id="2412abf1-31d3-4f8b-beb7-7e42c9314d1a" expression="#[payload.role == 'admin']" />
 			<error-handler >
 				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="5d9a22c8-eac3-40a2-b96e-66e93cef72e0" >
+					<logger level="INFO" doc:name="Logger" doc:id="5066d2af-10a4-4d8d-ae6d-1ad7b9d621f5" message='#[output json&#10;---&#10;{&#10;	message: "Error authenticating admin",&#10;	payload: payload&#10;}]'/>
 					<set-payload value="#[output json&#10;---&#10;{&#10;	message: 'FORBIDDEN',&#10;	description: 'O usuário não tem permição para essa operação'	&#10;}]" doc:name="Set Payload" doc:id="9a7db767-a753-4ba6-b39e-f2faf55c27cf" />
 					<set-variable value="#[403]" doc:name="Set Variable" doc:id="d02d9d5f-e008-4a6f-b073-c4bc936c8adf" variableName="httpStatus" />
 				</on-error-propagate>
