@@ -26,6 +26,7 @@ jobs:
             users-sapi: 'api-mulesoft/users-sapi/**'
             users-papi: 'api-mulesoft/users-papi/**'
             items-papi: 'api-mulesoft/items-papi/**'
+            items-sapi: 'api-mulesoft/items-sapi/**'
 
   build:
     needs: detect-changes
