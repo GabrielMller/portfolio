@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.GabrielMllr</groupId>
     <artifactId>kafka</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.24</version>
     <packaging>mule-extension</packaging>
     <name>Kafka Extension</name>
 
@@ -19,7 +19,22 @@
     <properties>
         <min.mule.version>4.9</min.mule.version>
         <java.release.version>17</java.release.version>
+        <kafka.clients.version>3.9.1</kafka.clients.version>
+        <slf4j.version>2.0.7</slf4j.version>
     </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-clients</artifactId>
+            <version>${kafka.clients.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+    </dependencies>
 
     <repositories>
 		<repository>

@@ -1,9 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
-	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
-http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+<mule xmlns:kafka="http://www.mulesoft.org/schema/mule/kafka" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/kafka http://www.mulesoft.org/schema/mule/kafka/current/mule-kafka.xsd">
+	<kafka:consumer-config name="Apache_Kafka_Consumer_configuration" doc:name="Apache Kafka Consumer configuration" doc:id="3b0bd9ce-5dc4-439f-9bc7-89aa79b45de6" >
+		<kafka:consumer-plaintext-connection groupId="teste-id">
+			<kafka:bootstrap-servers >
+				<kafka:bootstrap-server value="192.168.0.64:32618" />
+			</kafka:bootstrap-servers>
+			<kafka:topic-patterns >
+				<kafka:topic-pattern value="items" />
+			</kafka:topic-patterns>
+		</kafka:consumer-plaintext-connection>
+	</kafka:consumer-config>
 	<flow name="generateItem" doc:id="63f71b61-0d3a-41fa-a382-7641429f9c54" >
 		<http:request method="POST" doc:name="Request" doc:id="34073d19-d603-4f33-b8f1-064807949f6c" config-ref="AI_Request_configuration" path="/gemini-3.1-flash-lite-preview:generateContent">
 			<http:body ><![CDATA[#[output json
@@ -27,5 +38,9 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
 }]]]></http:body>
 		</http:request>
 		<set-payload value='#[output json&#10;---&#10;read(payload.candidates[0].content.parts[0].text, "json")]' doc:name="Set Payload" doc:id="3092fa4e-6186-4747-8b45-4baef3ae621e" />
+	</flow>
+	<flow name="itemsFlow" doc:id="62f7a657-af4b-42e2-8c39-129df6fbffce" >
+		<kafka:message-listener doc:name="Message listener" doc:id="d5ad3238-7a90-4d09-95bc-4f54ffc77443" config-ref="Apache_Kafka_Consumer_configuration"/>
+		<set-payload value="#[payload]" doc:name="Set Payload" doc:id="d9069456-010d-401d-b794-d15202de3864" />
 	</flow>
 </mule>

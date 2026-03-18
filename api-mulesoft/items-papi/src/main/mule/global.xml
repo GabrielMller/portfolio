@@ -20,4 +20,14 @@ http://www.mulesoft.org/schema/mule/kafka http://www.mulesoft.org/schema/mule/ka
     <http:request-config name="Users_Request_configuration" doc:name="HTTP Request configuration" doc:id="9a1b743d-a51f-4930-9283-6a97a5b40059" basePath="${users.basePath}" >
 		<http:request-connection protocol="${users.protocol}" host="${users.host}" port="${users.port}" />
 	</http:request-config>
+	<kafka:producer-config name="Kafka_Producer_config" doc:name="Kafka Producer config" doc:id="2fc7e25a-034d-4271-b47e-f13e629d5ce3" >
+		<kafka:producer-plaintext-connection-provider-connection bootstrapServers="${kafka.brokers}" producerAck="ALL"/>
+	</kafka:producer-config>
+	<kafka:consumer-config name="Kafka_Consumer_Configuration" doc:name="Kafka Consumer Configuration" doc:id="c2d95b83-8418-4663-b8e7-2ac17b153e49" >
+		<kafka:consumer-plaintext-connection bootstrapServers="${kafka.brokers}" groupId="teste-id" autoOffsetReset="EARLIEST">
+			<kafka:topic-patterns >
+				<kafka:topic-pattern value="items" />
+			</kafka:topic-patterns>
+		</kafka:consumer-plaintext-connection>
+	</kafka:consumer-config>
 </mule>

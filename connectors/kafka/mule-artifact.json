@@ -1,0 +1,20 @@
+{
+  "minMuleVersion": "4.9.0",
+  "javaSpecificationVersions": [
+    "17"
+  ],
+  "classLoaderModelLoaderDescriptor": {
+    "id": "mule",
+    "attributes": {
+      "privilegedExportedPackages": [],
+      "privilegedArtifactIds": [],
+      "exportedPackages": [
+        "com.mulesoft.connectors.kafka.api",
+        "com.mulesoft.connectors.kafka.api.operation",
+        "com.mulesoft.connectors.kafka.api.connection.providers",
+        "com.mulesoft.connectors.kafka.api.source"
+      ],
+      "exportedResources": []
+    }
+  }
+}
