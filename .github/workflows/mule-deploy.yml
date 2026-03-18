@@ -71,6 +71,8 @@ jobs:
             -DDB_PASS= \
             -DAPI_NAME=${{ matrix.api }} \
             -DMULE_ENV=qa \
+            -DAI_KEY=${{ secrets.AI_KEY }} \
+            -DJWT_SECRET=${{ secrets.JWT_SECRET }} \
             -Dmunit.failIfNoTests=false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
