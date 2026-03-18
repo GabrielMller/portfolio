@@ -41,6 +41,11 @@
 					<munit-tools:payload value="#[output json&#10;---&#10;readUrl('classpath://mocks/item.json','json')]" mediaType="application/json" encoding="UTF-8" />
 				</munit-tools:then-return>
 			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when" doc:id="e2b8a087-fbfe-457c-9073-31cb465e2955" processor="kafka:publish-message">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="6be96b40-a2ef-4c09-89c5-5083b995687f" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
 		</munit:behavior>
 		<munit:execution >
 			<flow-ref doc:name="Flow Reference" doc:id="70670f1f-3840-4f0f-bff1-ea5e59b2a2f8" name="createItem" />
