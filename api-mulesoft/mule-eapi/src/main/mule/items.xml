@@ -9,7 +9,7 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
 			<http:headers ><![CDATA[#[output application/java
 ---
 {
-	"userId" : vars.user.id
+	"userId" : vars.user.userId
 }]]]></http:headers>
 			<http:uri-params ><![CDATA[#[output application/java
 ---

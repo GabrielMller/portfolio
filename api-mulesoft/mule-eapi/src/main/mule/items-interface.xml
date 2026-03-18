@@ -15,7 +15,7 @@
         <error-handler ref="Error_Handler_Specs" />
     </flow>
     <flow name="post:\v1\:Items">
-		<flow-ref doc:name="Flow Reference" doc:id="60426efc-3dfb-4576-9ce9-14bfb91830b7" name="validateJWT" target="client"/>
+		<flow-ref doc:name="Flow Reference" doc:id="60426efc-3dfb-4576-9ce9-14bfb91830b7" name="validateJWT" target="user"/>
 		<flow-ref doc:name="Flow Reference" doc:id="72d9f359-37c6-47f3-897e-40727d4470da" name="createItem"/>
     </flow>
 </mule>
