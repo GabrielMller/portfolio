@@ -7,7 +7,7 @@
 		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
 		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
-	<munit:config name="items.xml" />
+	<munit:config name="items-tests.xml" />
 	<munit:test name="generate-item-test" doc:id="400c8af6-1af5-4eb9-bea3-fef5bab396b5" >
 		<munit:behavior >
 			<munit-tools:mock-when doc:name="Mock when" doc:id="8c33e979-edfb-46d7-a022-a6fa44ac9a46" processor="http:request">
