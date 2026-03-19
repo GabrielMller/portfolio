@@ -233,7 +233,7 @@
 		<dependency>
 			<groupId>com.GabrielMllr</groupId>
 			<artifactId>kafka</artifactId>
-			<version>1.0.24</version>
+			<version>1.0.26</version>
 			<classifier>mule-plugin</classifier>
 		</dependency>
 		<dependency>
