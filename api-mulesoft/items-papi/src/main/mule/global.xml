@@ -23,11 +23,4 @@ http://www.mulesoft.org/schema/mule/kafka http://www.mulesoft.org/schema/mule/ka
 	<kafka:producer-config name="Kafka_Producer_config" doc:name="Kafka Producer config" doc:id="2fc7e25a-034d-4271-b47e-f13e629d5ce3" >
 		<kafka:producer-plaintext-connection-provider-connection bootstrapServers="${kafka.brokers}" producerAck="ALL"/>
 	</kafka:producer-config>
-	<kafka:consumer-config name="Kafka_Consumer_Configuration" doc:name="Kafka Consumer Configuration" doc:id="c2d95b83-8418-4663-b8e7-2ac17b153e49" >
-		<kafka:consumer-plaintext-connection bootstrapServers="${kafka.brokers}" groupId="teste-id" autoOffsetReset="EARLIEST">
-			<kafka:topic-patterns >
-				<kafka:topic-pattern value="items" />
-			</kafka:topic-patterns>
-		</kafka:consumer-plaintext-connection>
-	</kafka:consumer-config>
 </mule>

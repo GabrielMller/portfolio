@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:spring="http://www.mulesoft.org/schema/mule/spring" xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties"
-	xmlns:db="http://www.mulesoft.org/schema/mule/db"
-	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+<mule xmlns:kafka="http://www.mulesoft.org/schema/mule/kafka" xmlns:spring="http://www.mulesoft.org/schema/mule/spring"
+	xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
 http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd
-http://www.mulesoft.org/schema/mule/spring http://www.mulesoft.org/schema/mule/spring/current/mule-spring.xsd">
+http://www.mulesoft.org/schema/mule/spring http://www.mulesoft.org/schema/mule/spring/current/mule-spring.xsd
+http://www.mulesoft.org/schema/mule/kafka http://www.mulesoft.org/schema/mule/kafka/current/mule-kafka.xsd">
 	<global-property doc:name="Global Property" doc:id="8666ff06-205b-45d0-a1e1-9a2687b11f64" name="MULE_ENV" value="local" />
 	<configuration-properties doc:name="Configuration properties" doc:id="e49be8e2-68e8-4cdc-be48-f56f70267762" file="properties/${MULE_ENV}.properties" />
 	<configuration doc:name="Configuration" doc:id="74270d59-4d0b-4991-9ef8-b68fc63fd80a" defaultErrorHandler-ref="propagate_error" correlationIdGeneratorExpression="#[uuid()]" />
@@ -19,5 +20,21 @@ http://www.mulesoft.org/schema/mule/spring http://www.mulesoft.org/schema/mule/s
 			<http:default-header key="X-goog-api-key" value="${AI_KEY}" />
 		</http:default-headers>
 	</http:request-config>
-    
+	<spring:config name="Spring_Config" doc:name="Spring Config" doc:id="88cbcbed-8ea2-4f8d-9fcf-082c0d539c81" files="beans.xml" />
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="469b7105-85e3-4451-b830-73f1027cd83d" >
+		<db:generic-connection url="${db.url}" driverClassName="${db.driver}" user="${DB_USER}" password="${DB_PASS}">
+			<db:pooling-profile maxPoolSize="15" minPoolSize="2" maxWait="60" maxIdleTime="60" maxStatements="100" />
+		</db:generic-connection>
+	</db:config>
+	<kafka:consumer-config name="Kafka_Consumer_Configuration" doc:name="Kafka Consumer Configuration" doc:id="c0cc64d6-3e5b-40c0-9a39-9ea68a39fcc5" >
+		<kafka:consumer-plaintext-connection bootstrapServers="${kafka.brokers}" groupId="items.sapi.consumer" consumerAmount="3" autoOffsetReset="EARLIEST" requestTimeout="120" sessionTimeout="120" maximumPollingInterval="120">
+			<kafka:topic-patterns >
+				<kafka:topic-pattern value="items" />
+			</kafka:topic-patterns>
+		</kafka:consumer-plaintext-connection>
+	</kafka:consumer-config>
+	<kafka:producer-config name="Kafka_Producer_config" doc:name="Kafka Producer config" doc:id="e83a86fc-5398-4edf-90b1-5a6b34c013f1" >
+		<kafka:producer-plaintext-connection-provider-connection bootstrapServers="${kafka.brokers}" producerAck="ALL"/>
+	</kafka:producer-config>
+	
 </mule>

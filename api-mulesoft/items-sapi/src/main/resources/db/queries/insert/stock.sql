@@ -1,0 +1,1 @@
+INSERT INTO public.stock (item_id, quantity) VALUES (:item_id, :quantity)

@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:kafka="http://www.mulesoft.org/schema/mule/kafka" xmlns:http="http://www.mulesoft.org/schema/mule/http"
-	xmlns="http://www.mulesoft.org/schema/mule/core"
-	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+<mule xmlns:os="http://www.mulesoft.org/schema/mule/os" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:kafka="http://www.mulesoft.org/schema/mule/kafka"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
-http://www.mulesoft.org/schema/mule/kafka http://www.mulesoft.org/schema/mule/kafka/current/mule-kafka.xsd">
+http://www.mulesoft.org/schema/mule/kafka http://www.mulesoft.org/schema/mule/kafka/current/mule-kafka.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd">
+	<os:object-store name="Retries" doc:name="Object store" doc:id="ade44a48-a083-4aa2-8ce0-fc7af6e15038" entryTtl="2" entryTtlUnit="HOURS" expirationInterval="2" expirationIntervalUnit="HOURS" />
 	<flow name="generateItem" doc:id="63f71b61-0d3a-41fa-a382-7641429f9c54" >
 		<http:request method="POST" doc:name="Request" doc:id="34073d19-d603-4f33-b8f1-064807949f6c" config-ref="AI_Request_configuration" path="/gemini-3.1-flash-lite-preview:generateContent">
 			<http:body ><![CDATA[#[output json
@@ -27,6 +30,85 @@ http://www.mulesoft.org/schema/mule/kafka http://www.mulesoft.org/schema/mule/ka
   }
 }]]]></http:body>
 		</http:request>
-		<set-payload value='#[output json&#10;---&#10;read(payload.candidates[0].content.parts[0].text, "json")]' doc:name="Set Payload" doc:id="3092fa4e-6186-4747-8b45-4baef3ae621e" />
+		<set-payload value='#[output json&#10;---&#10;read(payload.candidates[0].content.parts[0].text, "json") update {&#10;	case .price -&gt; $ as Number&#10;}]' doc:name="Set Payload" doc:id="3092fa4e-6186-4747-8b45-4baef3ae621e" />
+	</flow>
+	<flow name="itemActions" doc:id="f15ff068-0e85-4db2-8b77-d57c941b36fd" >
+		<choice doc:name="Choice" doc:id="8f38ce68-f75b-46b5-bf66-e81d49cba07e">
+			<when expression='#[payload.action == "create"]'>
+				<until-successful maxRetries="5" doc:name="Until Successful" doc:id="47e8e5f6-855a-4080-a8fe-9a56b7803df0" millisBetweenRetries="6000">
+					<db:insert doc:name="Insert" doc:id="97cf536a-f00d-4f4a-924e-c1e04fbf754e" config-ref="Database_Config" autoGenerateKeys="true" target="item">
+					<db:sql><![CDATA[${file::db/queries/insert/items.sql}]]></db:sql>
+						<db:input-parameters><![CDATA[#[payload]]]></db:input-parameters>
+						<db:auto-generated-keys-column-names>
+							<db:auto-generated-keys-column-name value="id" />
+						</db:auto-generated-keys-column-names>
+				</db:insert>
+				</until-successful>
+				<until-successful maxRetries="5" doc:name="Until Successful" doc:id="fd014a67-b335-4c14-897e-d1b2190947e0" millisBetweenRetries="6000">
+					<db:insert doc:name="Insert" doc:id="0a322a0e-b296-40a5-a0ce-c3b73c637720" config-ref="Database_Config" target="stock">
+						<db:sql><![CDATA[${file::db/queries/insert/stock.sql}]]></db:sql>
+						<db:input-parameters><![CDATA[#[output json
+---
+{
+	item_id: payload.id,
+	quantity: 10
+}]]]></db:input-parameters>
+					</db:insert>
+				</until-successful>
+				<logger level="INFO" doc:name="Logger" doc:id="ddd1a96c-2063-4067-b3f3-0c38c5cc684f" message='#[output json&#10;---&#10;{&#10;	message: "Success creating item and default stock",&#10;	payload: payload&#10;}]' />
+			</when>
+		</choice>
+	</flow>
+	<flow name="itemsTopicListener" doc:id="b3d22763-96e5-4114-995e-5da2ed40975a" >
+		<kafka:message-listener doc:name="Message listener" doc:id="a64bf1e5-3886-4cef-81fa-a5196c6a873b" config-ref="Kafka_Consumer_Configuration" parallelConsumersAmount="3" ackMode="AUTO"/>
+		<try doc:name="Try" doc:id="21edc8c1-89a1-4bfe-b278-4aff6de640d0" >
+			<set-payload value='#[output json&#10;---&#10;read(payload, "json")]' doc:name="Set Payload" doc:id="ed2ebecb-b0e3-4d5d-bbf9-851a10a7c3d5" />
+			<error-handler >
+				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="1775c369-7540-4e11-8697-a811a06edf8b" type="ANY">
+					<logger level="ERROR" doc:name="Logger" doc:id="b0ba0bff-4e03-4bf7-b6dc-a42f58b43eb2" message='#[output json&#10;---&#10;{&#10;	message: "Error reading data from topic items",&#10;	payload: payload&#10;}]' />
+				</on-error-propagate>
+			</error-handler>
+		</try>
+		<logger level="INFO" doc:name="Logger" doc:id="b42492db-ce8c-4b73-bac2-0f7f8c910be1" message='#[output json&#10;---&#10;{&#10;	message: "Consuming data from topic items",&#10;	payload: payload&#10;}]'/>
+		<flow-ref doc:name="Flow Reference" doc:id="4c5b96c8-b601-4111-b1d3-01622b3b8c46" name="itemActions"/>
+		<error-handler >
+			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="803a47ed-45c2-4c73-bc5c-061663b12e11" type="DB:BAD_SQL_SYNTAX, DB:CONNECTIVITY, DB:QUERY_EXECUTION, DB:RETRY_EXHAUSTED">
+				<logger level="ERROR" doc:name="Logger" doc:id="cff6f630-3237-4b6b-9573-ea6b04206dbc" message='#[output json&#10;---&#10;{&#10;	message: "Error consuming data from topic items sending to DLQ",&#10;	payload: payload&#10;}]' />
+				<kafka:publish-message doc:name="Publish message" doc:id="c3af3303-a3b0-4a81-b080-9edecafe0abe" topic="items.dlq" key="#[payload.sku]" config-ref="Kafka_Producer_config">
+					<kafka:message ><![CDATA[#[output json
+---
+payload]]]></kafka:message>
+				</kafka:publish-message>
+			</on-error-continue>
+			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="c9c5a424-fec5-4602-a7a5-dd4065823996" />
+		</error-handler>
+	</flow>
+	<flow name="itemsDLQTopicListener" doc:id="f6881d04-82c0-4877-832a-c5ddfeab03b0" >
+		<kafka:message-listener doc:name="Message listener" doc:id="8ed54357-e75b-4beb-ba36-e8d62edc31c8" config-ref="Kafka_Consumer_Configuration" ackMode="AUTO" pollTimeout="180" pollTimeoutTimeUnit="SECONDS"/>
+		<try doc:name="Try" doc:id="e62867d3-f2dc-4612-a7d6-1fdf78742a6a" >
+			<set-payload value='#[output json&#10;---&#10;read(payload, "json")]' doc:name="Set Payload" doc:id="15af7684-cf7a-4276-8067-dbf4b2bc23ad" />
+			<error-handler >
+				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="2f4ec070-70d7-4806-9052-207c75e6a07e" type="ANY" >
+					<logger level="ERROR" doc:name="Logger" doc:id="d47b95af-9761-49b5-b563-564472f01259" message='#[output json&#10;---&#10;{&#10;	message: "Error reading data from topic items.dlq",&#10;	payload: payload&#10;}]' />
+				</on-error-propagate>
+			</error-handler>
+		</try>
+		<os:retrieve doc:name="Retrieve" doc:id="10c4d33c-ce7b-4ed9-8ad9-c413bd8304a9" objectStore="Retries" key="#[payload.sku]" target="retries" targetValue="#[payload as Number]">
+			<os:default-value ><![CDATA[#[output json
+---
+1]]]></os:default-value>
+		</os:retrieve>
+		<logger level="INFO" doc:name="Logger" doc:id="3a89d085-fe7c-453a-9d36-b123524954c9" message='#[output json&#10;---&#10;{&#10;	message: "Consuming data from topic items.dlq",&#10;	payload: payload,&#10;	retries: vars.retries&#10;}]' />
+		<flow-ref doc:name="Flow Reference" doc:id="3b4b25fa-7cf5-49f3-9f75-422f58653737" name="itemActions" target="response"/>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="c4779afd-c5fd-442e-af4b-317a38223a6b" >
+				<logger level="ERROR" doc:name="Logger" doc:id="ba08b4b4-b852-430e-a26c-6af23ff06337" message='#[output json&#10;---&#10;{&#10;	message: "Error consuming data from topic items.dlq please verify the payload or the connection, it will retry until be excluded",&#10;	payload: payload&#10;}]' />
+				<os:store doc:name="Store" doc:id="66e8c4c0-6b35-408c-b9cc-f5bdcd1c814e" key="#[payload.sku]" objectStore="Retries">
+			<os:value><![CDATA[#[output json
+---
+(vars.retries default 1) + 1]]]></os:value>
+		</os:store>
+			</on-error-propagate>
+		</error-handler>
 	</flow>
 </mule>

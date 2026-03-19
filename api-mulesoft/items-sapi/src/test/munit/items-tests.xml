@@ -1,13 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
-	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
-	xsi:schemaLocation="
+<mule xmlns:dbserver="http://www.mulesoft.org/schema/mule/dbserver"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+	xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xsi:schemaLocation="
 		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
-		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+http://www.mulesoft.org/schema/mule/dbserver http://www.mulesoft.org/schema/mule/dbserver/current/mule-dbserver.xsd">
 	<munit:config name="items-tests.xml" />
+	<dbserver:config name="MUnit_DB_Server_Config" doc:name="MUnit DB Server Config" doc:id="a9679665-4484-4cc9-9c12-634146f5f405" >
+		<dbserver:connection database="mulesoft_db" connectionStringParameters="MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE" sqlFile="db/items.sql"/>
+	</dbserver:config>
+	<global-property doc:name="Global Property" doc:id="86eadae3-e409-4342-80a2-11dc36ce6220" name="MULE_ENV" value="qa" />
 	<munit:test name="generate-item-test" doc:id="400c8af6-1af5-4eb9-bea3-fef5bab396b5" >
 		<munit:behavior >
 			<munit-tools:mock-when doc:name="Mock when" doc:id="8c33e979-edfb-46d7-a022-a6fa44ac9a46" processor="http:request">
@@ -28,6 +33,20 @@
  ---
 payload.sku must equalTo('MULE-LT-2024-X1')]]]></munit-tools:that>
 			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="create-item-test" doc:id="1946a32c-5f1a-485f-80a1-e18c5db458b9" >
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="5e526cec-36fc-4794-b27c-a1a2787c9376" >
+				<munit:payload value="#[output json&#10;---&#10;readUrl('classpath://mocks/item.json','json')]" encoding="UTF-8" mediaType="application/json" />
+			</munit:set-event>
+			<flow-ref doc:name="Flow Reference" doc:id="c0b4c888-dd22-4f03-9838-5c607092c008" name="itemActions"/>
+		</munit:execution>
+		<munit:validation>
+			<dbserver:execute-query doc:name="Execute query" doc:id="a30d3da8-fc89-485f-98a2-e3fb69b8b3a2" config-ref="MUnit_DB_Server_Config" sql="SELECT * FROM items WHERE id = '14e2c66a-0ea1-4e8a-9f9d-49a6bfef7b15'"/>
+			<munit-tools:assert-that doc:name="Assert that" doc:id="9b6dca21-209a-4697-a660-68aa54eeabe7" is="#[MunitTools::notNullValue()]" expression="#[payload[0]]"/>
+			<dbserver:execute-query doc:name="Execute query" doc:id="be7588c7-289b-4c81-8363-16acfe12a5e0" config-ref="MUnit_DB_Server_Config" sql="SELECT * FROM stock WHERE item_id = '14e2c66a-0ea1-4e8a-9f9d-49a6bfef7b15'"/>
+			<munit-tools:assert-that doc:name="Assert that" doc:id="fc657e10-de91-4c4d-95f3-8e38f43bec7c" is="#[MunitTools::notNullValue()]" expression="#[payload[0]]"/>
 		</munit:validation>
 	</munit:test>
 

@@ -3,5 +3,7 @@
   "name": "MuleSoft Certified Developer Laptop",
   "price": 2499.99,
   "description": "High-performance laptop optimized for Anypoint Platform development, featuring 32GB RAM, 1TB SSD, and pre-configured MuleSoft runtime environment.",
-  "image": "https://picsum.photos/id/1/800/600"
+  "image": "https://picsum.photos/id/1/800/600",
+  "action": "create",
+  "id": "14e2c66a-0ea1-4e8a-9f9d-49a6bfef7b15"
 }
