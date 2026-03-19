@@ -10,7 +10,6 @@ import org.mule.sdk.api.annotation.connectivity.ConnectionProviders;
 import org.mule.sdk.api.annotation.param.Optional;
 import org.mule.sdk.api.annotation.param.Parameter;
 import org.mule.sdk.api.annotation.param.display.DisplayName;
-import org.mule.sdk.api.annotation.param.display.Placement;
 import org.mule.sdk.api.annotation.param.display.Summary;
 import org.mule.sdk.api.meta.ExpressionSupport;
 import org.mule.sdk.api.runtime.operation.Result;

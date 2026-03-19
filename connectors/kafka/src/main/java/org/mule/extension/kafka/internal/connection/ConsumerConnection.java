@@ -16,6 +16,7 @@ import java.util.stream.IntStream;
 import java.util.Map.Entry;
 
 import org.mule.runtime.api.connection.ConnectionException;
+import org.mule.runtime.api.connection.ConnectionProvider;
 import org.mule.runtime.api.message.ErrorType;
 import org.mule.runtime.api.scheduler.Scheduler;
 import org.mule.sdk.api.connectivity.ConnectionValidationResult;
@@ -52,6 +53,7 @@ import org.apache.kafka.common.errors.InvalidTopicException;
 import org.apache.kafka.common.KafkaException;
 import org.apache.kafka.common.errors.AuthenticationException;
 import org.apache.kafka.common.errors.TimeoutException;
+
 
 public class ConsumerConnection {
   private static final Logger logger = LoggerFactory.getLogger(ConsumerConnection.class);

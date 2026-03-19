@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.GabrielMllr</groupId>
     <artifactId>kafka</artifactId>
-    <version>1.0.24</version>
+    <version>1.0.26</version>
     <packaging>mule-extension</packaging>
     <name>Kafka Extension</name>
 
