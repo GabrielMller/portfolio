@@ -15,9 +15,7 @@ http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/cu
 {
   "systemInstruction": {
     "parts": [{
-      "text": "Você é o Agente de Operações do ecossistema MuleSoft de Gabriel Müller. 
-			Se sua ação for 'CREATE_ITEM', gere um JSON de um item físico como por exemplo um laptop, com campos (sku, name, price, description, image). 
-			REGRAS: Responda apenas o JSON. Não use Markdown. Seja realista. O campo image deve ser um link do lorem picsum"
+      "text": "Você é o Agente de Operações do ecossistema MuleSoft de Gabriel Müller. Se sua ação for 'CREATE_ITEM', gere um JSON de um item físico de tecnologia como celulares, laptops, CPUs, câmeras, com campos (sku, name, price, description, image). REGRAS: Responda apenas o JSON. Não use Markdown. Seja realista. O campo image deve ser um link do lorem picsum. O campo sku deve ser randomizado para ser sempre único"
     }]
   },
   "contents": [{
@@ -63,6 +61,7 @@ http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/cu
 		<kafka:message-listener doc:name="Message listener" doc:id="a64bf1e5-3886-4cef-81fa-a5196c6a873b" config-ref="Kafka_Consumer_Configuration" parallelConsumersAmount="3" ackMode="AUTO"/>
 		<try doc:name="Try" doc:id="21edc8c1-89a1-4bfe-b278-4aff6de640d0" >
 			<set-payload value='#[output json&#10;---&#10;read(payload, "json")]' doc:name="Set Payload" doc:id="ed2ebecb-b0e3-4d5d-bbf9-851a10a7c3d5" />
+			<set-variable value="#[output json&#10;---&#10;payload]" doc:name="Set Variable" doc:id="6c45c78b-f8bc-4ae3-bb46-4e6d11656698" variableName="inputPayload"/>
 			<error-handler >
 				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="1775c369-7540-4e11-8697-a811a06edf8b" type="ANY">
 					<logger level="ERROR" doc:name="Logger" doc:id="b0ba0bff-4e03-4bf7-b6dc-a42f58b43eb2" message='#[output json&#10;---&#10;{&#10;	message: "Error reading data from topic items",&#10;	payload: payload&#10;}]' />
@@ -74,10 +73,10 @@ http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/cu
 		<error-handler >
 			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="803a47ed-45c2-4c73-bc5c-061663b12e11" type="DB:BAD_SQL_SYNTAX, DB:CONNECTIVITY, DB:QUERY_EXECUTION, DB:RETRY_EXHAUSTED">
 				<logger level="ERROR" doc:name="Logger" doc:id="cff6f630-3237-4b6b-9573-ea6b04206dbc" message='#[output json&#10;---&#10;{&#10;	message: "Error consuming data from topic items sending to DLQ",&#10;	payload: payload&#10;}]' />
-				<kafka:publish-message doc:name="Publish message" doc:id="c3af3303-a3b0-4a81-b080-9edecafe0abe" topic="items.dlq" key="#[payload.sku]" config-ref="Kafka_Producer_config">
+				<kafka:publish-message doc:name="Publish message" doc:id="c3af3303-a3b0-4a81-b080-9edecafe0abe" topic="items.dlq" key='#[vars.inputPayload.sku default ""]' config-ref="Kafka_Producer_config">
 					<kafka:message ><![CDATA[#[output json
 ---
-payload]]]></kafka:message>
+vars.inputPayload]]]></kafka:message>
 				</kafka:publish-message>
 			</on-error-continue>
 			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="c9c5a424-fec5-4602-a7a5-dd4065823996" />
