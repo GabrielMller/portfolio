@@ -15,7 +15,7 @@ http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/cu
 {
   "systemInstruction": {
     "parts": [{
-      "text": "Você é o Agente de Operações do ecossistema MuleSoft de Gabriel Müller. Se sua ação for 'CREATE_ITEM', gere um JSON de um item físico de tecnologia como celulares, laptops, CPUs, câmeras, com campos (sku, name, price, description, image). REGRAS: Responda apenas o JSON. Não use Markdown. Seja realista. O campo image deve ser um link do lorem picsum. O campo sku deve ser randomizado para ser sempre único"
+      "text": "Você é o Agente de Operações do ecossistema MuleSoft de Gabriel Müller. Se sua ação for 'CREATE_ITEM', gere um JSON de um item físico de tecnologia como celulares, laptops, CPUs, câmeras, com campos (sku, name, price, description, image). REGRAS: Responda apenas o JSON. Não use Markdown. Seja realista. O campo image deve ser um link do lorem picsum aleatório, diferenciando a cada item. O campo sku deve ser aleatório para ser sempre único a cada item"
     }]
   },
   "contents": [{
@@ -57,7 +57,7 @@ http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/cu
 			</when>
 		</choice>
 	</flow>
-	<flow name="itemsTopicListener" doc:id="b3d22763-96e5-4114-995e-5da2ed40975a" >
+	<flow name="itemsTopicListener" doc:id="b3d22763-96e5-4114-995e-5da2ed40975a">
 		<kafka:message-listener doc:name="Message listener" doc:id="a64bf1e5-3886-4cef-81fa-a5196c6a873b" config-ref="Kafka_Consumer_Configuration" parallelConsumersAmount="3" ackMode="AUTO"/>
 		<try doc:name="Try" doc:id="21edc8c1-89a1-4bfe-b278-4aff6de640d0" >
 			<set-payload value='#[output json&#10;---&#10;read(payload, "json")]' doc:name="Set Payload" doc:id="ed2ebecb-b0e3-4d5d-bbf9-851a10a7c3d5" />
@@ -82,7 +82,7 @@ vars.inputPayload]]]></kafka:message>
 			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="c9c5a424-fec5-4602-a7a5-dd4065823996" />
 		</error-handler>
 	</flow>
-	<flow name="itemsDLQTopicListener" doc:id="f6881d04-82c0-4877-832a-c5ddfeab03b0" >
+	<flow name="itemsDLQTopicListener" doc:id="f6881d04-82c0-4877-832a-c5ddfeab03b0">
 		<kafka:message-listener doc:name="Message listener" doc:id="8ed54357-e75b-4beb-ba36-e8d62edc31c8" config-ref="Kafka_Consumer_Configuration" ackMode="AUTO" pollTimeout="180" pollTimeoutTimeUnit="SECONDS"/>
 		<try doc:name="Try" doc:id="e62867d3-f2dc-4612-a7d6-1fdf78742a6a" >
 			<set-payload value='#[output json&#10;---&#10;read(payload, "json")]' doc:name="Set Payload" doc:id="15af7684-cf7a-4276-8067-dbf4b2bc23ad" />
@@ -109,5 +109,30 @@ vars.inputPayload]]]></kafka:message>
 		</os:store>
 			</on-error-propagate>
 		</error-handler>
+	</flow>
+	<flow name="getItems" doc:id="e93c389b-6ec0-4cdc-9319-d96228cf2a33">
+		<scatter-gather doc:name="Scatter-Gather" doc:id="33ab924d-2aa5-44b5-8b79-99cf03364241" >
+			<route >
+				<db:query-single doc:name="Query single" doc:id="855ba6c0-712b-404b-83c2-481b72b6e7fd" config-ref="Database_Config">
+			<db:sql><![CDATA[SELECT count(*) as total FROM items]]></db:sql>
+		</db:query-single>
+			</route>
+			<route >
+				<db:select doc:name="Select" doc:id="d01a8cc2-373f-480a-b9d6-066cd1017338" config-ref="Database_Config">
+			<db:sql><![CDATA[SELECT id, sku, description, image, name, price
+  FROM items
+ ORDER BY id ASC
+ LIMIT :limit 
+OFFSET :offset]]></db:sql>
+			<db:input-parameters><![CDATA[#[output json
+---
+{
+	limit: vars.query.limit default 1000,
+	offset: vars.query.limit default 0
+}]]]></db:input-parameters>
+		</db:select>
+			</route>
+		</scatter-gather>
+		<set-payload value='#[output json&#10;---&#10;{&#10;	metadata: {&#10;		totalItems: payload."0".payload.total,&#10;	},&#10;	data: payload."1".payload default []&#10;}]' doc:name="Set Payload" doc:id="b96dfd6a-655d-4191-8119-8470e15122e3" />
 	</flow>
 </mule>

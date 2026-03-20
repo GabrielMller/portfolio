@@ -40,4 +40,16 @@ payload]]]></kafka:message>
 		</kafka:publish-message>
 		<set-payload value="#[output json&#10;---&#10;payload]" doc:name="Set Payload" doc:id="f46b6a48-3f40-4e5d-9815-fb443353dbe3" />
 	</flow>
+	<flow name="getItems" doc:id="61b5fff3-f431-49e7-b1f6-959458fdf651" >
+		<set-variable value="#[output json&#10;---&#10;if (vars.query.pageSize? and vars.query.page?) {&#10;	limit: vars.query.pageSize,&#10;	offset: (vars.query.pageSize default 10) * ((vars.query.page default 1) - 1)&#10;} else {}]" doc:name="Set Variable" doc:id="bd0027ee-b64c-4c30-9a0e-6d9da9061034" variableName="itemsQuery"/>
+		<http:request method="GET" doc:name="Request" doc:id="4c6aa6ed-b5fd-4a15-899e-1f5014bbadf2" config-ref="Items_HTTP_Request_config" path="/">
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"version" : 1
+}]]]></http:uri-params>
+			<http:query-params ><![CDATA[#[vars.itemsQuery]]]></http:query-params>
+		</http:request>
+		<set-payload value="#[output json&#10;---&#10;payload update {&#10;	case .metadata.page! -&gt; vars.query.page&#10;	case .metadata.pageSize! -&gt; vars.query.pageSize&#10;}]" doc:name="Set Payload" doc:id="61810905-6e17-4486-a52d-719e9cd0fdaf" />
+	</flow>
 </mule>

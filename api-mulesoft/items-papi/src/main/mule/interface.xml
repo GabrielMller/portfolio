@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mule xmlns:kafka="http://www.mulesoft.org/schema/mule/kafka" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd
-http://www.mulesoft.org/schema/mule/kafka http://www.mulesoft.org/schema/mule/kafka/current/mule-kafka.xsd">
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:kafka="http://www.mulesoft.org/schema/mule/kafka" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/kafka http://www.mulesoft.org/schema/mule/kafka/current/mule-kafka.xsd">
     <apikit:config name="Router" api="items.raml" outboundHeadersMapName="outboundHeadersMapName" httpStatusVarName="httpStatus" />
-	<flow name="health" doc:id="362755f8-990e-47ff-9776-05431e06d372">
+    <flow name="health" doc:id="362755f8-990e-47ff-9776-05431e06d372">
         <http:listener doc:name="Listener" doc:id="d5e5c724-1734-4096-a392-b1606460e376" config-ref="HTTP_Listener_config" path="/health">
             <http:response statusCode="#[vars.httpStatus default 200]">
                 <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
@@ -27,7 +26,11 @@ http://www.mulesoft.org/schema/mule/kafka http://www.mulesoft.org/schema/mule/ka
         <apikit:router doc:name="APIkit Router" doc:id="853aafd0-6145-4607-8dae-3027774901bf" config-ref="Router" />
     </flow>
     <flow name="post:\v1\:Router">
-		<set-variable value="#[output json&#10;---&#10;attributes.headers.userId default 0]" doc:name="Set Variable" doc:id="66101c1d-1b64-4f63-9475-b7e151e06e67" variableName="userId"/>
-		<flow-ref doc:name="Flow Reference" doc:id="6a0bad93-b97d-43e3-b751-237efb988326" name="createItem"/>
+        <set-variable value="#[output json&#xA;---&#xA;attributes.headers.userId default 0]" doc:name="Set Variable" doc:id="66101c1d-1b64-4f63-9475-b7e151e06e67" variableName="userId" />
+        <flow-ref doc:name="Flow Reference" doc:id="6a0bad93-b97d-43e3-b751-237efb988326" name="createItem" />
+    </flow>
+    <flow name="get:\v1\:Router">
+		<set-variable value="#[output json&#10;---&#10;attributes.queryParams]" doc:name="Set Variable" doc:id="4600b803-fefa-4449-8426-fa54bdbb2dbe" variableName="query"/>
+		<flow-ref doc:name="Flow Reference" doc:id="eb8e5ba0-47e3-4fff-a91d-89acda719c27" name="getItems"/>
     </flow>
 </mule>

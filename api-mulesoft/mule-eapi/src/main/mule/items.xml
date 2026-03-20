@@ -18,4 +18,14 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
 }]]]></http:uri-params>
 		</http:request>
 	</flow>
+	<flow name="getItems" doc:id="3071e56d-5cf0-4b3f-921f-77dc0739dc86" >
+		<http:request method="GET" doc:name="Request" doc:id="3f6f3f77-4d20-43bc-9d37-cfa7074b88c8" config-ref="Items_Request_configuration" path="/">
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"version" : 1
+}]]]></http:uri-params>
+			<http:query-params ><![CDATA[#[vars.query]]]></http:query-params>
+		</http:request>
+	</flow>
 </mule>

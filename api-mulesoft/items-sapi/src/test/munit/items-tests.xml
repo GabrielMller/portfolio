@@ -49,6 +49,15 @@ payload.sku must equalTo('MULE-LT-2024-X1')]]]></munit-tools:that>
 			<munit-tools:assert-that doc:name="Assert that" doc:id="fc657e10-de91-4c4d-95f3-8e38f43bec7c" is="#[MunitTools::notNullValue()]" expression="#[payload[0]]"/>
 		</munit:validation>
 	</munit:test>
+	<munit:test name="get-item-test" doc:id="004835fd-bd3b-42ab-98a6-0f0d49cdda44" >
+		<munit:execution >
+			<flow-ref doc:name="Flow Reference" doc:id="e3f38e2f-eb46-4ccd-a035-2a28f8df6d47" name="getItems"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="0ae8f087-6ed6-41cd-8415-15928e89223f" expression="#[payload.metadata.totalItems]" is="#[MunitTools::greaterThan(2)]"/>
+			<munit-tools:assert-that doc:name="Assert that" doc:id="3b33595e-14ac-448c-ad81-ffe37b95de1e" is="#[MunitTools::greaterThan(2)]" expression="#[sizeOf(payload.data)]"/>
+		</munit:validation>
+	</munit:test>
 
 
 </mule>

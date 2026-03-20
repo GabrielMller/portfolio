@@ -2,6 +2,12 @@
 title: Items API
 version: v1
 
+traits: 
+  pageable: !include traits/pageable.raml
+
+types: 
+  responses.get.items: !include types/responses/get/items.raml
+
 /{version}:
   /:
     post:
@@ -17,5 +23,18 @@ version: v1
           description: Item criado com sucesso
         400:
           description: Requisição inválida, verifique os dados enviados
+        500:
+          description: Erro interno do servidor, tente novamente mais tarde
+    get:
+      is: [pageable]
+      description: Endpoint para listar todos os itens
+      responses:
+        200:
+          description: Lista de itens retornada com sucesso
+          body:
+            application/json:
+              type: responses.get.items
+        400:
+          description: Requisição inválida, verifique os parâmetros enviados
         500:
           description: Erro interno do servidor, tente novamente mais tarde

@@ -25,3 +25,8 @@ CREATE TABLE IF NOT EXISTS public.stock (
         ON UPDATE CASCADE
         ON DELETE CASCADE
 );
+
+INSERT INTO public.items (id, name, description, price, image, sku, created_at, updated_at) VALUES
+('1', 'Item 1', 'Description for Item 1', 10.00, 'https://example.com/image1.jpg', 'SKU001', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('2', 'Item 2', 'Description for Item 2', 20.00, 'https://example.com/image2.jpg', 'SKU002', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+('3', 'Item 3', 'Description for Item 3', 30.00, 'https://example.com/image3.jpg', 'SKU003', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);

@@ -11,11 +11,16 @@
                 <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
             </http:error-response>
         </http:listener>
-		<apikit:router doc:name="APIkit Router" doc:id="236f1194-a48c-4c09-b4b8-1b559e461a8d" config-ref="Items" />
+        <apikit:router doc:name="APIkit Router" doc:id="236f1194-a48c-4c09-b4b8-1b559e461a8d" config-ref="Items" />
         <error-handler ref="Error_Handler_Specs" />
     </flow>
     <flow name="post:\v1\:Items">
-		<flow-ref doc:name="Flow Reference" doc:id="60426efc-3dfb-4576-9ce9-14bfb91830b7" name="validateJWT" target="user"/>
-		<flow-ref doc:name="Flow Reference" doc:id="72d9f359-37c6-47f3-897e-40727d4470da" name="createItem"/>
+        <flow-ref doc:name="Flow Reference" doc:id="60426efc-3dfb-4576-9ce9-14bfb91830b7" name="validateJWT" target="user" />
+        <flow-ref doc:name="Flow Reference" doc:id="72d9f359-37c6-47f3-897e-40727d4470da" name="createItem" />
+    </flow>
+    <flow name="get:\v1\:Items">
+		<set-variable value="#[output json&#10;---&#10;attributes.queryParams]" doc:name="Set Variable" doc:id="4f18ca29-12ef-4aa8-a6cb-48df61348154" variableName="query"/>
+		<flow-ref doc:name="Flow Reference" doc:id="7604ba77-d1b8-4b80-9dbe-441c10486a38" name="validateJWT" target="user" />
+		<flow-ref doc:name="Flow Reference" doc:id="7ac42116-e83f-45e4-b508-9a15e3ed7193" name="getItems"/>
     </flow>
 </mule>

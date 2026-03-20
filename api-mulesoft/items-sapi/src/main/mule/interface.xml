@@ -27,6 +27,10 @@
         <error-handler ref="Error_Handler_Specs" />
     </flow>
     <flow name="get:\v1\generate:Router">
-		<flow-ref doc:name="Flow Reference" doc:id="c0a5ac3b-ccd3-4a2b-ac43-b1eb9c7b4a37" name="generateItem"/>
+        <flow-ref doc:name="Flow Reference" doc:id="c0a5ac3b-ccd3-4a2b-ac43-b1eb9c7b4a37" name="generateItem" />
+    </flow>
+    <flow name="get:\v1\:Router">
+		<set-variable value="#[output json&#10;---&#10;attributes.queryParams]" doc:name="Set Variable" doc:id="07357bdb-1426-46ad-a191-0643528a5832" variableName="query"/>
+		<flow-ref doc:name="Flow Reference" doc:id="e84f853d-9ab6-41fd-a63c-f489046c415f" name="getItems"/>
     </flow>
 </mule>
