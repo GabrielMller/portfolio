@@ -21,7 +21,7 @@ types:
           description: Requisição inválida, verifique os dados enviados
         500:
           description: Erro interno do servidor, tente novamente mais tarde
-    get:
+    get:      
       is: [secured, pageable]
       description: Endpoint para listar todos os itens
       responses:

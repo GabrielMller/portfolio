@@ -128,7 +128,7 @@ OFFSET :offset]]></db:sql>
 ---
 {
 	limit: vars.query.limit default 1000,
-	offset: vars.query.limit default 0
+	offset: vars.query.offset default 0
 }]]]></db:input-parameters>
 		</db:select>
 			</route>

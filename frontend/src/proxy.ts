@@ -6,7 +6,7 @@ export async function proxy(request: NextRequest) {
     const session = await auth();
     if (session && session.mode === "mulesoft" && request.nextUrl.pathname === "/mulesoft/demo") {
       const url = request.nextUrl.clone()
-      url.pathname = '/mulesoft/demo/teste';
+      url.pathname = '/mulesoft/demo/view';
       return NextResponse.redirect(url)
     }
     if (!session && request.nextUrl.pathname !== "/mulesoft/demo") {

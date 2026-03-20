@@ -112,5 +112,49 @@ type UserData = {
   user_id: number
 };
 
+
+class ItemsClient extends MuleBaseClient {
+  private static instance: ItemsClient;
+  protected basePath = "items/v1";
+
+  private constructor() {
+    super();
+  }
+
+  public static getInstance(): ItemsClient {
+    if (!ItemsClient.instance) {
+      ItemsClient.instance = new ItemsClient();
+    }
+    return ItemsClient.instance;
+  }
+
+  public async getItems(token: string, page: number = 1, pageSize: number = 11): Promise<PageableResponse<ItemData>> {
+    return this.request<PageableResponse<ItemData>>(`/?page=${page}&pageSize=${pageSize}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      },
+    });
+  }
+}
+
+
+type ItemData = {
+  id: string;
+  name: string;
+  description: string;
+  sku: string;
+  image: string;
+  price: number;
+};
+
+type PageableResponse<T> = {
+  data: T[];
+  metadata: {
+    totalItems: number;
+    page: number;
+    pageSize: number;
+  };
+};
 export const usersApi = UsersClient.getInstance();
 export const monitoringApi = MonitoringClient.getInstance();
+export const itemsApi = ItemsClient.getInstance();
