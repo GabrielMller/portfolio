@@ -128,7 +128,7 @@ class ItemsClient extends MuleBaseClient {
     return ItemsClient.instance;
   }
 
-  public async getItems(token: string, page: number = 1, pageSize: number = 11): Promise<PageableResponse<ItemData>> {
+  public async getItems(token: string, page: number = 1, pageSize: number = 15): Promise<PageableResponse<ItemData>> {
     return this.request<PageableResponse<ItemData>>(`/?page=${page}&pageSize=${pageSize}`, {
       headers: {
         'Authorization': `Bearer ${token}`
@@ -138,7 +138,7 @@ class ItemsClient extends MuleBaseClient {
 }
 
 
-type ItemData = {
+export type ItemData = {
   id: string;
   name: string;
   description: string;

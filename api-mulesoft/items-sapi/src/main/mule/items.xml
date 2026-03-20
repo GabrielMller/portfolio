@@ -114,14 +114,17 @@ vars.inputPayload]]]></kafka:message>
 		<scatter-gather doc:name="Scatter-Gather" doc:id="33ab924d-2aa5-44b5-8b79-99cf03364241" >
 			<route >
 				<db:query-single doc:name="Query single" doc:id="855ba6c0-712b-404b-83c2-481b72b6e7fd" config-ref="Database_Config">
-			<db:sql><![CDATA[SELECT count(*) as total FROM items]]></db:sql>
+			<db:sql><![CDATA[SELECT count(*) as total FROM items JOIN stock ON items.id = stock.item_id WHERE stock.quantity - stock.reserved_quantity > 0]]></db:sql>
 		</db:query-single>
 			</route>
 			<route >
 				<db:select doc:name="Select" doc:id="d01a8cc2-373f-480a-b9d6-066cd1017338" config-ref="Database_Config">
-			<db:sql><![CDATA[SELECT id, sku, description, image, name, price
-  FROM items
- ORDER BY id ASC
+			<db:sql><![CDATA[SELECT i.id, i.sku, i.description, i.image, i.name, i.price, s.quantity - s.reserved_quantity as stock
+  FROM items i
+  JOIN stock s
+    ON s.item_id = i.id
+ WHERE s.quantity - s.reserved_quantity > 0
+ ORDER BY i.id ASC
  LIMIT :limit 
 OFFSET :offset]]></db:sql>
 			<db:input-parameters><![CDATA[#[output json

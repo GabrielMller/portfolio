@@ -1,25 +1,36 @@
+import Pagination from "@/components/Pagination";
 import { itemsApi } from "@/lib/mulesoft-client";
 import {
   Card,
+  CardActions,
   CardContent,
   CardMedia,
   Container,
   Fade,
   Grid,
+  IconButton,
   Tooltip,
   Typography,
 } from "@mui/material";
 import { cookies } from "next/headers";
 import { unauthorized } from "next/navigation";
+import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 
-export default async function Page() {
+const PAGE_SIZE = 15;
+
+
+export default async function Page({searchParams}: { searchParams: { [key: string]: string | undefined } }) {
   const token = (await cookies()).get("authjs.session-token")?.value;
 
   if (!token) {
     return unauthorized();
   }
 
-  const initialItems = await itemsApi.getItems(token);
+  const params = await searchParams;
+
+  const page = params.page ? parseInt(params.page) : 1;
+
+  const initialItems = await itemsApi.getItems(token, page, PAGE_SIZE);
   return (
     <Container sx={{ py: 4 }}>
       <Grid columns={{
@@ -66,10 +77,18 @@ export default async function Page() {
                     {Number(item.price).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                   </Typography>
                 </CardContent>
+                <CardActions sx={{ mt: "auto", display: "flex", justifyContent: "flex-end" }}>
+                  <IconButton size="small" aria-label="add to shopping cart">
+                    <AddShoppingCartIcon />
+                  </IconButton>
+                </CardActions>
               </Card>
             </Fade>
           </Grid>
         ))}
+        <Grid size={12} sx={{ display: "flex", justifyContent: "center" }}>
+          <Pagination currentPage={initialItems.metadata.page} totalPages={Math.ceil(initialItems.metadata.totalItems / initialItems.metadata.pageSize)} />
+        </Grid>
       </Grid>
     </Container>
   );
