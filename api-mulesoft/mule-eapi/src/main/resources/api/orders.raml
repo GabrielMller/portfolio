@@ -1,0 +1,36 @@
+#%RAML 1.0
+title: Orders API
+version: v1
+
+traits: 
+  secured: !include traits/secured.raml
+
+types:
+  requests.post.orders: !include types/requests/post/orders.raml
+
+/{version}:
+  /:
+    post:
+      queryParameters: 
+        kafkaActive?:
+          type: boolean
+          description: Flag to indicate if Kafka should be used for processing the order
+          example: false
+          default: true
+        dbActive?:
+          type: boolean
+          description: Flag to indicate if the order should be saved to the database
+          example: false
+          default: true
+      is: [secured]
+      description: Endpoint para criar um novo pedido
+      body:
+        application/json:
+          type: requests.post.orders
+      responses:
+        201:
+          description: Pedido criado com sucesso
+        400:
+          description: Requisição inválida, verifique os dados enviados
+        500:
+          description: Erro interno do servidor, tente novamente mais tarde

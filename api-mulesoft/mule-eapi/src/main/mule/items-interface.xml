@@ -19,8 +19,8 @@
         <flow-ref doc:name="Flow Reference" doc:id="72d9f359-37c6-47f3-897e-40727d4470da" name="createItem" />
     </flow>
     <flow name="get:\v1\:Items">
-		<set-variable value="#[output json&#10;---&#10;attributes.queryParams]" doc:name="Set Variable" doc:id="4f18ca29-12ef-4aa8-a6cb-48df61348154" variableName="query"/>
-		<flow-ref doc:name="Flow Reference" doc:id="7604ba77-d1b8-4b80-9dbe-441c10486a38" name="validateJWT" target="user" />
-		<flow-ref doc:name="Flow Reference" doc:id="7ac42116-e83f-45e4-b508-9a15e3ed7193" name="getItems"/>
+        <set-variable value="#[output json&#xA;---&#xA;attributes.queryParams]" doc:name="Set Variable" doc:id="4f18ca29-12ef-4aa8-a6cb-48df61348154" variableName="query" />
+        <flow-ref doc:name="Flow Reference" doc:id="7604ba77-d1b8-4b80-9dbe-441c10486a38" name="validateJWT" target="user" />
+        <flow-ref doc:name="Flow Reference" doc:id="7ac42116-e83f-45e4-b508-9a15e3ed7193" name="getItems" />
     </flow>
 </mule>

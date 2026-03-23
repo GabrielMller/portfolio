@@ -18,6 +18,9 @@ http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/m
 	<http:request-config name="Items_Request_configuration" doc:name="HTTP Request configuration" doc:id="4b29ad03-abd0-4651-b2ec-4deeececeb71" basePath="${items.basePath}" >
 		<http:request-connection protocol="${items.protocol}" host="${items.host}" port="${items.port}" />
 	</http:request-config>
+	<http:request-config name="Orders_Request_configuration" doc:name="HTTP Request configuration" doc:id="7c79a28b-8a99-42dd-9dca-bde39f7904b1" basePath="${orders.basePath}" >
+		<http:request-connection protocol="${orders.protocol}" host="${orders.host}" port="${orders.port}" />
+	</http:request-config>
 	<configuration doc:name="Configuration" doc:id="c553650b-1f93-4c4b-8858-a84e87d0973d" defaultErrorHandler-ref="propagate_error" correlationIdGeneratorExpression="#[uuid()]" />
 	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="329a5a68-6778-4e55-83dd-ade89f707ed5" basePath="api">
         <http:listener-connection host="0.0.0.0" port="8081" />
@@ -30,4 +33,5 @@ http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/m
         </http:listener-interceptors>
     </http:listener-config>
 	<apikit:config outboundHeadersMapName="outboundHeadersMapName" httpStatusVarName="httpStatus" doc:name="Router" doc:id="4de20479-9d9f-431e-9ebb-ee17fcffe340" name="Router1" api="api\items.raml" />
+	<apikit:config outboundHeadersMapName="outboundHeadersMapName" httpStatusVarName="httpStatus" doc:name="Router" doc:id="d4559269-629f-4dea-87db-9545aa6ab8d4" name="Orders-router" api="api\orders.raml" />
 </mule>
