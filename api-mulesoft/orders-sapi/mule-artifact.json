@@ -7,6 +7,7 @@
       ]},
       "id": "mule"
   },
+  "requiredProduct": "MULE",
   "javaSpecificationVersions": [
     "17"
   ]
