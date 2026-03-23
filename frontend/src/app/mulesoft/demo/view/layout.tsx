@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 
 export default async function Layout({ children }: { children: React.ReactNode }) {
   const token = (await cookies()).get('authjs.session-token')?.value || null;
+  console.log('Token in Layout:', token);
   return (
     <MulesoftTokenProvider token={token}>
         {children}

@@ -46,7 +46,7 @@ spec:
           value: "${JWT_SECRET}"
         resources:
           limits:
-            memory: "1.2Gi"
+            memory: "1.5Gi"
             cpu: "1"
           requests:
             memory: "700Mi"
@@ -55,7 +55,7 @@ spec:
           httpGet:
             path: /api/health
             port: 8081
-          initialDelaySeconds: 100
+          initialDelaySeconds: 300
           periodSeconds: 30
 ---
 apiVersion: v1
