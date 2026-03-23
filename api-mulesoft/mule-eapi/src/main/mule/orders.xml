@@ -5,7 +5,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
 	<flow name="createOrder" doc:id="774dbd99-0ece-4cfc-abc4-bc391ffc58e9" >
-		<set-payload value="#[output json&#10;---&#10;payload ++ {&#10;	userId: vars.user.id&#10;}]" doc:name="Set Payload" doc:id="237caced-b40b-4a5f-b518-e94f37b11a49" />
+		<set-payload value="#[output json&#10;---&#10;payload ++ {&#10;	userId: vars.user.userId&#10;}]" doc:name="Set Payload" doc:id="237caced-b40b-4a5f-b518-e94f37b11a49" />
 		<http:request method="POST" doc:name="Request" doc:id="3860f0cb-e2af-4d4d-9cf5-30dbaa0786e3" config-ref="Orders_Request_configuration" path="/">
 			<http:uri-params ><![CDATA[#[output application/java
 ---
