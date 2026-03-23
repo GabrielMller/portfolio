@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd">
+    <flow name="health" doc:id="39cf56d9-f98c-4a6d-be41-835afdd773d6">
+        <http:listener doc:name="Listener" doc:id="ffea1e7a-7388-4bc4-9260-3db2fb6356b2" config-ref="HTTP_Listener_config" path="/health">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body><![CDATA[#[payload]]]></http:body>
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:error-response>
+        </http:listener>
+        <set-payload value="#[output json&#xA;---&#xA;&quot;OK&quot;]" doc:name="Set Payload" doc:id="93640787-67aa-421f-920a-31413dd9c40b" />
+    </flow>
+    <flow name="orders-main" doc:id="d73b77d4-ff7a-4d81-9e8d-98c4c9cbe041">
+        <http:listener doc:name="Listener" doc:id="fbbdb28e-bc0e-426b-9656-4e1d7a18ff0a" config-ref="HTTP_Listener_config" path="/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body><![CDATA[#[payload]]]></http:body>
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:router doc:name="APIkit Router" doc:id="de16c361-472c-49b5-b995-43791017f26d" config-ref="Router" />
+    </flow>
+    <flow name="post:\v1\:application\json:Router">
+		<set-variable value="#[output json&#10;---&#10;attributes.queryParams]" doc:name="Set Variable" doc:id="3efbd6c6-0d14-4995-8a64-a208c74f2785" variableName="query"/>
+		<flow-ref doc:name="Flow Reference" doc:id="a31566b7-7ccf-4573-9070-696693cf97df" name="createOrder"/>
+    </flow>
+</mule>

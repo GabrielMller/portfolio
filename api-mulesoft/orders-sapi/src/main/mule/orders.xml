@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	<flow name="createOrders" doc:id="4c7863f0-46d5-41e2-a2f9-7ed9044aea1c" >
+		<db:insert doc:name="Insert" doc:id="72a95ce7-55ae-4c5c-adef-30adcf4c1f82" config-ref="Database_Config" autoGenerateKeys="true">
+			<db:sql ><![CDATA[${file::db/queries/insert/orders.sql}]]></db:sql>
+			<db:input-parameters ><![CDATA[#[output json
+---
+{
+	id: payload.id,
+	user_id: payload.userId,
+	status: payload.status,
+	payment_method: payload.paymentMethod
+}]]]></db:input-parameters>
+			<db:auto-generated-keys-column-names >
+				<db:auto-generated-keys-column-name value="id" />
+			</db:auto-generated-keys-column-names>
+		</db:insert>
+		<set-payload value="#[output json&#10;---&#10;payload.generatedKeys.id]" doc:name="Set Payload" doc:id="e1167713-bebd-48e8-97f4-d1785b2663b5" />
+	</flow>
+	<flow name="createRetry" doc:id="df4fb002-0b3f-4e49-88c7-d97fa1eb45c5" >
+		<db:insert doc:name="Insert" doc:id="2a2eca71-4490-43ab-a99d-b04db854123b" config-ref="Database_Config" autoGenerateKeys="true">
+			<db:sql ><![CDATA[${file::db/queries/insert/retry.sql}]]></db:sql>
+			<db:input-parameters ><![CDATA[#[output json
+---
+{
+	data: write(payload.order, "json"),
+	reason: payload.reason,
+	event_id: payload.eventId
+}]]]></db:input-parameters>
+			<db:auto-generated-keys-column-names >
+				<db:auto-generated-keys-column-name value="id" />
+			</db:auto-generated-keys-column-names>
+		</db:insert>
+		<set-payload value="#[output json&#10;---&#10;payload.generatedKeys]" doc:name="Set Payload" doc:id="4356cdf5-8223-4fd3-a640-1f79797e9287" />
+	</flow>
+	<flow name="getRetries" doc:id="a1e9f6d2-ea0f-4387-a7ee-313b90587c60" >
+		<db:select doc:name="Select" doc:id="1cfd1140-3653-4cd1-9b05-0ab176e90d6a" config-ref="Database_Config">
+			<db:sql ><![CDATA[${file::db/queries/select/retry.sql}]]></db:sql>
+			<db:input-parameters ><![CDATA[#[output json
+---
+{
+	success: false,
+	max_retries: Mule::p('retries.max')
+}]]]></db:input-parameters>
+		</db:select>
+		<set-payload value='#[output json&#10;---&#10;payload map (item) -&gt; item update {&#10;	case .data -&gt; read($.value, "json")&#10;}]' doc:name="Set Payload" doc:id="24401d93-c00f-4940-a52d-3dde18f00f00" />
+	</flow>
+	<flow name="updateRetry" doc:id="6cb68206-f1cb-48f8-8f69-1eb4348b56ae" >
+		<db:update doc:name="Update" doc:id="2f39f6cd-6c92-4028-819e-baeb8e2dd6db" config-ref="Database_Config">
+			<db:sql ><![CDATA[${file::db/queries/update/retry.sql}]]></db:sql>
+			<db:input-parameters ><![CDATA[#[output json
+---
+{
+	id: vars.id,
+	success: payload.success,
+	retries: payload.retries
+}]]]></db:input-parameters>
+		</db:update>
+		<set-payload value='#[output json&#10;---&#10;"success"]' doc:name="Set Payload" doc:id="55909cc0-9ab1-4443-a4c7-214e53743b20" />
+	</flow>
+</mule>

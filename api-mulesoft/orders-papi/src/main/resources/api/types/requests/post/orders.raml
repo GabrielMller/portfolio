@@ -1,0 +1,31 @@
+#RAML 1.0 DataType
+type: object
+properties:
+  paymentMethod:
+    type: string
+    description: Payment method for the order
+    example: "credit_card"
+  userId:
+    type: integer
+    description: ID of the user placing the order
+    example: 456
+  items:
+    type: array
+    description: List of items in the order
+    minItems: 1
+    items:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the item
+          example: "item123"
+        quantity:
+          type: integer
+          description: Quantity of the item ordered
+          example: 2
+        price:
+          type: number
+          description: Price of a single unit of the item
+          example: 19.99
+  

@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:os="http://www.mulesoft.org/schema/mule/os" xmlns:vm="http://www.mulesoft.org/schema/mule/vm"
+	xmlns:kafka="http://www.mulesoft.org/schema/mule/kafka"
+	xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd
+http://www.mulesoft.org/schema/mule/kafka http://www.mulesoft.org/schema/mule/kafka/current/mule-kafka.xsd
+http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd">
+	<os:object-store name="Object_store" doc:name="Object store" doc:id="4aa5ffa2-892b-4701-ad01-f7875162366b" entryTtl="2" entryTtlUnit="HOURS" expirationInterval="2" expirationIntervalUnit="HOURS" />
+	<flow name="createOrder" doc:id="ef0a3268-563a-4c78-9756-a7c4034cd5c8" >
+		<set-payload value='#[output json&#10;---&#10;payload ++ {&#10;	id: uuid(),&#10;	status: "pending"&#10;}]' doc:name="Set Payload" doc:id="edefee02-9b73-4756-873d-14165be61c5f" />
+		<flow-ref doc:name="Flow Reference" doc:id="42a56457-aad1-4d13-a003-368181ebfb50" name="processCreateOrder"/>
+		<set-payload value='#[output json&#10;---&#10;{&#10;	description: if (vars.dbError) "Order will be processed as soon as possible" else "Success processing order"&#10;}]' doc:name="Set Payload" doc:id="7591598b-9bec-42d0-934a-971b9f90f471" />
+		<error-handler >
+			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="4d010b80-8c87-486d-b7f2-73622a0030a7" >
+				<os:store doc:name="Store" doc:id="f667a2e6-e0a5-4f32-bfa7-112c20900072" key="#[payload.id]" objectStore="Object_store"/>
+				<set-payload value='#[output json&#10;---&#10;{&#10;	description: "Order will be processed as soon as possible"&#10;}]' doc:name="Set Payload" doc:id="89bf7e7b-6a63-4740-9b57-38d13b2ec3f8" />
+			</on-error-continue>
+		</error-handler>
+	</flow>
+	<sub-flow name="sendKafkaOrder" doc:id="17004982-cc5e-4c5b-b3d7-d25c3e025a8b" >
+		<try doc:name="Try" doc:id="b59d0b06-21d0-48b7-b4a8-62cd35fc2f8d">
+			<set-payload value='#[output json&#10;---&#10;payload ++ {&#10;	action: if (vars.dbError default false) "create" else "update",&#10;	eventId: correlationId&#10;}]' doc:name="Set Payload" doc:id="7076e110-998d-48bd-aa66-fe1b83262a3a" />
+			<validation:is-true doc:name="Is true" doc:id="bc960a50-08f0-4ca0-bcbf-30b1b637f6c1" expression="#[vars.query.kafkaActive default true]" message="Kafka Inactive Prop" />
+			<kafka:publish-message doc:name="Publish message" doc:id="9a4e8271-f115-40fd-abd9-de54073ee19a" config-ref="Kafka_Producer_config" topic="orders" key="#[payload.id]" target="kafkaError" targetValue="#[false]">
+				<kafka:message><![CDATA[#[output json
+---
+payload]]]></kafka:message>
+			</kafka:publish-message>
+			<error-handler>
+				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="b7a9d87c-3847-45aa-8bbd-866bc64fbc33">
+					<logger level="INFO" doc:name="Logger" doc:id="b211fc13-eece-4011-ac88-8be6febb0278" message='#[output json&#10;---&#10;{&#10;	message: "Error sending order to Kafka Saving on retry",&#10;	payload: payload&#10;}]' />
+					<validation:is-true doc:name="Is true" doc:id="52496d5b-9d25-45f4-9d75-2a18b455df77" expression="#[vars.query.dbActive default true]" />
+					<http:request method="POST" doc:name="Request" doc:id="5558e264-46e5-453d-ba78-07f95ccd0118" config-ref="Orders_Request_configuration" path="/retry" target="dbError" targetValue="#[false]">
+						<http:body><![CDATA[#[output json
+---
+{
+	reason: "KAFKA ERROR $(error.detailedDescription)",
+	eventId: correlationId,
+	order: payload
+}]]]></http:body>
+						<http:uri-params><![CDATA[#[output application/java
+---
+{
+	"version" : 1
+}]]]></http:uri-params>
+					</http:request>
+					<set-payload value='#[output json&#10;---&#10;{&#10;	description: "Order will be processed as soon as possible"&#10;}]' doc:name="Set Payload" doc:id="3aea7354-a619-4198-bdb9-1a563fc2ca23" />
+					<set-variable value="#[200]" doc:name="Set Variable" doc:id="931e23d0-27a7-4bf3-a763-f12a9beca625" variableName="httpStatus" />
+				</on-error-continue>
+			</error-handler>
+		</try>
+	</sub-flow>
+	<sub-flow name="processCreateOrder" doc:id="02846126-5c2e-4731-b2ca-fb05b4d7932e" >
+		<try doc:name="Try" doc:id="50ef34af-5bdb-4e35-9612-c70f2baedd2d" >
+			<validation:is-true doc:name="Is true" doc:id="e7c56600-7c6f-4d1e-88f9-8868bb097eec" expression="#[vars.query.dbActive default true]" />
+			<http:request method="POST" doc:name="Request" doc:id="43038c3f-0c65-44b0-9e7e-be47f661923e" config-ref="Orders_Request_configuration" path="/" target="dbError" targetValue="#[false]" >
+				<http:body ><![CDATA[#[output json
+---
+payload -- ['items']]]]></http:body>
+				<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"version" : 1
+}]]]></http:uri-params>
+			</http:request>
+			<error-handler >
+				<on-error-continue enableNotifications="true" logException="false" doc:name="On Error Continue" doc:id="e8999f9b-fa5a-45ec-b96e-d092e08d370d" >
+					<set-variable value="#[true]" doc:name="Set Variable" doc:id="68178e71-6d69-45bf-a034-a4a0095ac8c6" variableName="dbError" />
+					<set-variable value="#[200]" doc:name="Set Variable" doc:id="6c6a243a-21df-4aa5-b679-c5245cdd5518" variableName="httpStatus" />
+					<logger level="INFO" doc:name="Logger" doc:id="63fae2b8-3181-4e1b-a538-6c7b4e2a912b" message='#[output json&#10;---&#10;{&#10;	message: "Error saving order in DB",&#10;	payload: payload&#10;}]' />
+				</on-error-continue>
+			</error-handler>
+		</try>
+		<flow-ref doc:name="Flow Reference" doc:id="ec7d1b1d-caa3-4e70-8f9d-3d2e2ae6fd6c" name="sendKafkaOrder"/>
+	</sub-flow>
+	<flow name="retryOrders" doc:id="c6838c9d-9d12-427d-b9c0-17bdd5209176" >
+		<scheduler doc:name="Scheduler" doc:id="330011c2-3843-49b5-b166-42e46395211f" >
+			<scheduling-strategy >
+				<fixed-frequency frequency="5" startDelay="5" timeUnit="MINUTES"/>
+			</scheduling-strategy>
+		</scheduler>
+		<http:request method="GET" doc:name="Request" doc:id="0e223ddd-75d3-4086-bee0-a989e6dfddf6" config-ref="Orders_Request_configuration" path="/retry">
+			<http:body ><![CDATA[#[output json
+---
+payload]]]></http:body>
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"version" : 1
+}]]]></http:uri-params>
+		</http:request>
+		<foreach doc:name="For Each" doc:id="70b1be6a-21f6-42fa-9f47-a29a599705a7" >
+			<set-variable value='#[output json&#10;---&#10;payload -- ["data"]]' doc:name="Set Variable" doc:id="f2b403cf-4d4e-42eb-8297-b8895819b1cb" variableName="event"/>
+			<try doc:name="Try" doc:id="98b678c5-fedb-4d67-9817-f37f8246f8ab" >
+				<set-payload value="#[output json&#10;---&#10;payload.data]" doc:name="Set Payload" doc:id="99597ddb-4e74-467c-afd4-eb6b5241b674" />
+				<flow-ref doc:name="Flow Reference" doc:id="f99d6b64-78ef-493f-b8a2-1768c9ff72a4" name="sendKafkaOrder"/>
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="4f0a51f0-1feb-416e-bf29-7bd391d45f8c" >
+						<http:request method="PUT" doc:name="Request" doc:id="659f9b4a-40c8-4f98-ab59-f72db3669d14" config-ref="Orders_Request_configuration" path="/retry/{id}" >
+							<http:body ><![CDATA[#[output json
+---
+{
+	success: false,
+	retries: vars.event.retries + 1
+}]]]></http:body>
+							<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"id" : vars.event.id,
+	"version" : 1
+}]]]></http:uri-params>
+						</http:request>
+					</on-error-continue>
+				</error-handler>
+			</try>
+			<http:request method="PUT" doc:name="Request" doc:id="d6224851-b0c7-4692-9c62-5a2881193d6f" config-ref="Orders_Request_configuration" path="/retry/{id}" >
+				<http:body ><![CDATA[#[output json
+---
+{
+	success: true,
+	retries: vars.event.retries + 1
+}]]]></http:body>
+				<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"id" : vars.event.id,
+	"version" : 1
+}]]]></http:uri-params>
+			</http:request>
+		</foreach>
+	</flow>
+	<flow name="OSRetryOrder" doc:id="d08a26e2-92c1-4810-86ed-e8054b3afecb" >
+		<scheduler doc:name="Scheduler" doc:id="4c2a6f98-713e-40b3-80ac-62e0caa5f2a7" >
+			<scheduling-strategy >
+				<fixed-frequency frequency="5" timeUnit="MINUTES" startDelay="5"/>
+			</scheduling-strategy>
+		</scheduler>
+		<os:retrieve-all-keys doc:name="Retrieve all keys" doc:id="c1037589-b083-43cd-bf1f-3f9fadf566d3" objectStore="Object_store"/>
+		<foreach doc:name="For Each" doc:id="4c155177-519c-4cb7-b8a2-19f5cbe5bd10" >
+			<set-variable value="#[payload]" doc:name="Set Variable" doc:id="18d6d607-241c-48cf-afd7-f6af39eb81f6" variableName="key"/>
+			<os:retrieve doc:name="Retrieve" doc:id="61781b8b-c6f8-4c25-9a17-c79860d65580" key="#[payload]" objectStore="Object_store"/>
+			<set-payload value="#[output json&#10;---&#10;payload]" doc:name="Set Payload" doc:id="16f0df67-9c82-41fe-96cb-5fdb7a0efb0a" />
+			<try doc:name="Try" doc:id="21f6093a-aa2b-49d5-9d38-ac6116778106" >
+				<flow-ref doc:name="Flow Reference" doc:id="a456eb55-f5cf-4ca7-a067-b708785b4337" name="processCreateOrder" />
+				<os:remove doc:name="Remove" doc:id="f689495b-6ba5-411e-a398-9873bc0cf6b1" key="#[vars.key]" objectStore="Object_store"/>
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="false" doc:name="On Error Continue" doc:id="e891c86e-af7b-4516-b563-675fe0d5dac5" />
+				</error-handler>
+			</try>
+		</foreach>
+	</flow>
+</mule>

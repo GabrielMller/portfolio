@@ -1,0 +1,35 @@
+#RAML 1.0 DataType
+properties:
+  reason:
+    type: string
+    description: Reason for retrying the order processing
+    example: "Temporary network issue"
+  eventId:
+    type: string
+    description: Unique identifier for the event triggering the retry
+    example: "event123"
+  order:
+    type: !include orders.raml
+    properties:
+      items:
+        type: array
+        description: List of items in the order
+        minItems: 1
+        items:
+          type: object
+          properties:
+            id:
+              type: string
+              description: Unique identifier for the item
+              example: "item123"
+            quantity:
+              type: integer
+              description: Quantity of the item ordered
+              example: 2
+            price:
+              type: number
+              description: Price of a single unit of the item
+              example: 19.99
+  
+  
+  

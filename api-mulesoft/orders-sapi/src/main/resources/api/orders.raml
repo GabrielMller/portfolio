@@ -1,0 +1,59 @@
+#%RAML 1.0
+title: Orders API
+version: v1
+
+types: 
+  request.post.orders: !include types/requests/post/orders.raml
+  request.post.retry: !include types/requests/post/retry.raml
+  request.put.retry: !include types/requests/put/retry.raml
+
+/{version}:
+  /:
+    post:
+      description: Endpoint para criar um novo pedido
+      body:
+        application/json:
+          type: request.post.orders
+      responses:
+        201:
+          description: Pedido criado com sucesso
+        400:
+          description: Requisição inválida, verifique os dados enviados
+        500:
+          description: Erro interno do servidor, tente novamente mais tarde
+  /retry:
+    post:
+      description: Endpoint para tentar processar novamente um pedido que falhou
+      body:
+        application/json:
+          type: request.post.retry
+      responses:
+        200:
+          description: Pedido processado com sucesso após retry
+        400:
+          description: Requisição inválida, verifique os dados enviados
+        500:
+          description: Erro interno do servidor, tente novamente mais tarde
+    get:
+      description: Endpoint para listar os eventos de retry
+      responses:
+        200:
+          description: Lista de eventos de retry retornada com sucesso
+        500:
+          description: Erro interno do servidor, tente novamente mais tarde
+    /{id}:
+      put:
+        description: Endpoint para atualizar o status de um evento de retry
+        body:
+          application/json:
+            type: request.put.retry
+        responses:
+          200:
+            description: Evento de retry atualizado com sucesso
+          400:
+            description: Requisição inválida, verifique os dados enviados
+          404:
+            description: Evento de retry não encontrado
+          500:
+            description: Erro interno do servidor, tente novamente mais tarde
+

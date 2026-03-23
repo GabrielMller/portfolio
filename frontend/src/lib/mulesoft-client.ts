@@ -145,6 +145,7 @@ export type ItemData = {
   sku: string;
   image: string;
   price: number;
+  stock: number;
 };
 
 type PageableResponse<T> = {

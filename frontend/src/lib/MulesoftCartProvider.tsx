@@ -2,29 +2,54 @@
 
 import { createContext, useContext } from "react";
 import React from "react";
+import { type ItemData } from "./mulesoft-client";
 
-type states = "on" | "off"
+type CartItem = ItemData & { quantity: number };
 
 type MulesoftCartContextType = {
-  dbState: states;
-  kafkaState: states;
-  setDbState: (state: states) => void;
-  setKafkaState: (state: states) => void;
+  items: CartItem[];
+  addToCart: (item: ItemData) => void;
+  removeFromCart: (itemId: string) => void;
 }
 
 export const MulesoftCartContext = createContext<MulesoftCartContextType>({
-  dbState: "on",
-  kafkaState: "on",
-  setDbState: () => {},
-  setKafkaState: () => {},
+  items: [],
+  addToCart: () => {},
+  removeFromCart: () => {}
 });
 
-export function MulesoftProvider({ children }: { children: React.ReactNode}) {
-  const [dbState, setDbState] = React.useState<states>("on");
-  const [kafkaState, setKafkaState] = React.useState<states>("on");
+export function MulesoftCartProvider({ children }: { children: React.ReactNode}) {
+  const [items, setItems] = React.useState<CartItem[]>([]);
+
+  function removeFromCart(itemId: string) {
+    setItems(prevItems => {
+      const existingItem = prevItems.find(i => i.id === itemId);
+      if (existingItem) {
+        if (existingItem.quantity > 1) {
+          return prevItems.map(i => i.id === itemId ? { ...i, quantity: i.quantity - 1 } : i);
+        }
+        return prevItems.filter(i => i.id !== itemId);
+      }
+      return prevItems;
+    });
+  }
+  function addToCart(item: ItemData) {
+    setItems(prevItems => {
+      const existingItem = prevItems.find(i => i.id === item.id);
+      if (existingItem) {
+        if (existingItem.quantity >= item.stock) {
+          return prevItems;
+        }
+        return prevItems.map(i =>
+          i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
+        );
+      }
+      return [...prevItems, { ...item, quantity: 1 }];
+    });
+  }
 
   return (
-    <MulesoftCartContext.Provider value={{ dbState, kafkaState, setDbState, setKafkaState }}>
+    <MulesoftCartContext.Provider value={{ items, addToCart, removeFromCart }}>
       {children}
     </MulesoftCartContext.Provider>
   );

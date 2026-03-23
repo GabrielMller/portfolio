@@ -1,0 +1,1 @@
+INSERT INTO public.orders (id, user_id, status, payment_method) VALUES (:id, :user_id, :status, :payment_method)

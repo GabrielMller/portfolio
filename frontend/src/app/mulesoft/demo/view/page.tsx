@@ -8,13 +8,12 @@ import {
   Container,
   Fade,
   Grid,
-  IconButton,
   Tooltip,
   Typography,
 } from "@mui/material";
 import { cookies } from "next/headers";
 import { unauthorized } from "next/navigation";
-import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
+import MulesoftAddToCartButton from "@/components/MulesoftAddToCartButton";
 
 const PAGE_SIZE = 15;
 
@@ -78,9 +77,7 @@ export default async function Page({searchParams}: { searchParams: { [key: strin
                   </Typography>
                 </CardContent>
                 <CardActions sx={{ mt: "auto", display: "flex", justifyContent: "flex-end" }}>
-                  <IconButton size="small" aria-label="add to shopping cart">
-                    <AddShoppingCartIcon />
-                  </IconButton>
+                  <MulesoftAddToCartButton item={item} />
                 </CardActions>
               </Card>
             </Fade>

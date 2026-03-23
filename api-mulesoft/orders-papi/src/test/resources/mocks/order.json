@@ -1,0 +1,11 @@
+{
+	"paymentMethod": "PIX",
+	"userId": 5,
+	"items": [
+		{
+			"price": 19.2,
+			"id": "2605ba5d-7a79-42a0-b488-0c1d3db47ad0",
+			"quantity": 2
+		}
+	]
+}

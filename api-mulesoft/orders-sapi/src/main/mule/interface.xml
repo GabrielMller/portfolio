@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd ">
+    <apikit:config name="orders-config" api="orders.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+    <flow name="orders-main">
+        <http:listener config-ref="HTTP_Listener_config" path="/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body><![CDATA[#[payload]]]></http:body>
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:router config-ref="orders-config" />
+        <error-handler ref="Error_Handler_Specs" />
+    </flow>
+    <flow name="post:\v1\:application\json:orders-config">
+        <flow-ref doc:name="Flow Reference" doc:id="f6956824-3598-423d-b73a-ee507f42a374" name="createOrders" />
+    </flow>
+    <flow name="health" doc:id="e0ed5035-c717-425f-83c6-19e30df5b06c">
+        <http:listener doc:name="Listener" doc:id="a3bea506-1009-42b6-a648-a07ab88aa69b" config-ref="HTTP_Listener_config" path="/health">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body><![CDATA[#[payload]]]></http:body>
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:error-response>
+        </http:listener>
+        <set-payload value="#[output json&#xA;---&#xA;&quot;OK&quot;]" doc:name="Set Payload" doc:id="91ba8682-ddc1-4c79-845f-6eacc4ef34ab" />
+    </flow>
+    <flow name="post:\v1\retry:application\json:orders-config">
+        <flow-ref doc:name="Flow Reference" doc:id="e2e9140d-7d20-4d04-bbfd-4c89e56410d8" name="createRetry" />
+    </flow>
+    <flow name="put:\v1\retry\(id):application\json:orders-config">
+        <set-variable value="#[attributes.uriParams.id]" doc:name="Set Variable" doc:id="d5edbb90-e676-4af4-8135-3714d6d4871a" variableName="id"/>
+		<flow-ref doc:name="Flow Reference" doc:id="600ebc73-584c-4e51-a9c0-004d4835cbe7" name="updateRetry"/>
+    </flow>
+    <flow name="get:\v1\retry:orders-config">
+		<flow-ref doc:name="Flow Reference" doc:id="0c689992-7ed5-4a52-95b8-277e32c56370" name="getRetries"/>
+    </flow>
+</mule>

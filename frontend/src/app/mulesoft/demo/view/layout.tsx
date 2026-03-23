@@ -5,7 +5,7 @@ export default async function Layout({ children }: { children: React.ReactNode }
   const token = (await cookies()).get('authjs.session-token')?.value || null;
   return (
     <MulesoftTokenProvider token={token}>
-      {children}
+        {children}
     </MulesoftTokenProvider>
   )
 }
