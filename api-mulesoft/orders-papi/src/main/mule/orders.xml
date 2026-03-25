@@ -22,7 +22,7 @@ http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/cu
 	</flow>
 	<sub-flow name="sendKafkaOrder" doc:id="17004982-cc5e-4c5b-b3d7-d25c3e025a8b" >
 		<try doc:name="Try" doc:id="b59d0b06-21d0-48b7-b4a8-62cd35fc2f8d">
-			<set-payload value='#[output json&#10;---&#10;payload ++ {&#10;	action: if (vars.dbError default false) "create" else "update",&#10;	eventId: correlationId&#10;}]' doc:name="Set Payload" doc:id="7076e110-998d-48bd-aa66-fe1b83262a3a" />
+			<set-payload value='#[output json&#10;---&#10;payload ++ {&#10;	action: if (vars.dbError default false) "create" else "update",&#10;	eventType: "ORDER_CREATED",&#10;	eventId: correlationId&#10;}]' doc:name="Set Payload" doc:id="7076e110-998d-48bd-aa66-fe1b83262a3a" />
 			<validation:is-true doc:name="Is true" doc:id="bc960a50-08f0-4ca0-bcbf-30b1b637f6c1" expression="#[vars.query.kafkaActive default true]" message="Kafka Inactive Prop" />
 			<kafka:publish-message doc:name="Publish message" doc:id="9a4e8271-f115-40fd-abd9-de54073ee19a" config-ref="Kafka_Producer_config" topic="orders" key="#[payload.id]" target="kafkaError" targetValue="#[false]">
 				<kafka:message><![CDATA[#[output json
@@ -151,5 +151,109 @@ payload]]]></http:body>
 				</error-handler>
 			</try>
 		</foreach>
+	</flow>
+	<sub-flow name="orderCreatedRequests" doc:id="5e9057fb-55b5-48cd-9a55-85ab1e4a29c1" >
+		<http:request method="PATCH" doc:name="Request" doc:id="3ed544f4-5c4c-40cb-8683-0e9ec0c84144" config-ref="Orders_Request_configuration" path="/{id}" target="res">
+				<http:body><![CDATA[#[output json
+var itemsValue = payload.items.price reduce ((item, acc = 0) -> acc + item)
+---
+{
+	status: "waiting_payment",
+	userId: payload.userId,
+	itemsValue: itemsValue,
+	shippingFee: 0,
+	total: itemsValue,
+	paymentMethod: payload.paymentMethod
+}]]]></http:body>
+				<http:uri-params><![CDATA[#[output application/java
+---
+{
+	"id" : payload.id,
+	"version" : 1
+}]]]></http:uri-params>
+			</http:request>
+		<http:request method="POST" doc:name="Request" doc:id="0782c425-06ae-4304-b423-5ab14add87af" config-ref="Orders_Request_configuration" path="/{id}/items" target="res">
+				<http:body><![CDATA[#[output json
+---
+payload.items]]]></http:body>
+				<http:uri-params><![CDATA[#[output application/java
+---
+{
+	"id" : payload.id,
+	"version" : 1
+}]]]></http:uri-params>
+			</http:request>
+		<foreach doc:name="For Each" doc:id="136aff6c-dc14-4f12-b605-78ae606a0a2e" collection="#[payload.items]">
+				<http:request method="GET" doc:name="Request" doc:id="c4ef7f84-3106-4165-bf05-f908e381d8b7" config-ref="Items_HTTP_Request_config" path="/{id}/stock" target="stock">
+					<http:uri-params><![CDATA[#[output application/java
+---
+{
+	"id" : payload.id,
+	"version" : 1
+}]]]></http:uri-params>
+				</http:request>
+				<http:request method="PATCH" doc:name="Request" doc:id="bf3bec35-fceb-4d74-a4f2-eec58de9ce15" config-ref="Items_HTTP_Request_config" path="/{id}/stock" target="stock">
+					<http:body><![CDATA[#[output json
+---
+{
+	reservedQuantity: vars.stock.reserved_quantity + payload.quantity
+}]]]></http:body>
+					<http:uri-params><![CDATA[#[output application/java
+---
+{
+	"id" : payload.id,
+	"version" : 1
+}]]]></http:uri-params>
+				</http:request>
+			</foreach>
+	</sub-flow>
+	<flow name="orderCreated" doc:id="6eeaaf67-619d-4c6d-be7d-aede312939a6" >
+		<set-variable value="#[output json&#10;---&#10;[]]" doc:name="Set Variable" doc:id="3ddb398f-731e-4f90-89d2-5f7ed1cffffb" variableName="errorItems" />
+		<foreach doc:name="For Each" doc:id="b7fe7837-cfc7-4838-9d94-6db3f2b85da9" collection="#[payload.items]">
+				<until-successful maxRetries="5" doc:name="Until Successful" doc:id="6686b6eb-4e3a-4ee5-beae-3930a5109c33">
+					<http:request method="GET" doc:name="Request" doc:id="a8fe5412-c43e-42f1-860a-daa0a79c93fe" config-ref="Items_HTTP_Request_config" path="/{id}" target="item">
+				<http:uri-params><![CDATA[#[output application/java
+---
+{
+	"id" : payload.id,
+	"version" : 1
+}]]]></http:uri-params>
+			</http:request>
+				</until-successful>
+				<choice doc:name="Choice" doc:id="cf1ef72a-2911-4ae0-8387-be92bb3ed470">
+					<when expression="#[isEmpty(vars.item) or vars.item.price != payload.price]">
+						<set-variable value="#[output json&#10;---&#10;vars.errorItems ++ [&#10;	payload&#10;]]" doc:name="Set Variable" doc:id="a823ef92-b287-4f5c-ae0c-6d149f2d4a48" variableName="errorItems" />
+					</when>
+				</choice>
+		</foreach>
+		<validation:is-empty-collection doc:name="Is empty collection" doc:id="0c224633-8f3d-443d-ba88-65b5fec79feb" values="#[vars.errorItems]" />
+		<flow-ref doc:name="Flow Reference" doc:id="906c7c39-0736-4d9f-8716-0b64733a2212" name="orderCreatedRequests"/>
+		<error-handler >
+			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="a9a5d169-e54f-41f3-9ffb-61330eece802" type="VALIDATION:NOT_EMPTY_COLLECTION">
+				<logger level="INFO" doc:name="Logger" doc:id="028fb5f5-6874-4bf8-a997-a0b56c2f137c" message='#[output json&#10;---&#10;{&#10;	message: "Found errors in Order Items",&#10;	orderId: payload.id,&#10;	items: vars.errorItems&#10;}]' />
+			</on-error-continue>
+		</error-handler>
+	</flow>
+	<flow name="consumeOrders" doc:id="86e8aabd-92cd-4b82-bfa6-c33e4bd6aeff" >
+		<kafka:message-listener doc:name="Message listener" doc:id="6e29aef7-644f-4266-8142-7dfcceb5f15c" config-ref="Kafka_Consumer_Configuration" pollTimeout="180" pollTimeoutTimeUnit="SECONDS" ackMode="AUTO" parallelConsumersAmount="3"/>
+		<set-payload value='#[output json&#10;---&#10;read(payload,"json")]' doc:name="Set Payload" doc:id="9002946f-b612-4b49-be70-0fe325c639c4" />
+		<set-variable value="#[payload]" doc:name="Set Variable" doc:id="2f580481-3d27-4dbd-96e7-3d67959af7e7" variableName="inputPayload" />
+		<logger level="INFO" doc:name="Logger" doc:id="2c1cae52-f264-42de-a370-b977f23c2ee8" message='#[output json&#10;---&#10;{&#10;	message: "Processing Order",&#10;	payload: payload&#10;}]'/>
+		<choice doc:name="Choice" doc:id="a38a8946-6021-4e1d-8955-2b93b64f4ca9" >
+			<when expression='#[payload.eventType == "ORDER_CREATED"]'>
+				<flow-ref doc:name="Flow Reference" doc:id="ecb50edf-e5de-496a-808b-029a48d5e970" name="orderCreated" />
+			</when>
+		</choice>
+		<logger level="INFO" doc:name="Logger" doc:id="507d2963-2c65-4f05-8e09-ff31d6939fec" message='#[output json&#10;---&#10;{&#10;	message: "Success processing Order",&#10;	payload: payload&#10;}]' />
+		<error-handler >
+			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="8abf7119-4e39-4254-a721-6ef60595f047" >
+				<logger level="ERROR" doc:name="Logger" doc:id="b443c707-3f0c-48cc-a9af-b45372c481c3" message='#[output json&#10;---&#10;{&#10;	message: "Error processing Order sending to DLQ",&#10;	payload: inputPayload&#10;}]' />
+				<kafka:publish-message doc:name="Publish message" doc:id="2f567361-4ded-4a51-9836-2b49d65b9cff" config-ref="Kafka_Producer_config" topic="orders.dlq" key="#[vars.inputPayload.id]">
+					<kafka:message><![CDATA[#[output json
+---
+vars.inputPayload]]]></kafka:message>
+				</kafka:publish-message>
+			</on-error-continue>
+		</error-handler>
 	</flow>
 </mule>

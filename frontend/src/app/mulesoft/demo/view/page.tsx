@@ -17,7 +17,6 @@ import MulesoftAddToCartButton from "@/components/MulesoftAddToCartButton";
 
 const PAGE_SIZE = 15;
 
-
 export default async function Page({searchParams}: { searchParams: { [key: string]: string | undefined } }) {
   const token = (await cookies()).get("authjs.session-token")?.value;
 

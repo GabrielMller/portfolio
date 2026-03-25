@@ -1,0 +1,21 @@
+#RAML 1.0 DataType
+type: object
+properties:
+  status:
+    type: string
+    example: "success"
+  userId:
+    type: integer
+    example: 12
+  itemsValue?:
+    type: number
+    example: 150.75
+  shippingFee?:
+    type: number
+    example: 20.00
+  total?:
+    type: number
+    example: 170.75
+  paymentMethod?:
+    type: string
+    example: "credit_card"

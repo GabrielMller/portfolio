@@ -138,4 +138,13 @@ OFFSET :offset]]></db:sql>
 		</scatter-gather>
 		<set-payload value='#[output json&#10;---&#10;{&#10;	metadata: {&#10;		totalItems: payload."0".payload.total,&#10;	},&#10;	data: payload."1".payload default []&#10;}]' doc:name="Set Payload" doc:id="b96dfd6a-655d-4191-8119-8470e15122e3" />
 	</flow>
+	<flow name="getItem" doc:id="dbbf5953-1589-40af-9031-837fa2060ce8" >
+		<db:query-single doc:name="Query single" doc:id="0424216e-b212-4075-8163-43731f9e3070" config-ref="Database_Config">
+			<db:sql ><![CDATA[SELECT * FROM items WHERE id = :id]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	id: vars.id
+}]]]></db:input-parameters>
+		</db:query-single>
+		<set-payload value="#[output json&#10;---&#10;payload]" doc:name="Set Payload" doc:id="f864366a-def4-4a73-89ee-5dbb0e689f95" />
+	</flow>
 </mule>

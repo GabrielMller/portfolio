@@ -6,8 +6,41 @@ types:
   request.post.orders: !include types/requests/post/orders.raml
   request.post.retry: !include types/requests/post/retry.raml
   request.put.retry: !include types/requests/put/retry.raml
+  request.patch.orders: !include types/requests/patch/orders.raml
+  request.post.items: !include types/requests/post/items.raml
 
 /{version}:
+  /{id}:
+    patch:
+      description: Endpoint para atualizar o status de um pedido
+      body:
+        application/json:
+          type: request.patch.orders
+      responses:
+        200:
+          description: Pedido atualizado com sucesso
+        400:
+          description: Requisição inválida, verifique os dados enviados
+        404:
+          description: Pedido não encontrado, verifique o ID fornecido
+        500:
+          description: Erro interno do servidor, tente novamente mais tarde
+    /items:
+      post:
+        description: Endpoint para adicionar um item a um pedido existente
+        body:
+          application/json:
+            type: 
+              items: request.post.items
+        responses:
+          200:
+            description: Item adicionado ao pedido com sucesso
+          400:
+            description: Requisição inválida, verifique os dados enviados
+          404:
+            description: Pedido não encontrado, verifique o ID fornecido
+          500:
+            description: Erro interno do servidor, tente novamente mais tarde
   /:
     post:
       description: Endpoint para criar um novo pedido

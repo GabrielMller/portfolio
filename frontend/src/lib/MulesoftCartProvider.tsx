@@ -10,16 +10,22 @@ type MulesoftCartContextType = {
   items: CartItem[];
   addToCart: (item: ItemData) => void;
   removeFromCart: (itemId: string) => void;
+  resetCart: () => void;
 }
 
 export const MulesoftCartContext = createContext<MulesoftCartContextType>({
   items: [],
   addToCart: () => {},
-  removeFromCart: () => {}
+  removeFromCart: () => {},
+  resetCart: () => {}
 });
 
 export function MulesoftCartProvider({ children }: { children: React.ReactNode}) {
   const [items, setItems] = React.useState<CartItem[]>([]);
+
+  function resetCart() {
+    setItems([]);
+  }
 
   function removeFromCart(itemId: string) {
     setItems(prevItems => {
@@ -49,7 +55,7 @@ export function MulesoftCartProvider({ children }: { children: React.ReactNode})
   }
 
   return (
-    <MulesoftCartContext.Provider value={{ items, addToCart, removeFromCart }}>
+    <MulesoftCartContext.Provider value={{ items, addToCart, removeFromCart, resetCart }}>
       {children}
     </MulesoftCartContext.Provider>
   );

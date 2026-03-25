@@ -8,7 +8,7 @@ import MulesoftConfigButton from "./MulesoftConfigButton";
 import { auth } from "@/lib/auth";
 import MulesoftCart from "./MulesoftCart";
 
-export default async function MulesoftAppBar() {
+export default async function MulesoftAppBar({children}: {children?: React.ReactNode}) {
   const session = await auth();
   return (
     <MuiAppBar elevation={1} color="transparent" position="static">
@@ -26,7 +26,7 @@ export default async function MulesoftAppBar() {
             <IconButton size="small" color="inherit" href="https://github.com/GabrielMller" target="_blank" ><GitHub /></IconButton>
             <IconButton size="small" color="inherit" href="https://www.linkedin.com/in/gabriel-muller-5a5136249/" target="_blank" ><LinkedIn /></IconButton>
             <MulesoftConfigButton hasSession={!!session && session.mode == "mulesoft"} />
-            <MulesoftCart />
+            {children}
           </Box>
         </Toolbar>
       </Container>

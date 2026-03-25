@@ -1,13 +1,20 @@
 "use client";
 import { useCartMulesoft } from "@/lib/MulesoftCartProvider";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
-import { Avatar, Badge, Box, IconButton, Menu, Stack, Typography } from "@mui/material";
+import { Alert, Avatar, Badge, Box, Button, IconButton, Menu, Snackbar, Stack, Typography } from "@mui/material";
 import React from "react";
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
-
+import { useMulesoftToken } from "@/lib/MulesoftTokenProvider";
+import { ordersApi, type OrderData } from "@/lib/mulesoft-client";
+import { useMulesoft } from "@/lib/MulesoftProvider";
 export default function MulesoftCart() {
-  const { items, addToCart, removeFromCart } = useCartMulesoft();
+  const { items, addToCart, removeFromCart, resetCart } = useCartMulesoft();
+  const { dbState, kafkaState } = useMulesoft();
+  const [open, setOpen] = React.useState(false);
+  const [notification, setNotification] = React.useState<{ type: "success" | "error"; message: string } | null>(null);
+  const [loading, setLoading] = React.useState(false);
+  const { token } = useMulesoftToken();
   const [anchorElConfig, setAnchorElConfig] =
     React.useState<null | HTMLElement>(null);
 
@@ -18,6 +25,37 @@ export default function MulesoftCart() {
   const handleCloseUserMenu = () => {
     setAnchorElConfig(null);
   };
+
+  const handleClick = async () => {
+    setLoading(true);
+    console.log(token)
+    try {
+      const orderData : OrderData = {
+        paymentMethod: "PIX",
+        items: items.map(item => ({
+          id: item.id,
+          quantity: item.quantity,
+          price: item.price
+        }))
+      }
+      const response = await ordersApi.createOrder(token!, orderData, { kafkaActive: kafkaState === "on", dbActive: dbState === "on" });
+      setNotification({ type: "success", message: response.description });
+      setOpen(true);
+      resetCart();
+    } catch (error) {
+      console.error('Error creating order:', error);
+      setNotification({ type: "error", message: "Erro ao criar pedido. Tente novamente." });
+      setOpen(true);
+    } finally {
+      setLoading(false);
+      handleCloseUserMenu();
+    }
+
+  }
+
+  const handleClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
+    setOpen(false);
+  }
 
   const quantity = items.reduce((acc, item) => acc + item.quantity, 0);
   return (
@@ -78,8 +116,23 @@ export default function MulesoftCart() {
               </Stack>
             ))}
           </Stack>
+          <Box sx={{ display: "flex", justifyContent: 'center', mt: 2 }}>
+            <Button onClick={handleClick} loading={loading}>
+              Finalizar Pedido
+            </Button>
+          </Box>
         </Menu>
       )}
+      <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+        <Alert
+          onClose={handleClose}
+          severity={notification?.type}
+          variant="filled"
+          sx={{ width: '100%' }}
+        >
+          {notification?.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }

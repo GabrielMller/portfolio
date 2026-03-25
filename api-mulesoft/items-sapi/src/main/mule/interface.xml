@@ -30,7 +30,19 @@
         <flow-ref doc:name="Flow Reference" doc:id="c0a5ac3b-ccd3-4a2b-ac43-b1eb9c7b4a37" name="generateItem" />
     </flow>
     <flow name="get:\v1\:Router">
-		<set-variable value="#[output json&#10;---&#10;attributes.queryParams]" doc:name="Set Variable" doc:id="07357bdb-1426-46ad-a191-0643528a5832" variableName="query"/>
-		<flow-ref doc:name="Flow Reference" doc:id="e84f853d-9ab6-41fd-a63c-f489046c415f" name="getItems"/>
+        <set-variable value="#[output json&#xA;---&#xA;attributes.queryParams]" doc:name="Set Variable" doc:id="07357bdb-1426-46ad-a191-0643528a5832" variableName="query" />
+        <flow-ref doc:name="Flow Reference" doc:id="e84f853d-9ab6-41fd-a63c-f489046c415f" name="getItems" />
+    </flow>
+    <flow name="get:\v1\(id):Router">
+        <set-variable value="#[attributes.uriParams.'id']" doc:name="Set Variable" doc:id="7a6db2d4-c295-4ce5-9c36-d4870df2328d" variableName="id" />
+        <flow-ref doc:name="Flow Reference" doc:id="f94ecbfb-aa00-4200-8b9b-2b94476e9fb3" name="getItem" />
+    </flow>
+    <flow name="patch:\v1\(id)\stock:application\json:Router">
+        <set-variable value="#[attributes.uriParams.'id']" doc:name="Set Variable" doc:id="cc94ab96-ff1d-4c60-8056-a0a71d69cb84" variableName="id" />
+        <flow-ref doc:name="Flow Reference" doc:id="d1209261-a9df-44b9-989a-41816d8f7a7b" name="updateStock" />
+    </flow>
+    <flow name="get:\v1\(id)\stock:Router">
+        <set-variable value="#[attributes.uriParams.'id']" doc:name="Set Variable" doc:id="d52fbc05-2705-4615-8b99-87af4fab6ca8" variableName="id" />
+		<flow-ref doc:name="Flow Reference" doc:id="f50246b4-5f80-482e-a824-78f56c501593" name="getStock"/>
     </flow>
 </mule>

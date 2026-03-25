@@ -33,10 +33,18 @@
         <flow-ref doc:name="Flow Reference" doc:id="e2e9140d-7d20-4d04-bbfd-4c89e56410d8" name="createRetry" />
     </flow>
     <flow name="put:\v1\retry\(id):application\json:orders-config">
-        <set-variable value="#[attributes.uriParams.id]" doc:name="Set Variable" doc:id="d5edbb90-e676-4af4-8135-3714d6d4871a" variableName="id"/>
-		<flow-ref doc:name="Flow Reference" doc:id="600ebc73-584c-4e51-a9c0-004d4835cbe7" name="updateRetry"/>
+        <set-variable value="#[attributes.uriParams.id]" doc:name="Set Variable" doc:id="d5edbb90-e676-4af4-8135-3714d6d4871a" variableName="id" />
+        <flow-ref doc:name="Flow Reference" doc:id="600ebc73-584c-4e51-a9c0-004d4835cbe7" name="updateRetry" />
     </flow>
     <flow name="get:\v1\retry:orders-config">
-		<flow-ref doc:name="Flow Reference" doc:id="0c689992-7ed5-4a52-95b8-277e32c56370" name="getRetries"/>
+        <flow-ref doc:name="Flow Reference" doc:id="0c689992-7ed5-4a52-95b8-277e32c56370" name="getRetries" />
+    </flow>
+    <flow name="patch:\v1\(id):application\json:orders-config">
+        <set-variable value="#[attributes.uriParams.id]" doc:name="Set Variable" doc:id="4766ade4-89d5-4e73-a716-e982c640378f" variableName="id" />
+        <flow-ref doc:name="Flow Reference" doc:id="7abaacb4-7d27-4679-9ad2-4b3178d12275" name="mergeOrder" />
+    </flow>
+    <flow name="post:\v1\(id)\items:application\json:orders-config">
+        <set-variable value="#[attributes.uriParams.'id']" doc:name="Set Variable" doc:id="04a93729-0867-4d01-8528-ef3c9021de85" variableName="orderId"/>
+        <flow-ref doc:name="Flow Reference" doc:id="6b2eb2ac-54d1-4895-88f2-837aaab0a131" name="insertOrderItems"/>
     </flow>
 </mule>

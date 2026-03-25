@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	<flow name="updateStock" doc:id="3ece15ac-0342-4f4c-8247-0c9d2d3fb3c2" >
+		<db:update doc:name="Update" doc:id="96249e2f-2597-4fa8-af17-7d66a4f5d524" config-ref="Database_Config">
+			<db:sql ><![CDATA[${file::db/queries/update/stock.sql}]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	quantity: payload.quantity,
+	reservedQuantity: payload.reservedQuantity,
+	id: vars.id
+}]]]></db:input-parameters>
+		</db:update>
+		<set-payload value='#[output json&#10;---&#10;"success"]' doc:name="Set Payload" doc:id="85f13eb1-df41-4484-9316-0c2ce48f1e4d" />
+	</flow>
+	<flow name="getStock" doc:id="3c8d93e0-5b13-4ca3-9067-cd5ccefdd54a" >
+		<db:query-single doc:name="Query single" doc:id="9b55b50e-82e5-4ff3-828b-88e84632e7df" config-ref="Database_Config">
+			<db:sql ><![CDATA[SELECT quantity, reserved_quantity, id FROM stock WHERE item_id = :id]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	id: vars.id
+}]]]></db:input-parameters>
+		</db:query-single>
+		<set-payload value='#[output json&#10;---&#10;payload]' doc:name="Set Payload" doc:id="9d0a8207-8e5e-496a-bdee-80680af2836e" />
+	</flow>
+</mule>

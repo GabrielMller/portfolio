@@ -156,6 +156,52 @@ type PageableResponse<T> = {
     pageSize: number;
   };
 };
+
+class OrdersClient extends MuleBaseClient {
+  private static instance: OrdersClient
+  protected basePath = "orders/v1";
+
+  private constructor() {
+    super();
+  }
+
+  public static getInstance(): OrdersClient {
+    if (!OrdersClient.instance) {
+      OrdersClient.instance = new OrdersClient();
+    }
+    return OrdersClient.instance;
+  }
+
+  public async createOrder(token: string, orderData: OrderData, query: ServicesQuery): Promise<OrderResponse> {
+    return this.request<OrderResponse>(`/?dbActive=${query.dbActive}&kafkaActive=${query.kafkaActive}`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(orderData)
+    });
+  }
+}
+
+export type OrderData = {
+  paymentMethod: string;
+  items: {
+    id: string;
+    quantity: number;
+    price: number;
+  }[];
+};
+
+type OrderResponse = {
+  description: string;
+};
+
+type ServicesQuery = {
+  kafkaActive?: boolean;
+  dbActive?: boolean;
+}
+
 export const usersApi = UsersClient.getInstance();
 export const monitoringApi = MonitoringClient.getInstance();
 export const itemsApi = ItemsClient.getInstance();
+export const ordersApi = OrdersClient.getInstance();

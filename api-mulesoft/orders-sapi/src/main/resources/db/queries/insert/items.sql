@@ -1,0 +1,1 @@
+INSERT INTO order_items (order_id, item_id, quantity, price) VALUES (:order_id, :id, :quantity, :price)

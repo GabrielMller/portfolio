@@ -8,6 +8,7 @@ traits:
 types: 
   response.get.generate: !include types/responses/get/generate.raml
   responses.get.items: !include types/responses/get/items.raml
+  request.patch.stock: !include types/requests/patch/stock.raml
 
 /{version}:
   /generate:
@@ -30,8 +31,53 @@ types:
           description: Lista de itens retornada com sucesso
           body:
             application/json:
-              type: responses.get.items
+              type: 
+                items: responses.get.items
         400:
           description: Requisição inválida, verifique os parâmetros enviados
         500:
           description: Erro interno do servidor, tente novamente mais tarde
+  /{id}:
+    get:
+      description: Endpoint para obter um item por ID
+      responses:
+        200:
+          description: Item encontrado e retornado com sucesso
+          body:
+            application/json:
+              type: responses.get.items
+        400:
+          description: Requisição inválida, verifique os parâmetros enviados
+        404:
+          description: Item não encontrado, verifique o ID fornecido
+        500:
+          description: Erro interno do servidor, tente novamente mais tarde
+    /stock:
+      get:
+        description: Endpoint para obter o estoque de um item por ID
+        responses:
+          200:
+            description: Estoque do item retornado com sucesso
+            body:
+              application/json:
+                type: request.patch.stock
+          400:
+            description: Requisição inválida, verifique os parâmetros enviados
+          404:
+            description: Item não encontrado, verifique o ID fornecido
+          500:
+            description: Erro interno do servidor, tente novamente mais tarde
+      patch:
+        description: Endpoint para atualizar o estoque de um item
+        body:
+          application/json:
+            type: request.patch.stock
+        responses:
+          200:
+            description: Estoque atualizado com sucesso
+          400:
+            description: Requisição inválida, verifique os dados enviados
+          404:
+            description: Item não encontrado, verifique o ID fornecido
+          500:
+            description: Erro interno do servidor, tente novamente mais tarde

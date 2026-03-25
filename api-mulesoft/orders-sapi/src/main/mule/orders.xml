@@ -62,4 +62,35 @@ http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/cu
 		</db:update>
 		<set-payload value='#[output json&#10;---&#10;"success"]' doc:name="Set Payload" doc:id="55909cc0-9ab1-4443-a4c7-214e53743b20" />
 	</flow>
+	<flow name="mergeOrder" doc:id="b76ff02c-9276-4c0d-adc3-856dfed6cbe2" >
+		<db:insert doc:name="Insert" doc:id="b2890859-8801-43db-b9be-4b53fd636b0e" config-ref="Database_Config">
+			<db:sql ><![CDATA[INSERT INTO public.orders (id, user_id, status, payment_method, items_value, shipping_fee, total) 
+VALUES (:id, :user_id, :status, :payment_method, :items_value, :shipping_fee, :total)
+ON CONFLICT (id) 
+DO UPDATE SET
+	status = COALESCE(EXCLUDED.status, orders.status),
+	items_value = COALESCE(EXCLUDED.items_value, orders.items_value),
+	shipping_fee = COALESCE(EXCLUDED.shipping_fee, orders.shipping_fee),
+	total = COALESCE(EXCLUDED.total, orders.total)]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	id: vars.id,
+	user_id: payload.userId,
+	status: payload.status,
+	payment_method: payload.paymentMethod,
+	items_value: payload.itemsValue,
+	shipping_fee: payload.shippingFee,
+	total: payload.total
+}]]]></db:input-parameters>
+		</db:insert>
+		<set-payload value='#[output json&#10;---&#10;"success"]' doc:name="Set Payload" doc:id="086b8ab0-0d2f-49aa-95e0-32afe9bd4162" />
+	</flow>
+	<flow name="insertOrderItems" doc:id="5d3daf17-8afe-4d75-80a4-9a1db1e2abc8" >
+		<db:bulk-insert doc:name="Bulk insert" doc:id="65990fbf-c72a-459a-85da-74aa9fe84f4c" config-ref="Database_Config">
+			<db:bulk-input-parameters ><![CDATA[#[output json
+---
+payload]]]></db:bulk-input-parameters>
+			<db:sql ><![CDATA[#["INSERT INTO order_items (order_id, item_id, quantity, price) VALUES ('$(vars.orderId)', :id, :quantity, :price)"]]]></db:sql>
+		</db:bulk-insert>
+		<set-payload value='#[output json&#10;---&#10;"success"]' doc:name="Set Payload" doc:id="41597c63-5ba1-4f59-9147-decc2070bbcc" />
+	</flow>
 </mule>

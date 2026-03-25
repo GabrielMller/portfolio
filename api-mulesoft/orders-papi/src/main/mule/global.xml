@@ -9,7 +9,18 @@
     <kafka:producer-config name="Kafka_Producer_config" doc:name="Kafka Producer config" doc:id="2fc7e25a-034d-4271-b47e-f13e629d5ce3">
         <kafka:producer-plaintext-connection-provider-connection bootstrapServers="${kafka.brokers}" producerAck="ALL" />
     </kafka:producer-config>
+    <kafka:consumer-config name="Kafka_Consumer_Configuration" doc:name="Kafka Consumer Configuration" doc:id="7347bbb2-e3b4-4cbb-a385-b8bfcd7f72e3" >
+		<kafka:consumer-plaintext-connection bootstrapServers="${kafka.brokers}" groupId="orders.papi.consumer" consumerAmount="3" autoOffsetReset="EARLIEST" requestTimeout="120" sessionTimeout="120" maximumPollingInterval="120">
+			<kafka:topic-patterns >
+				<kafka:topic-pattern value="orders" />
+			</kafka:topic-patterns>
+		</kafka:consumer-plaintext-connection>
+	</kafka:consumer-config>
+	
     <apikit:config name="Router" api="orders.raml" outboundHeadersMapName="outboundHeadersMapName" httpStatusVarName="httpStatus" />
+    <http:request-config name="Items_HTTP_Request_config" doc:name="HTTP Request config" doc:id="558c971e-9fb7-4671-8139-6aec6d7edbd8" basePath="${items.basePath}" >
+		<http:request-connection host="${items.host}" port="${items.port}" />
+	</http:request-config>
     <http:request-config name="Orders_Request_configuration" doc:name="HTTP Request configuration" doc:id="849f0308-a6ef-4a4a-9888-8bcee97eeddf" basePath="${orders.basePath}" responseTimeout="60000">
 		<http:request-connection protocol="${orders.protocol}" host="${orders.host}" port="${orders.port}" />
 	</http:request-config>

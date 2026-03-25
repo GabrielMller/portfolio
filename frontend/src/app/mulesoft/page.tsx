@@ -25,6 +25,7 @@ import SupervisorAccountOutlinedIcon from "@mui/icons-material/SupervisorAccount
 import { monitoringApi } from "@/lib/mulesoft-client";
 import { node } from "@/lib/utils/Nodes";
 import LoginOutlinedIcon from '@mui/icons-material/LoginOutlined';
+import MulesoftAppBar from "@/components/MulesoftAppBar";
 
 type Infra = {
   status?: "OK" | "WARNING" | "ERROR";
@@ -108,101 +109,104 @@ export default async function Mulesoft() {
   });
 
   return (
-    <Fade in timeout={800}>
-      <Container fixed sx={{ mt: 4, mb: 4 }}>
-        <Stack spacing={4} alignItems={"center"}>
-          <Image
-            src="https://developer.salesforce.com/resources2/certification-site/images/2024/2024-02_SF-Cert-Badge_MuleSoft-Developer-I.svg"
-            alt="Mulesoft Developer I"
-            width={100}
-            height={100}
-          />
-          <AnimatedButton color="primary" href="/mulesoft/demo">
-            <Stack
-              sx={{ padding: 3 }}
-              direction={"row"}
-              spacing={2}
-              alignItems={"center"}
-            >
-              <Typography variant="h5">Ver sistema</Typography>
-              <ArrowForwardOutlinedIcon />
-            </Stack>
-          </AnimatedButton>
-          <AnimatedButton
-            sx={{
-              width: {
-                xs: "100%",
-                md: "80%",
-                lg: "50%",
-              },
-            }}
-          >
-            <Stack p={3} direction={"column"} spacing={2} alignItems={"center"}>
-              <Stack direction={"row"} spacing={2} alignItems={"center"}>
-                <Paper
-                  elevation={1}
-                  sx={{
-                    p: 1,
-                    m: 0,
-                    alignItems: "center",
-                    display: "flex",
-                    justifyContent: "center",
-                  }}
-                >
-                  <HubOutlinedIcon sx={{ fontSize: 48 }} color="info" />
-                </Paper>
-                <Typography
-                  variant="body1"
-                  align="center"
-                  sx={{ textTransform: "none" }}
-                >
-                  Infraestrutura
-                </Typography>
+    <>
+      <MulesoftAppBar />
+      <Fade in timeout={800}>
+        <Container fixed sx={{ mt: 4, mb: 4 }}>
+          <Stack spacing={4} alignItems={"center"}>
+            <Image
+              src="https://developer.salesforce.com/resources2/certification-site/images/2024/2024-02_SF-Cert-Badge_MuleSoft-Developer-I.svg"
+              alt="Mulesoft Developer I"
+              width={100}
+              height={100}
+            />
+            <AnimatedButton color="primary" href="/mulesoft/demo">
+              <Stack
+                sx={{ padding: 3 }}
+                direction={"row"}
+                spacing={2}
+                alignItems={"center"}
+              >
+                <Typography variant="h5">Ver sistema</Typography>
+                <ArrowForwardOutlinedIcon />
               </Stack>
-              <Divider sx={{ width: "100%" }} />
-              {infra.map((service) => (
-                <React.Fragment key={service.name}>
-                  <Stack
-                    direction={"row"}
-                    spacing={2}
-                    alignItems={"center"}
-                    width={"100%"}
+            </AnimatedButton>
+            <AnimatedButton
+              sx={{
+                width: {
+                  xs: "100%",
+                  md: "80%",
+                  lg: "50%",
+                },
+              }}
+            >
+              <Stack p={3} direction={"column"} spacing={2} alignItems={"center"}>
+                <Stack direction={"row"} spacing={2} alignItems={"center"}>
+                  <Paper
+                    elevation={1}
+                    sx={{
+                      p: 1,
+                      m: 0,
+                      alignItems: "center",
+                      display: "flex",
+                      justifyContent: "center",
+                    }}
                   >
-                    {service.icon}
+                    <HubOutlinedIcon sx={{ fontSize: 48 }} color="info" />
+                  </Paper>
+                  <Typography
+                    variant="body1"
+                    align="center"
+                    sx={{ textTransform: "none" }}
+                  >
+                    Infraestrutura
+                  </Typography>
+                </Stack>
+                <Divider sx={{ width: "100%" }} />
+                {infra.map((service) => (
+                  <React.Fragment key={service.name}>
                     <Stack
-                      direction={"column"}
-                      spacing={0}
-                      alignItems={"flex-start"}
+                      direction={"row"}
+                      spacing={2}
+                      alignItems={"center"}
                       width={"100%"}
                     >
-                      <Typography variant="body2" color="textSecondary">
-                        {service.name}
-                      </Typography>
-                      <Typography variant="body2" color="textSecondary">
-                        {service.description}
-                      </Typography>
+                      {service.icon}
+                      <Stack
+                        direction={"column"}
+                        spacing={0}
+                        alignItems={"flex-start"}
+                        width={"100%"}
+                      >
+                        <Typography variant="body2" color="textSecondary">
+                          {service.name}
+                        </Typography>
+                        <Typography variant="body2" color="textSecondary">
+                          {service.description}
+                        </Typography>
+                      </Stack>
+                      <Stack
+                        direction={"column"}
+                        spacing={0}
+                        alignItems={"flex-end"}
+                        sx={{ marginLeft: "auto" }}
+                      >
+                        <StatusBadge status={service.status || "ERROR"} />
+                        <Typography variant="body2" color="textSecondary">
+                          {service.nodes}/{service.totalNodes}
+                        </Typography>
+                      </Stack>
                     </Stack>
-                    <Stack
-                      direction={"column"}
-                      spacing={0}
-                      alignItems={"flex-end"}
-                      sx={{ marginLeft: "auto" }}
-                    >
-                      <StatusBadge status={service.status || "ERROR"} />
-                      <Typography variant="body2" color="textSecondary">
-                        {service.nodes}/{service.totalNodes}
-                      </Typography>
-                    </Stack>
-                  </Stack>
-                  <Divider sx={{ width: "100%" }} />
-                </React.Fragment>
-              ))}
-            </Stack>
-          </AnimatedButton>
-          <DiagramGroupButtonsAutosize diagrams={diagrams} />
-        </Stack>
-      </Container>
-    </Fade>
+                    <Divider sx={{ width: "100%" }} />
+                  </React.Fragment>
+                ))}
+              </Stack>
+            </AnimatedButton>
+            <DiagramGroupButtonsAutosize diagrams={diagrams} />
+          </Stack>
+        </Container>
+      </Fade>
+    </>
   );
 }
 
