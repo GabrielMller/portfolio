@@ -65,7 +65,6 @@ export default function MulesoftCart() {
           <ShoppingCartIcon />
         </IconButton>
       </Badge>
-      {quantity > 0 && (
         <Menu
           sx={{ mt: "30px" }}
           slotProps={{
@@ -75,6 +74,7 @@ export default function MulesoftCart() {
                 maxHeight: 300,
                 display: "flex",
                 flexDirection: "column",
+                p: 2,
                 gap: 1,
               },
             },
@@ -116,13 +116,15 @@ export default function MulesoftCart() {
               </Stack>
             ))}
           </Stack>
-          <Box sx={{ display: "flex", justifyContent: 'center', mt: 2 }}>
-            <Button onClick={handleClick} loading={loading}>
+          <Stack sx={{ display: "flex", justifyContent: 'center', mt: 2 }} spacing={2}>
+            <Button onClick={handleClick} loading={loading} variant="contained" size="small">
               Finalizar Pedido
             </Button>
-          </Box>
+            <Button href="/mulesoft/demo/view/orders" variant="contained" size="small">
+              Meus Pedidos
+            </Button>
+          </Stack>
         </Menu>
-      )}
       <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
         <Alert
           onClose={handleClose}

@@ -44,7 +44,15 @@
         <flow-ref doc:name="Flow Reference" doc:id="7abaacb4-7d27-4679-9ad2-4b3178d12275" name="mergeOrder" />
     </flow>
     <flow name="post:\v1\(id)\items:application\json:orders-config">
-        <set-variable value="#[attributes.uriParams.'id']" doc:name="Set Variable" doc:id="04a93729-0867-4d01-8528-ef3c9021de85" variableName="orderId"/>
-        <flow-ref doc:name="Flow Reference" doc:id="6b2eb2ac-54d1-4895-88f2-837aaab0a131" name="insertOrderItems"/>
+        <set-variable value="#[attributes.uriParams.'id']" doc:name="Set Variable" doc:id="04a93729-0867-4d01-8528-ef3c9021de85" variableName="orderId" />
+        <flow-ref doc:name="Flow Reference" doc:id="6b2eb2ac-54d1-4895-88f2-837aaab0a131" name="insertOrderItems" />
+    </flow>
+    <flow name="get:\v1\:orders-config">
+        <set-variable value="#[output json&#xA;---&#xA;attributes.queryParams]" doc:name="Set Variable" doc:id="179fb0fb-4e35-49c2-8413-c2dae3f3e6d7" variableName="query" />
+        <flow-ref doc:name="Flow Reference" doc:id="321ebd89-bfcb-4f73-b831-50dd19e35836" name="getOrders" />
+    </flow>
+    <flow name="get:\v1\(id)\items:orders-config">
+        <set-variable value="#[attributes.uriParams.'id']" doc:name="Set Variable" doc:id="0de28533-315e-417c-b47d-9974f443783e" variableName="orderId" />
+		<flow-ref doc:name="Flow Reference" doc:id="642351fe-57e4-4c34-a5b1-dcadc0858777" name="getOrderItems"/>
     </flow>
 </mule>

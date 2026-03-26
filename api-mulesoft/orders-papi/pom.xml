@@ -58,6 +58,7 @@
 							<ignoreFlow>OSRetryOrder</ignoreFlow>
 							<ignoreFlow>consumeOrders</ignoreFlow>
 							<ignoreFlow>orderCreatedRequests</ignoreFlow>
+							<ignoreFlow>getOrders</ignoreFlow>
 						</ignoreFlows>
 						<ignoreFiles>
 							<ignoreFile>interface.xml</ignoreFile>

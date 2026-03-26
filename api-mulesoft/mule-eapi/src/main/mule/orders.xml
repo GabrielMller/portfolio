@@ -15,4 +15,16 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
 			<http:query-params ><![CDATA[#[vars.query]]]></http:query-params>
 		</http:request>
 	</flow>
+	<flow name="getOrders" doc:id="4aaabcca-242e-43b8-8b15-2c8bd066d6ef" >
+		<http:request method="GET" doc:name="Request" doc:id="233c47c5-7769-426d-baaa-60bc22f66a2d" config-ref="Orders_Request_configuration" path="/" >
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"version" : 1
+}]]]></http:uri-params>
+			<http:query-params ><![CDATA[#[(vars.query default {}) ++ {
+	userId: vars.user.userId
+}]]]></http:query-params>
+		</http:request>
+	</flow>
 </mule>

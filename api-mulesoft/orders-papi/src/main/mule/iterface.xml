@@ -25,7 +25,11 @@
         <apikit:router doc:name="APIkit Router" doc:id="de16c361-472c-49b5-b995-43791017f26d" config-ref="Router" />
     </flow>
     <flow name="post:\v1\:application\json:Router">
-		<set-variable value="#[output json&#10;---&#10;attributes.queryParams]" doc:name="Set Variable" doc:id="3efbd6c6-0d14-4995-8a64-a208c74f2785" variableName="query"/>
-		<flow-ref doc:name="Flow Reference" doc:id="a31566b7-7ccf-4573-9070-696693cf97df" name="createOrder"/>
+        <set-variable value="#[output json&#xA;---&#xA;attributes.queryParams]" doc:name="Set Variable" doc:id="3efbd6c6-0d14-4995-8a64-a208c74f2785" variableName="query" />
+        <flow-ref doc:name="Flow Reference" doc:id="a31566b7-7ccf-4573-9070-696693cf97df" name="createOrder" />
+    </flow>
+    <flow name="get:\v1\:Router">
+        <set-variable value="#[output json&#10;---&#10;attributes.queryParams]" doc:name="Set Variable" doc:id="bb149407-c176-4da9-9417-b5cf51b7983b" variableName="query"/>
+		<flow-ref doc:name="Flow Reference" doc:id="f6ecde09-44e2-4c9b-9d51-8476d9763de3" name="getOrders"/>
     </flow>
 </mule>

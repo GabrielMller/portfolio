@@ -256,4 +256,38 @@ vars.inputPayload]]]></kafka:message>
 			</on-error-continue>
 		</error-handler>
 	</flow>
+	<flow name="getOrders" doc:id="3f53f109-e4e2-4bef-bd39-6424f6a59566" >
+		<set-variable value="#[output json&#10;---&#10;if (vars.query.pageSize? and vars.query.page?) {&#10;	limit: vars.query.pageSize,&#10;	offset: (vars.query.pageSize default 10) * ((vars.query.page default 1) - 1)&#10;} else {}]" doc:name="Set Variable" doc:id="30d266d7-b09a-4f62-9d87-67419a8e93be" variableName="ordersQuery" />
+		<http:request method="GET" doc:name="Request" doc:id="0f564a30-19bb-47be-afd8-503447a73674" config-ref="Orders_Request_configuration" path="/">
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"version" : 1
+}]]]></http:uri-params>
+			<http:query-params ><![CDATA[#[vars.ordersQuery ++ {
+	userId: vars.query.userId
+}]]]></http:query-params>
+		</http:request>
+		<set-variable value="#[output json&#10;---&#10;payload.metadata]" doc:name="Set Variable" doc:id="319f3da1-aa93-4645-bde7-cd4ca38f9452" variableName="metadata"/>
+		<choice doc:name="Choice" doc:id="b7665c95-086f-4788-a3b2-0a3abf28906e" >
+			<when expression="#[!isEmpty(payload.data)]">
+				<parallel-foreach doc:name="Parallel For Each" doc:id="1ba6a9d4-7b68-44c1-802d-a65d31ba56c1" collection="#[payload.data]" maxConcurrency="10">
+			<http:request method="GET" doc:name="Request" doc:id="bc21ea5f-0271-4750-b3c4-253e5e90b2c4" config-ref="Orders_Request_configuration" path="/{id}/items" target="items">
+				<http:uri-params><![CDATA[#[output application/java
+---
+{
+	"id" : payload.id,
+	"version" : 1
+}]]]></http:uri-params>
+			</http:request>
+					<set-payload value="#[output json&#10;---&#10;payload ++ {&#10;	items: vars.items&#10;}]" doc:name="Set Payload" doc:id="ee404abb-d0ac-4840-91b5-a086b7a014c1" />
+					<remove-variable doc:name="Remove Variable" doc:id="b24e1d67-eea9-420e-a1b0-1670e01f0df1" variableName="items"/>
+		</parallel-foreach>
+				<set-payload value="#[output json&#10;---&#10;{&#10;	metadata: (vars.metadata default {}) ++ {&#10;		page: vars.query.page,&#10;		pageSize: vars.query.pageSize&#10;	},&#10;	data: payload.payload default []&#10;}]" doc:name="Set Payload" doc:id="7fb017f2-fc4c-419d-ab6f-7d8cff426bd6" />
+			</when>
+			<otherwise >
+				<set-payload value="#[output json&#10;---&#10;{&#10;	metadata: (vars.metadata default {}) ++ {&#10;		page: vars.query.page,&#10;		pageSize: vars.query.pageSize&#10;	},&#10;	data: []&#10;}]" doc:name="Set Payload" doc:id="3474c558-504b-445a-8cce-3f02ced2577a" />
+			</otherwise>
+		</choice>
+	</flow>
 </mule>

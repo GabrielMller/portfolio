@@ -4,12 +4,27 @@ version: v1
 
 traits: 
   secured: !include traits/secured.raml
+  pageable: !include traits/pageable.raml
 
 types:
   requests.post.orders: !include types/requests/post/orders.raml
+  responses.get.orders: !include types/responses/get/orders.raml
 
 /{version}:
   /:
+    get:      
+      is: [secured, pageable]
+      description: Endpoint para listar todos os pedidos
+      responses:
+        200:
+          description: Lista de pedidos retornada com sucesso
+          body:
+            application/json:
+              type: responses.get.orders
+        400:
+          description: Requisição inválida, verifique os parâmetros enviados
+        500:
+          description: Erro interno do servidor, tente novamente mais tarde
     post:
       queryParameters: 
         kafkaActive?:

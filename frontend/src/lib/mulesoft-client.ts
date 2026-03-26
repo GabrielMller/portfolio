@@ -181,7 +181,35 @@ class OrdersClient extends MuleBaseClient {
       body: JSON.stringify(orderData)
     });
   }
+
+  public async getOrders(token: string, page: number = 1, pageSize: number = 15): Promise<PageableResponse<OrderSummary>> {
+    return {
+      metadata: {
+        totalItems: 0,
+        page,
+        pageSize
+      },
+      data: []
+    };
+  }
 }
+
+type OrderSummary = {
+  id: string;
+  created_at: string;
+  status: string;
+  total: number;
+  items: OrderItem[];
+};
+
+type OrderItem = {
+  id: string;
+  name: string;
+  image: string;
+  description: string;
+  quantity: number;
+  price: number;
+};
 
 export type OrderData = {
   paymentMethod: string;

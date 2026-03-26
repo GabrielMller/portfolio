@@ -93,4 +93,46 @@ payload]]]></db:bulk-input-parameters>
 		</db:bulk-insert>
 		<set-payload value='#[output json&#10;---&#10;"success"]' doc:name="Set Payload" doc:id="41597c63-5ba1-4f59-9147-decc2070bbcc" />
 	</flow>
+	<flow name="getOrders" doc:id="714359a8-120c-460a-9cf8-a39390a6f65a" >
+		<scatter-gather doc:name="Scatter-Gather" doc:id="d97ae873-4afe-43bf-9338-34f6277800a1" >
+			<route >
+				<db:select doc:name="Select" doc:id="30061a48-7db3-4628-825d-020c30d826dc" config-ref="Database_Config">
+			<db:sql><![CDATA[SELECT id, total, created_at, status 
+  FROM orders 
+ WHERE user_id = :userId 
+ ORDER BY id ASC
+ LIMIT :limit 
+OFFSET :offset
+]]></db:sql>
+			<db:input-parameters><![CDATA[#[vars.query update {
+	case .limit! -> $ default 10
+	case .offset! -> $ default 0
+}]]]></db:input-parameters>
+		</db:select>
+			</route>
+			<route >
+				<db:query-single doc:name="Query single" doc:id="917b6270-a484-4413-afed-40b3c4bcfb6a" config-ref="Database_Config">
+					<db:sql ><![CDATA[SELECT COUNT(id) as total
+  FROM orders 
+ WHERE user_id = :userId 
+]]></db:sql>
+					<db:input-parameters ><![CDATA[#[vars.query]]]></db:input-parameters>
+				</db:query-single>
+			</route>
+		</scatter-gather>
+		<set-payload value='#[output json&#10;---&#10;{&#10;	metadata: {&#10;		totalItems: payload."1".payload.total,&#10;	},&#10;	data: payload."0".payload default []&#10;}]' doc:name="Set Payload" doc:id="96b71b1b-f355-4f3c-93d8-631edad3b5a3" />
+	</flow>
+	<flow name="getOrderItems" doc:id="17cbb1aa-a3c5-45bd-9317-0216c933a524" >
+		<db:select doc:name="Select" doc:id="2f6c674a-159d-42a1-89a8-21e5ffe8278e" config-ref="Database_Config">
+			<db:sql ><![CDATA[SELECT i.id, i.name, i.image, i.description, oi.quantity, oi.price
+  FROM order_items oi
+  JOIN items i
+    ON oi.item_id = i.id
+ WHERE oi.order_id = :id ]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	id: vars.orderId
+}]]]></db:input-parameters>
+		</db:select>
+		<set-payload value="#[output json&#10;---&#10;payload]" doc:name="Set Payload" doc:id="d375b5ad-96af-4107-bb60-b7b7a1054a0d" />
+	</flow>
 </mule>

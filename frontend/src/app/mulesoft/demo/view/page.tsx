@@ -30,7 +30,7 @@ export default async function Page({searchParams}: { searchParams: { [key: strin
 
   const initialItems = await itemsApi.getItems(token, page, PAGE_SIZE);
   return (
-    <Container sx={{ py: 4 }}>
+    <Container fixed sx={{ py: 4 }}>
       <Grid columns={{
         xs: 12,
         md: 12,

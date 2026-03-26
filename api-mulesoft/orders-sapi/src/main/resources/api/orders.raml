@@ -2,12 +2,17 @@
 title: Orders API
 version: v1
 
+traits: 
+  pageable: !include traits/pageable.raml
+
 types: 
   request.post.orders: !include types/requests/post/orders.raml
   request.post.retry: !include types/requests/post/retry.raml
   request.put.retry: !include types/requests/put/retry.raml
   request.patch.orders: !include types/requests/patch/orders.raml
   request.post.items: !include types/requests/post/items.raml
+  response.get.orders: !include types/responses/get/orders.raml
+  response.get.items: !include types/responses/get/items.raml
 
 /{version}:
   /{id}:
@@ -26,6 +31,18 @@ types:
         500:
           description: Erro interno do servidor, tente novamente mais tarde
     /items:
+      get:
+        description: Endpoint para listar os itens de um pedido específico
+        responses:
+          200:
+            body:
+              application/json:
+                type: 
+                  items: response.get.items
+          404:
+            description: Pedido não encontrado, verifique o ID fornecido
+          500:
+            description: Erro interno do servidor, tente novamente mais tarde
       post:
         description: Endpoint para adicionar um item a um pedido existente
         body:
@@ -42,6 +59,21 @@ types:
           500:
             description: Erro interno do servidor, tente novamente mais tarde
   /:
+    get:
+      is: [ pageable ]
+      queryParameters:
+        userId:
+          type: integer
+          description: ID do usuário para filtrar os pedidos
+          example: 12345
+      description: Endpoint para listar os pedidos, com suporte a paginação
+      responses:
+        200:
+          body:
+            application/json:
+              type: response.get.orders
+        500:
+          description: Erro interno do servidor, tente novamente mais tarde
     post:
       description: Endpoint para criar um novo pedido
       body:
