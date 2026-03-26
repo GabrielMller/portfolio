@@ -97,7 +97,7 @@ payload]]]></db:bulk-input-parameters>
 		<scatter-gather doc:name="Scatter-Gather" doc:id="d97ae873-4afe-43bf-9338-34f6277800a1" >
 			<route >
 				<db:select doc:name="Select" doc:id="30061a48-7db3-4628-825d-020c30d826dc" config-ref="Database_Config">
-			<db:sql><![CDATA[SELECT id, total, created_at, status 
+			<db:sql><![CDATA[SELECT id, total, created_at, status, order_number
   FROM orders 
  WHERE user_id = :userId 
  ORDER BY id ASC
