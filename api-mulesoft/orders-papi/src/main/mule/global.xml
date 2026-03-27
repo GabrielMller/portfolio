@@ -10,7 +10,7 @@
         <kafka:producer-plaintext-connection-provider-connection bootstrapServers="${kafka.brokers}" producerAck="ALL" />
     </kafka:producer-config>
     <kafka:consumer-config name="Kafka_Consumer_Configuration" doc:name="Kafka Consumer Configuration" doc:id="7347bbb2-e3b4-4cbb-a385-b8bfcd7f72e3" >
-		<kafka:consumer-plaintext-connection bootstrapServers="${kafka.brokers}" groupId="orders.papi.consumer" consumerAmount="3" autoOffsetReset="EARLIEST" requestTimeout="120" sessionTimeout="120" maximumPollingInterval="120">
+		<kafka:consumer-plaintext-connection bootstrapServers="${kafka.brokers}" groupId="${kafka.group.orders}" consumerAmount="3" autoOffsetReset="EARLIEST" requestTimeout="120" sessionTimeout="120" maximumPollingInterval="120">
 			<kafka:topic-patterns >
 				<kafka:topic-pattern value="orders" />
 			</kafka:topic-patterns>

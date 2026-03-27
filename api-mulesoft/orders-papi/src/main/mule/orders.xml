@@ -10,7 +10,7 @@ http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/cu
 http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd">
 	<os:object-store name="Object_store" doc:name="Object store" doc:id="4aa5ffa2-892b-4701-ad01-f7875162366b" entryTtl="2" entryTtlUnit="HOURS" expirationInterval="2" expirationIntervalUnit="HOURS" />
 	<flow name="createOrder" doc:id="ef0a3268-563a-4c78-9756-a7c4034cd5c8" >
-		<set-payload value='#[output json&#10;---&#10;payload ++ {&#10;	id: uuid(),&#10;	status: "pending"&#10;}]' doc:name="Set Payload" doc:id="edefee02-9b73-4756-873d-14165be61c5f" />
+		<set-payload value='#[output json&#10;---&#10;payload ++ {&#10;	id: uuid(),&#10;	status: "WTNG"&#10;}]' doc:name="Set Payload" doc:id="edefee02-9b73-4756-873d-14165be61c5f" />
 		<flow-ref doc:name="Flow Reference" doc:id="42a56457-aad1-4d13-a003-368181ebfb50" name="processCreateOrder"/>
 		<set-payload value='#[output json&#10;---&#10;{&#10;	description: if (vars.dbError) "Order will be processed as soon as possible" else "Success processing order"&#10;}]' doc:name="Set Payload" doc:id="7591598b-9bec-42d0-934a-971b9f90f471" />
 		<error-handler >
@@ -96,7 +96,11 @@ payload]]]></http:body>
 			<set-variable value='#[output json&#10;---&#10;payload -- ["data"]]' doc:name="Set Variable" doc:id="f2b403cf-4d4e-42eb-8297-b8895819b1cb" variableName="event"/>
 			<try doc:name="Try" doc:id="98b678c5-fedb-4d67-9817-f37f8246f8ab" >
 				<set-payload value="#[output json&#10;---&#10;payload.data]" doc:name="Set Payload" doc:id="99597ddb-4e74-467c-afd4-eb6b5241b674" />
-				<flow-ref doc:name="Flow Reference" doc:id="f99d6b64-78ef-493f-b8a2-1768c9ff72a4" name="sendKafkaOrder"/>
+				<choice doc:name="Choice" doc:id="75b7cf7f-b4d7-4da5-8e66-7e98a5aaa368">
+			<when expression='#[payload.eventType == "ORDER_CREATED"]'>
+				<flow-ref doc:name="Flow Reference" doc:id="316d55f9-f4ae-464f-9a63-1d2021448002" name="sendKafkaOrder" />
+			</when>
+		</choice>
 				<error-handler >
 					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="4f0a51f0-1feb-416e-bf29-7bd391d45f8c" >
 						<http:request method="PUT" doc:name="Request" doc:id="659f9b4a-40c8-4f98-ab59-f72db3669d14" config-ref="Orders_Request_configuration" path="/retry/{id}" >
@@ -144,7 +148,11 @@ payload]]]></http:body>
 			<os:retrieve doc:name="Retrieve" doc:id="61781b8b-c6f8-4c25-9a17-c79860d65580" key="#[payload]" objectStore="Object_store"/>
 			<set-payload value="#[output json&#10;---&#10;payload]" doc:name="Set Payload" doc:id="16f0df67-9c82-41fe-96cb-5fdb7a0efb0a" />
 			<try doc:name="Try" doc:id="21f6093a-aa2b-49d5-9d38-ac6116778106" >
-				<flow-ref doc:name="Flow Reference" doc:id="a456eb55-f5cf-4ca7-a067-b708785b4337" name="processCreateOrder" />
+				<choice doc:name="Choice" doc:id="3a21dc01-b91d-4836-a49b-a0c6ebfff09f">
+					<when expression='#[payload.eventType == "ORDER_CREATED"]'>
+						<flow-ref doc:name="Flow Reference" doc:id="a456eb55-f5cf-4ca7-a067-b708785b4337" name="processCreateOrder" />
+					</when>
+				</choice>
 				<os:remove doc:name="Remove" doc:id="f689495b-6ba5-411e-a398-9873bc0cf6b1" key="#[vars.key]" objectStore="Object_store"/>
 				<error-handler >
 					<on-error-continue enableNotifications="true" logException="false" doc:name="On Error Continue" doc:id="e891c86e-af7b-4516-b563-675fe0d5dac5" />
@@ -158,7 +166,7 @@ payload]]]></http:body>
 var itemsValue = payload.items.price reduce ((item, acc = 0) -> acc + item)
 ---
 {
-	status: "waiting_payment",
+	status: "PYMT",
 	userId: payload.userId,
 	itemsValue: itemsValue,
 	shippingFee: 0,
@@ -243,6 +251,9 @@ payload.items]]]></http:body>
 			<when expression='#[payload.eventType == "ORDER_CREATED"]'>
 				<flow-ref doc:name="Flow Reference" doc:id="ecb50edf-e5de-496a-808b-029a48d5e970" name="orderCreated" />
 			</when>
+			<when expression='#[payload.eventType == "PAYMENT"]'>
+				<flow-ref doc:name="Flow Reference" doc:id="0e085a0b-6ebc-4686-8625-308c961ff87f" name="orderPayment"/>
+			</when>
 		</choice>
 		<logger level="INFO" doc:name="Logger" doc:id="507d2963-2c65-4f05-8e09-ff31d6939fec" message='#[output json&#10;---&#10;{&#10;	message: "Success processing Order",&#10;	payload: payload&#10;}]' />
 		<error-handler >
@@ -255,6 +266,55 @@ vars.inputPayload]]]></kafka:message>
 				</kafka:publish-message>
 			</on-error-continue>
 		</error-handler>
+	</flow>
+	<flow name="orderPayment" doc:id="947ae9b7-4848-40e6-b8b1-b99c398858a6" >
+		<http:request method="GET" doc:name="Request" doc:id="fe4a6ccd-1210-44c9-92e9-47d3b557c02f" config-ref="Orders_Request_configuration" path="/{id}" target="order">
+			<http:uri-params><![CDATA[#[output application/java
+---
+{
+	"id" : payload.id,
+	"version" : 1
+}]]]></http:uri-params>
+		</http:request>
+		<validation:validate-size doc:name="Validate size" doc:id="030ff98f-1c96-40dd-8d6f-beb2d54c5c56" value="#[vars.order]" min="1"/>
+		<http:request method="POST" doc:name="Request" doc:id="471ab425-b05e-4135-98db-b0ee6f450137" config-ref="Orders_Request_configuration" path="/{id}/payments" target="res">
+			<http:body><![CDATA[#[output json
+---
+payload.payment]]]></http:body>
+			<http:uri-params><![CDATA[#[output application/java
+---
+{
+	"id" : payload.id,
+	"version" : 1
+}]]]></http:uri-params>
+		</http:request>
+		<http:request method="GET" doc:name="Request" doc:id="55d14efe-a94f-4bd7-944b-c0482c818498" config-ref="Orders_Request_configuration" path="/{id}/payments" target="payments">
+			<http:uri-params><![CDATA[#[output application/java
+---
+{
+	"id" : payload.id,
+	"version" : 1
+}]]]></http:uri-params>
+		</http:request>
+		<set-variable value="#[output json&#10;---&#10;vars.payments.amount reduce (item, acc=0) -&gt; item + acc]" doc:name="Set Variable" doc:id="67bd4733-7a9a-4ae9-8ce7-6ac987085e6b" variableName="total"/>
+		<choice doc:name="Choice" doc:id="03cd07e5-4f10-4526-a21f-4c9e1e0540b0" >
+			<when expression="#[vars.total &gt;= vars.order.total]">
+				<http:request method="PATCH" doc:name="Request" doc:id="5369a524-b7e5-4f44-8b78-2d4827072e73" config-ref="Orders_Request_configuration" path="/{id}" target="res" >
+					<http:body ><![CDATA[#[output json
+---
+{
+	status: "PCKG",
+	userId: payload.payment.userId
+}]]]></http:body>
+					<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"id" : payload.id,
+	"version" : 1
+}]]]></http:uri-params>
+				</http:request>
+			</when>
+		</choice>
 	</flow>
 	<flow name="getOrders" doc:id="3f53f109-e4e2-4bef-bd39-6424f6a59566" >
 		<set-variable value="#[output json&#10;---&#10;if (vars.query.pageSize? and vars.query.page?) {&#10;	limit: vars.query.pageSize,&#10;	offset: (vars.query.pageSize default 10) * ((vars.query.page default 1) - 1)&#10;} else {}]" doc:name="Set Variable" doc:id="30d266d7-b09a-4f62-9d87-67419a8e93be" variableName="ordersQuery" />

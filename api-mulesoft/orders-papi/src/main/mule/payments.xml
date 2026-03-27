@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:os="http://www.mulesoft.org/schema/mule/os" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:validation="http://www.mulesoft.org/schema/mule/validation"
+	xmlns:kafka="http://www.mulesoft.org/schema/mule/kafka" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/kafka http://www.mulesoft.org/schema/mule/kafka/current/mule-kafka.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd">
+	<flow doc:id="41da7cf4-c23b-4dcb-9193-5b43fcc94406" name="kafkaPayment" >
+		<try doc:name="Try" doc:id="6a55cfaf-2b58-41df-8e2b-283216a9dda7" >
+			<set-payload value='#[output json&#10;---&#10;{&#10;	id: vars.id,&#10;	payment: payload,&#10;	eventType: "PAYMENT",&#10;	eventId: correlationId&#10;}]' doc:name="Set Payload" doc:id="a268e8e8-f897-4afe-86ee-eaab697968f8" />
+			<validation:is-true doc:name="Is true" doc:id="a9df2a2a-b719-442d-9f50-9ae81f7493af" expression="#[vars.query.kafkaActive default true]" message="Kafka Inactive Prop" />
+			<kafka:publish-message doc:name="Publish message" doc:id="432b5b82-a5b5-4876-957d-29645aa1881c" config-ref="Kafka_Producer_config" topic="orders" key="#[payload.id]" target="kafkaError" targetValue="#[false]">
+			<kafka:message><![CDATA[#[output json
+---
+payload]]]></kafka:message>
+		</kafka:publish-message>
+			<set-payload value='#[output json&#10;---&#10;{&#10;	description: "Order payment event received"&#10;}]' doc:name="Set Payload" doc:id="6a5a5259-b4f8-41df-9a0b-db7123888088" />
+			<error-handler >
+				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="85903701-c20e-40dc-89dd-10b98b3463b3" >
+					<logger level="INFO" doc:name="Logger" doc:id="440f9653-d267-46eb-ba41-05e0bebc52ca" message='#[output json&#10;---&#10;{&#10;	message: "Error sending order payment to Kafka Saving on retry",&#10;	payload: payload&#10;}]' />
+					<validation:is-true doc:name="Is true" doc:id="8097912f-d1ee-49c6-a242-80f52988c675" expression="#[vars.query.dbActive default true]" />
+					<http:request method="POST" doc:name="Request" doc:id="d0f729c6-3eab-4141-a27e-fbb4a4321a2b" config-ref="Orders_Request_configuration" path="/retry" target="dbError" targetValue="#[false]" >
+						<http:body ><![CDATA[#[output json
+---
+{
+	reason: "KAFKA ERROR $(error.detailedDescription)",
+	eventId: correlationId,
+	order: payload
+}]]]></http:body>
+						<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"version" : 1
+}]]]></http:uri-params>
+					</http:request>
+					<set-payload value='#[output json&#10;---&#10;{&#10;	description: "Order payment event will be processed as soon as possible"&#10;}]' doc:name="Set Payload" doc:id="79c59b4e-3ade-4093-88b1-0620d778462e" />
+					<set-variable value="#[200]" doc:name="Set Variable" doc:id="439fa8ba-0112-4221-8140-c5caa2dd4f13" variableName="httpStatus" />
+				</on-error-continue>
+			</error-handler>
+		</try>
+		<error-handler >
+			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="4a36d547-2189-49ae-b780-61e4ea5828cb" >
+				<os:store doc:name="Store" doc:id="ec3673fc-5428-4190-b2c6-faee6856e980" key="#[payload.id]" objectStore="Object_store" />
+				<set-payload value='#[output json&#10;---&#10;{&#10;	description: "Order payment event will be processed as soon as possible"&#10;}]' doc:name="Set Payload" doc:id="d99937d7-da8b-4ed1-9a57-c25ae99ea603" />
+			</on-error-continue>
+		</error-handler>
+	</flow>
+</mule>

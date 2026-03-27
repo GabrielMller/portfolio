@@ -183,14 +183,11 @@ class OrdersClient extends MuleBaseClient {
   }
 
   public async getOrders(token: string, page: number = 1, pageSize: number = 15): Promise<PageableResponse<OrderSummary>> {
-    return {
-      metadata: {
-        totalItems: 0,
-        page,
-        pageSize
+    return this.request<PageableResponse<OrderSummary>>(`/?page=${page}&pageSize=${pageSize}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
       },
-      data: []
-    };
+    });
   }
 }
 
@@ -199,10 +196,11 @@ type OrderSummary = {
   created_at: string;
   status: string;
   total: number;
+  order_number: number;
   items: OrderItem[];
 };
 
-type OrderItem = {
+export type OrderItem = {
   id: string;
   name: string;
   image: string;

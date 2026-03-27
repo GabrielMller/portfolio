@@ -122,6 +122,15 @@ OFFSET :offset
 		</scatter-gather>
 		<set-payload value='#[output json&#10;---&#10;{&#10;	metadata: {&#10;		totalItems: payload."1".payload.total,&#10;	},&#10;	data: payload."0".payload default []&#10;}]' doc:name="Set Payload" doc:id="96b71b1b-f355-4f3c-93d8-631edad3b5a3" />
 	</flow>
+	<flow name="getOrder" doc:id="ae639bfb-a5d5-42f5-883d-0b09ca1c2ec2" >
+		<db:query-single doc:name="Query single" doc:id="950b9a09-e4a1-4255-bfe3-9a7b368e7725" config-ref="Database_Config">
+			<db:sql ><![CDATA[${file::db/queries/select/order.sql}]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	id: vars.id
+}]]]></db:input-parameters>
+		</db:query-single>
+		<set-payload value="#[output json&#10;---&#10;payload]" doc:name="Set Payload" doc:id="7c3bbc62-95ae-4309-8882-070734f84878" />
+	</flow>
 	<flow name="getOrderItems" doc:id="17cbb1aa-a3c5-45bd-9317-0216c933a524" >
 		<db:select doc:name="Select" doc:id="2f6c674a-159d-42a1-89a8-21e5ffe8278e" config-ref="Database_Config">
 			<db:sql ><![CDATA[SELECT i.id, i.name, i.image, i.description, oi.quantity, oi.price

@@ -53,6 +53,18 @@
     </flow>
     <flow name="get:\v1\(id)\items:orders-config">
         <set-variable value="#[attributes.uriParams.'id']" doc:name="Set Variable" doc:id="0de28533-315e-417c-b47d-9974f443783e" variableName="orderId" />
-		<flow-ref doc:name="Flow Reference" doc:id="642351fe-57e4-4c34-a5b1-dcadc0858777" name="getOrderItems"/>
+        <flow-ref doc:name="Flow Reference" doc:id="642351fe-57e4-4c34-a5b1-dcadc0858777" name="getOrderItems" />
+    </flow>
+    <flow name="get:\v1\(id):orders-config">
+        <set-variable value="#[attributes.uriParams.'id']" doc:name="Set Variable" doc:id="a36139a7-465e-4fa2-aab9-b1f907361091" variableName="id" />
+        <flow-ref doc:name="Flow Reference" doc:id="46354583-e256-41a3-aba4-06d937b5353e" name="getOrder" />
+    </flow>
+    <flow name="get:\v1\(id)\payments:orders-config">
+        <set-variable value="#[attributes.uriParams.'id']" doc:name="Set Variable" doc:id="e86a7400-9dac-418f-810a-abc70ee00230" variableName="id" />
+        <flow-ref doc:name="Flow Reference" doc:id="32d6040e-f0f3-4388-8475-c3c079dbb532" name="getPayments"/>
+    </flow>
+    <flow name="post:\v1\(id)\payments:application\json:orders-config">
+        <set-variable value="#[attributes.uriParams.'id']" doc:name="Set Variable" doc:id="5d323cfb-bb80-4492-91fa-092ad002c08d" variableName="id" />
+		<flow-ref doc:name="Flow Reference" doc:id="44271218-89be-4750-b20e-65e78e5920cf" name="insertPayment"/>
     </flow>
 </mule>

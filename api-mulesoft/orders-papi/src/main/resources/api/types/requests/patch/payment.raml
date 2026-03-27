@@ -1,0 +1,19 @@
+#RAML 1.0 DataType
+type: object
+properties:
+  amount:
+    type: number
+    description: Valor do pagamento
+    example: 100.50
+  status:
+    type: string
+    description: Status do pagamento
+    example: "confirmed"
+  method:
+    type: string
+    description: Método de pagamento utilizado
+    example: "credit_card"
+  userId:
+    type: integer
+    description: ID do usuário associado ao pagamento
+    example: 12345

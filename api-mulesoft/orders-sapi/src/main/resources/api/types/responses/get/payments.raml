@@ -1,0 +1,15 @@
+#RAML 1.0 DataType
+type: object
+properties:
+  amount:
+    type: number
+    description: Valor do pagamento
+    example: 100.50
+  method:
+    type: string
+    description: Método de pagamento (e.g., "credit_card", "paypal")
+    example: "credit_card"
+  status:
+    type: string
+    description: Status do pagamento (e.g., "pending", "confirmed", "failed")
+    example: "confirmed"

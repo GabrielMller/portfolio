@@ -117,7 +117,7 @@ export default function MulesoftCart() {
             ))}
           </Stack>
           <Stack sx={{ display: "flex", justifyContent: 'center', mt: 2 }} spacing={2}>
-            <Button onClick={handleClick} loading={loading} variant="contained" size="small">
+            <Button onClick={handleClick} loading={loading} variant="contained" size="small" disabled={quantity === 0}>
               Finalizar Pedido
             </Button>
             <Button href="/mulesoft/demo/view/orders" variant="contained" size="small">
@@ -125,7 +125,7 @@ export default function MulesoftCart() {
             </Button>
           </Stack>
         </Menu>
-      <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+      <Snackbar open={open} autoHideDuration={3000} onClose={handleClose}>
         <Alert
           onClose={handleClose}
           severity={notification?.type}

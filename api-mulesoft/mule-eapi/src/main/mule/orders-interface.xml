@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd ">
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd ">
     <apikit:config name="orders-config" api="orders.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
     <flow name="orders-main">
         <http:listener config-ref="HTTP_Listener_config" path="/orders/*">
@@ -20,8 +20,14 @@
         <flow-ref doc:name="Flow Reference" doc:id="78b8a35d-dbc5-4c8a-824b-038d305475b4" name="createOrder" />
     </flow>
     <flow name="get:\v1\:orders-config">
-		<set-variable value="#[attributes.queryParams]" doc:name="Set Variable" doc:id="24685ff5-8181-4329-b666-7d2d05d98214" variableName="query" />
-		<flow-ref doc:name="Flow Reference" doc:id="1e150780-55fb-489d-bcaf-8ccdcd234af0" name="validateJWT" target="user" />
-		<flow-ref doc:name="Flow Reference" doc:id="534f790f-6154-4ae9-9e6b-1a327cd8f25b" name="getOrders"/>
+        <set-variable value="#[attributes.queryParams]" doc:name="Set Variable" doc:id="24685ff5-8181-4329-b666-7d2d05d98214" variableName="query" />
+        <flow-ref doc:name="Flow Reference" doc:id="1e150780-55fb-489d-bcaf-8ccdcd234af0" name="validateJWT" target="user" />
+        <flow-ref doc:name="Flow Reference" doc:id="534f790f-6154-4ae9-9e6b-1a327cd8f25b" name="getOrders" />
+    </flow>
+    <flow name="post:\v1\(id)\payment:application\json:orders-config">
+        <set-variable value="#[attributes.uriParams.id]" doc:name="Set Variable" doc:id="5284eaa6-993b-47f4-936c-3f3a100de7fd" variableName="id"/>
+		<set-variable value="#[attributes.queryParams]" doc:name="Set Variable" doc:id="adee21aa-ec77-4203-b290-cf3722b08fda" variableName="query" />
+		<flow-ref doc:name="Flow Reference" doc:id="56317f1d-56ae-4af9-bb67-8e56712da7ee" name="validateJWT" target="user" />
+		<flow-ref doc:name="Flow Reference" doc:id="3d5634d7-1597-40c4-b9d0-2a78fb061f5b" name="orderPayment"/>
     </flow>
 </mule>
