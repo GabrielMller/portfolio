@@ -29,6 +29,7 @@ import MulesoftAppBar from "@/components/MulesoftAppBar";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import CategoryIcon from "@mui/icons-material/Category";
 import InformationBox from "@/components/mulesoft/InformationBox";
+import SuggestionButton from "@/components/mulesoft/SuggestionButton";
 
 type Infra = {
   status?: "OK" | "WARNING" | "ERROR";
@@ -135,6 +136,7 @@ export default async function Mulesoft() {
               </Stack>
             </AnimatedButton>
             <InformationBox />
+            <SuggestionButton />
             <AnimatedButton
               sx={{
                 width: {

@@ -2,7 +2,7 @@
 
 import { ordersApi, type OrderSummary } from "@/lib/mulesoft-client";
 import { useMulesoftToken } from "@/lib/MulesoftTokenProvider";
-import { Alert, Button, Snackbar } from "@mui/material";
+import { Button } from "@mui/material";
 import { useSnackbar } from "notistack";
 import React from "react";
 

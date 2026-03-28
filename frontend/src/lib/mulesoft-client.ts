@@ -31,7 +31,7 @@ abstract class MuleBaseClient {
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         console.error(`[MuleClient Error] [${endpoint}]:`, errorData);
-        throw new Error(errorData.message || `MuleSoft Error: ${response.status}`);
+        throw new Error(errorData.details || `MuleSoft Error: ${response.status}`);
       }
 
       return await response.json();
@@ -75,6 +75,13 @@ class UsersClient extends MuleBaseClient {
     return this.request<UserData>('/sync', {
       method: 'PATCH',
       body: JSON.stringify({ email, username })
+    });
+  }
+
+  public async suggestion(title: string, description: string): Promise<{ message: string }> {
+    return this.request<{ message: string }>('/suggestion', {
+      method: 'POST',
+      body: JSON.stringify({ title, description })
     });
   }
 }
