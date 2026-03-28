@@ -111,7 +111,7 @@ export default async function Page({
         ))}
         <Grid size={12} sx={{ display: "flex", justifyContent: "center" }}>
           <Pagination
-            currentPage={initialItems.metadata.page}
+            currentPage={page}
             totalPages={Math.ceil(
               initialItems.metadata.totalItems / initialItems.metadata.pageSize,
             )}

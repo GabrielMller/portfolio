@@ -16,7 +16,7 @@ export default function Pagination({ currentPage, totalPages }: { currentPage: n
   return (
     <MuiPagination
       count={totalPages}
-      page={currentPage}
+      page={Number(currentPage)}
       onChange={(_, page) => onPageChange(page)}
       color="primary"
       sx={{ display: "flex", justifyContent: "center", mt: 4 }}
