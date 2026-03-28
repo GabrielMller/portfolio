@@ -25,6 +25,16 @@ http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/cu
 		</db:insert>
 		<set-payload value="#[output json&#10;---&#10;payload.generatedKeys]" doc:name="Set Payload" doc:id="0f8a8970-54a2-48b9-afbb-35e5fa480184" />
 	</flow>
+	<flow name="removeOldUsers" doc:id="9fa8295a-de94-47a4-8dfd-2d2b9f484058" >
+		<scheduler doc:name="Scheduler" doc:id="c7c7f511-8b3a-4777-b531-5c78ee59a8e5" >
+			<scheduling-strategy >
+				<fixed-frequency frequency="1" timeUnit="DAYS"/>
+			</scheduling-strategy>
+		</scheduler>
+		<db:delete doc:name="Delete" doc:id="c14f9a75-0a4f-4a67-a98c-1ba739cb6c58" config-ref="Database_Config">
+			<db:sql ><![CDATA[DELETE FROM users WHERE role != 'admin' and created_on <= (current_timestamp - interval '30 DAY')]]></db:sql>
+		</db:delete>
+	</flow>
 	<flow name="getUser" doc:id="2efe57a7-c80c-4f94-ac89-c6367d2f0db3" >
 		<db:query-single doc:name="Query single" doc:id="025e3086-bc01-469b-b376-66ef97d11513" config-ref="Database_Config">
 			<db:sql ><![CDATA[SELECT id, email, username, role FROM users WHERE id = :id]]></db:sql>
