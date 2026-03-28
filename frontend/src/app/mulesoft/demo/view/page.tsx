@@ -23,7 +23,8 @@ export default async function Page({
 }: {
   searchParams: { [key: string]: string | undefined };
 }) {
-  const token = (await cookies()).get("authjs.session-token")?.value;
+  const cookiesStore = await cookies();
+  const token = cookiesStore.get("authjs.session-token")?.value || cookiesStore.get("__Secure-authjs.session-token")?.value;
 
   if (!token) {
     return unauthorized();

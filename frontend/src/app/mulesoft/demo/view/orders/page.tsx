@@ -10,7 +10,8 @@ import AdvanceStatusButton from "@/components/mulesoft/AdvanceStatusButton";
 const PAGE_SIZE = 20;
 
 export default async function OrdersPage({searchParams}: { searchParams: { [key: string]: string | undefined } }) {
-  const token = (await cookies()).get("authjs.session-token")?.value;
+  const cookiesStore = await cookies();
+  const token = cookiesStore.get("authjs.session-token")?.value || cookiesStore.get("__Secure-authjs.session-token")?.value;
 
   if (!token) {
     return unauthorized();

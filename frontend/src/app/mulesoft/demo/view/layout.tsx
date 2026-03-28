@@ -5,7 +5,8 @@ import { MulesoftTokenProvider } from "@/lib/MulesoftTokenProvider";
 import { cookies } from "next/headers";
 
 export default async function Layout({ children }: { children: React.ReactNode }) {
-  const token = (await cookies()).get('authjs.session-token')?.value || null;
+  const cookiesStore = await cookies();
+  const token = cookiesStore.get("authjs.session-token")?.value || cookiesStore.get("__Secure-authjs.session-token")?.value || null;
   return (
     <MulesoftTokenProvider token={token}> 
       <MulesoftCartProvider>
