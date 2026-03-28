@@ -31,9 +31,9 @@
         <flow-ref doc:name="Flow Reference" doc:id="3d5634d7-1597-40c4-b9d0-2a78fb061f5b" name="orderPayment" />
     </flow>
     <flow name="post:\v1\(id)\delivery:application\json:orders-config">
-		<set-variable value="#[attributes.uriParams.id]" doc:name="Set Variable" doc:id="c3f32097-c879-4996-97be-33c0b3a0b0af" variableName="id" />
-		<set-variable value="#[attributes.queryParams]" doc:name="Set Variable" doc:id="12a1e459-26cb-479e-acbd-23637f0d4201" variableName="query" />
-		<flow-ref doc:name="Flow Reference" doc:id="a0b9e79c-0a32-4377-828b-00943a31039c" name="validateJWT" target="user" />
-		<flow-ref doc:name="Flow Reference" doc:id="e09c5af6-bd10-4a2a-b942-5230051d4b7b" name="orderDelivery"/>
+        <set-variable value="#[attributes.uriParams.id]" doc:name="Set Variable" doc:id="c3f32097-c879-4996-97be-33c0b3a0b0af" variableName="id" />
+        <set-variable value="#[attributes.queryParams]" doc:name="Set Variable" doc:id="12a1e459-26cb-479e-acbd-23637f0d4201" variableName="query" />
+        <flow-ref doc:name="Flow Reference" doc:id="a0b9e79c-0a32-4377-828b-00943a31039c" name="validateJWT" target="user" />
+        <flow-ref doc:name="Flow Reference" doc:id="e09c5af6-bd10-4a2a-b942-5230051d4b7b" name="orderDelivery" />
     </flow>
 </mule>

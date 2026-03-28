@@ -1,6 +1,6 @@
 "use client";
 import { Box, Chip, Collapse, Divider, Fab, Stack, Theme, Typography, useMediaQuery } from "@mui/material";
-import { Monitor, TableProperties } from "lucide-react";
+import { Database, Monitor, TableProperties } from "lucide-react";
 import React, { useMemo, useRef, useState } from "react";
 import { AnimatedBox } from "./AnimatedButton";
 import { chunkArray } from "@/lib/utils/Array";
@@ -11,15 +11,21 @@ import ResetIcon from '@mui/icons-material/Refresh';
 import StorageOutlinedIcon from '@mui/icons-material/StorageOutlined';
 import CachedOutlinedIcon from '@mui/icons-material/CachedOutlined';
 import MonitorHeartOutlinedIcon from '@mui/icons-material/MonitorHeartOutlined';
+import Kafka from "./Kafka";
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 
-export type NodeType = "POSTGRES" | "MULESOFT" | "NEXT" | "CACHE" | "MONITORING";
+export type NodeType = "POSTGRES" | "MULESOFT" | "NEXT" | "CACHE" | "MONITORING" | "KAFKA" | "STORAGE" | "AI";
 
 const nodeIcons : Record<NodeType, React.ReactNode> = {
   "POSTGRES": <StorageOutlinedIcon color="secondary" />,
   "MULESOFT": <Mulesoft color="primary" />,
   "NEXT": <Monitor />,
   "CACHE": <CachedOutlinedIcon color="secondary" />,
-  "MONITORING": <MonitorHeartOutlinedIcon color="primary" />
+  "MONITORING": <MonitorHeartOutlinedIcon color="primary" />,
+  "KAFKA": <Kafka sx={{ color: "black" }} />,
+  "STORAGE": <Database color="var(--mui-palette-primary-main)" />,
+  "AI": <AutoAwesomeIcon color="secondary" />
+
 }
 
 export type Node = {
@@ -60,6 +66,7 @@ export default function DiagramButton({
         opacity: show === 0 ? 1 : show === id ? 1 : 0,
       }}
       width={show === 0 ? "100%" : show === id ? "100%" : "0px"}
+      {...(show !== 0) && { mx: '0px !important', p: 0 }}
       key={id}
       onClick={(e) => {
         if (show === id) {
@@ -149,7 +156,7 @@ const AnimatedSvgTree = ({ data } : { data: Node }) => {
     e.stopPropagation();
   }
   const containerRef = useRef(null);
-  const svgWidth = 600;
+  const svgWidth = 800;
 
   const toggleNode = (id : string) => {
     setExpandedNodes(prev => ({ ...prev, [id]: !prev[id] }));
@@ -186,7 +193,7 @@ const AnimatedSvgTree = ({ data } : { data: Node }) => {
           nodes.push({ ...side, x: sx, y: sy, expanded: false, isSide: true, incomingEdgeId: null });
           
           // INVERTIDO: Origem no Side Node (sx, sy) e Destino no Main Node (x, y)
-          const sidePath = `M ${sx - 140/2} ${sy} L ${x + NODE_WIDTH/2} ${y}`;
+          const sidePath = `M ${sx - 120/2} ${sy} L ${x + NODE_WIDTH/2} ${y}`;
           sideEdges.push({ id: sId, d: sidePath, parentEdgeId: parentEdgeId });
         });
       }
@@ -197,10 +204,12 @@ const AnimatedSvgTree = ({ data } : { data: Node }) => {
 
       if (node.nodes && node.nodes.length > 0) {
         const childCount = node.nodes.length;
-        const childWidth = width / childCount;
+        const childHasSideNodes = node.nodes.some(n => n.sideNodes && n.sideNodes.length > 0);
+        let childWidth = width / (childCount + (childHasSideNodes ? 1.5 : 0));
+        childWidth = Math.max(childWidth, NODE_WIDTH + 40);
 
         node.nodes.forEach((branch, index) => {
-          const childX = (x - width / 2) + (childWidth * index) + (childWidth / 2);
+          const childX = (x - width / (2 + (childHasSideNodes ? 3.5 : 0))) + (childWidth * index) + (childWidth / 2) - (childHasSideNodes ? 90 : 0);
           
           const childY = (y + currentHeight / 2 + NODE_GAP + NODE_HEIGHT_CLOSED / 2) + (sideNodesHeight / 1.5);
           
@@ -212,7 +221,7 @@ const AnimatedSvgTree = ({ data } : { data: Node }) => {
           const pathD = `M ${x} ${startY} C ${x} ${midY}, ${childX} ${midY}, ${childX} ${endY}`;
           
           edges.push({ id: currentEdgeId, d: pathD, parentEdgeId: parentEdgeId });
-          const subtreeMaxY = traverse(branch, childX, childY, childWidth, currentEdgeId);
+          const subtreeMaxY = traverse(branch, childX, childY, childWidth + (childHasSideNodes ? 180 : 0), currentEdgeId);
           if (subtreeMaxY > maxYOfChildren) maxYOfChildren = subtreeMaxY;
         });
       } else if (parentEdgeId) {

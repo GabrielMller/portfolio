@@ -15,7 +15,7 @@
         <error-handler ref="Error_Handler_Specs" />
     </flow>
     <flow name="patch:\v1\sync:application\json:Router">
-		<flow-ref doc:name="Flow Reference" doc:id="778cbe89-2f8e-4717-9574-b7341b0002fb" name="sync"/>
+        <flow-ref doc:name="Flow Reference" doc:id="778cbe89-2f8e-4717-9574-b7341b0002fb" name="sync" />
     </flow>
     <flow name="post:\v1\accounts:application\json:Router">
         <flow-ref doc:name="Flow Reference" doc:id="8aefe926-b281-4b5e-85cf-c56fbc09dac2" name="createAccout" />
@@ -34,5 +34,8 @@
             </http:error-response>
         </http:listener>
         <set-payload value="#[output json&#xA;---&#xA;&quot;OK&quot;]" doc:name="Set Payload" doc:id="cdc086b6-2ce9-43cb-adc4-809ff75f68a9" />
+    </flow>
+    <flow name="post:\v1\suggestion:application\json:Router">
+		<flow-ref doc:name="Flow Reference" doc:id="cd293547-eaaa-4c3b-b026-9cf688af7179" name="sendSuggestion"/>
     </flow>
 </mule>

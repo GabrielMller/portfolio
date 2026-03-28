@@ -1,10 +1,9 @@
 import { AnimatedBox } from "@/components/AnimatedButton";
 import Pagination from "@/components/Pagination";
 import { ordersApi } from "@/lib/mulesoft-client";
-import { ButtonBase, Chip, Container, IconButton, Stack, Typography } from "@mui/material";
+import { Button, Chip, Container, Stack, Typography } from "@mui/material";
 import { cookies } from "next/headers";
 import { unauthorized } from "next/navigation";
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import MulesoftOrderItems from "@/components/MulesoftOrderItems";
 import AdvanceStatusButton from "@/components/mulesoft/AdvanceStatusButton";
 
@@ -23,7 +22,12 @@ export default async function OrdersPage({searchParams}: { searchParams: { [key:
 
   const orders = await ordersApi.getOrders(token, page, PAGE_SIZE);
   return (
+    <>
     <Container fixed sx={{ mt: 4, mb: 4 }}>
+      <Stack spacing={4}>
+      <Button color="primary" href="/mulesoft/demo">
+        Voltar
+      </Button>
       {
         orders.data.length === 0 ? (
           <Typography variant="h6" align="center" sx={{ mt: 4 }}>
@@ -49,12 +53,15 @@ export default async function OrdersPage({searchParams}: { searchParams: { [key:
       {orders.metadata.totalItems > PAGE_SIZE && (
         <Pagination currentPage={orders.metadata.page} totalPages={Math.ceil(orders.metadata.totalItems / orders.metadata.pageSize)} />
       )}
+      </Stack>
     </Container>
+    </>
   );
 }
 
 const statusProps: { [key: string]: { label: string; color: "default" | "primary" | "secondary" | "error" | "info" | "success" | "warning" } } = {
   PYMT: { label: "Aguardando Pagamento", color: "warning" },
   PCKG: { label: "Em Separação", color: "info" },
-  pending: { label: "Pendente", color: "warning" }
+  DLVR: { label: "Entrega em Andamento", color: "secondary" },
+  CPLT: { label: "Concluído", color: "success" },
 };

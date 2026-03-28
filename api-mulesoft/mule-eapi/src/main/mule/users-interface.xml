@@ -25,4 +25,6 @@
     <flow name="post:\v1\public\accounts\auth:application\json:Users">
         <flow-ref doc:name="Flow Reference" doc:id="c9820a66-5670-47a4-b0ca-ae9f8418f9c7" name="authAccount" />
     </flow>
+	<flow name="post:\v1\public\suggestion:application\json:Users" doc:id="12c6c19a-dca4-41d4-8151-8a8366efd6cb" >
+	</flow>
 </mule>

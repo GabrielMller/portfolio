@@ -35,6 +35,16 @@ http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/cu
 			<db:sql ><![CDATA[DELETE FROM users WHERE role != 'admin' and created_on <= (current_timestamp - interval '30 DAY')]]></db:sql>
 		</db:delete>
 	</flow>
+	<flow name="insertSuggestion" doc:id="c465fb66-79b0-43c3-b67b-5603ef30cd4f" >
+		<db:insert doc:name="Insert" doc:id="ddc91050-ea69-4221-97d4-adf5c407a4f3" config-ref="Database_Config">
+			<db:sql ><![CDATA[INSERT INTO suggestions (title, description) VALUES (:title, :description)]]></db:sql>
+			<db:input-parameters ><![CDATA[#[payload]]]></db:input-parameters>
+			<db:auto-generated-keys-column-names >
+				<db:auto-generated-keys-column-name value="id" />
+			</db:auto-generated-keys-column-names>
+		</db:insert>
+		<set-payload value="#[output json&#10;---&#10;payload.generatedKeys]" doc:name="Set Payload" doc:id="828e2e7c-069e-4ba6-ae2b-9333f5870e31" />
+	</flow>
 	<flow name="getUser" doc:id="2efe57a7-c80c-4f94-ac89-c6367d2f0db3" >
 		<db:query-single doc:name="Query single" doc:id="025e3086-bc01-469b-b376-66ef97d11513" config-ref="Database_Config">
 			<db:sql ><![CDATA[SELECT id, email, username, role FROM users WHERE id = :id]]></db:sql>

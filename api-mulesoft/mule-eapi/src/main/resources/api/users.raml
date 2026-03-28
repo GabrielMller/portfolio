@@ -6,9 +6,23 @@ types:
   request.post.accounts: !include types/requests/post/accounts.raml
   request.post.accounts-auth: !include types/requests/post/accounts-auth.raml
   request.patch.users-sync: !include types/requests/patch/users-sync.raml
+  request.post.suggestion: !include types/requests/post/suggestion.raml
 
 /{version}:
   /public:
+    /suggestion:
+      post:
+        description: Endpoint para receber sugestões de melhoria
+        body:
+          application/json:
+            type: request.post.suggestion
+        responses:
+          200:
+            description: Sugestão recebida com sucesso, agradecemos seu feedback!
+          400:
+            description: Requisição inválida, verifique os dados enviados
+          500:
+            description: Erro interno do servidor, tente novamente mais tarde
     /accounts:
       post:
         description: Endpoint para criar uma nova conta

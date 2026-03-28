@@ -13,8 +13,22 @@ types:
   response.post.clients: !include types/responses/post/clients.raml
   request.post.accounts: !include types/requests/post/accounts.raml
   response.post.accounts: !include types/responses/post/accounts.raml
+  request.post.suggestion: !include types/requests/post/suggestion.raml
 
 /{version}:
+  /suggestion:
+    post:
+      description: Endpoint para receber sugestões de melhoria
+      body:
+        application/json:
+          type: request.post.suggestion
+      responses:
+        200:
+          description: Sugestão recebida com sucesso, agradecemos seu feedback!
+        400:
+          description: Requisição inválida, verifique os dados enviados
+        500:
+          description: Erro interno do servidor, tente novamente mais tarde
   /{userId}:
     uriParameters: 
       userId:

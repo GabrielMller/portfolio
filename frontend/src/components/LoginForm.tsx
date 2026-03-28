@@ -95,6 +95,16 @@ export default function LoginForm() {
             {type === "login" ? "registre-se" : "faça login"}
           </Button>
         </Stack>
+        <Typography variant="caption" color="textSecondary" align="center">
+          Contas são excluídas após 1 mês
+        </Typography>
+        <Typography variant="caption" color="textSecondary" align="center">
+          Conta Admin:
+          <br />
+          Email: admin@admin.com
+          <br />
+          Password: Admin@123
+        </Typography>
       </Stack>
     </Box>
   );

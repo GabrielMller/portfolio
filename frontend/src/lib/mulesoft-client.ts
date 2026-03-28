@@ -189,9 +189,29 @@ class OrdersClient extends MuleBaseClient {
       },
     });
   }
+
+  public async payment(token: string, orderId: string, amount: number, status: string, method: string): Promise<OrderResponse> {
+    return this.request<OrderResponse>(`/${orderId}/payment`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ amount, status, method })
+    });
+  }
+
+  public async delivery(token: string, orderId: string, status: string): Promise<OrderResponse> {
+    return this.request<OrderResponse>(`/${orderId}/delivery`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ status })
+    });
+  }
 }
 
-type OrderSummary = {
+export type OrderSummary = {
   id: string;
   created_at: string;
   status: string;

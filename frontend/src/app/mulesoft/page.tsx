@@ -24,8 +24,11 @@ import {
 import SupervisorAccountOutlinedIcon from "@mui/icons-material/SupervisorAccountOutlined";
 import { monitoringApi } from "@/lib/mulesoft-client";
 import { node } from "@/lib/utils/Nodes";
-import LoginOutlinedIcon from '@mui/icons-material/LoginOutlined';
+import LoginOutlinedIcon from "@mui/icons-material/LoginOutlined";
 import MulesoftAppBar from "@/components/MulesoftAppBar";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import CategoryIcon from "@mui/icons-material/Category";
+import InformationBox from "@/components/mulesoft/InformationBox";
 
 type Infra = {
   status?: "OK" | "WARNING" | "ERROR";
@@ -131,6 +134,7 @@ export default async function Mulesoft() {
                 <ArrowForwardOutlinedIcon />
               </Stack>
             </AnimatedButton>
+            <InformationBox />
             <AnimatedButton
               sx={{
                 width: {
@@ -140,7 +144,12 @@ export default async function Mulesoft() {
                 },
               }}
             >
-              <Stack p={3} direction={"column"} spacing={2} alignItems={"center"}>
+              <Stack
+                p={3}
+                direction={"column"}
+                spacing={2}
+                alignItems={"center"}
+              >
                 <Stack direction={"row"} spacing={2} alignItems={"center"}>
                   <Paper
                     elevation={1}
@@ -219,22 +228,34 @@ const diagrams: Diagram[] = [
       ...node("Frontend", "NEXT", "Monitoramento da infraestrutura"),
       nodes: [
         {
-          ...node("Mule EAPI", "MULESOFT", "Coleta de métricas e status dos serviços"),
+          ...node(
+            "Mule EAPI",
+            "MULESOFT",
+            "Coleta de métricas e status dos serviços",
+          ),
           sideNodes: [
             node("CACHE", "CACHE", "Cache de status para reduzir latência"),
           ],
           nodes: [
             {
-              ...node("Monitoring SAPI", "MULESOFT", "Processamento e armazenamento de métricas"),
+              ...node(
+                "Monitoring SAPI",
+                "MULESOFT",
+                "Processamento e armazenamento de métricas",
+              ),
               nodes: [
-                node("Prometheus", "MONITORING", "Coleta e armazenamento de métricas"),
+                node(
+                  "Prometheus",
+                  "MONITORING",
+                  "Coleta e armazenamento de métricas",
+                ),
               ],
-            }
-          ]
-        }
-      ]
-    }
-  }, 
+            },
+          ],
+        },
+      ],
+    },
+  },
   {
     id: 2,
     name: "Login",
@@ -243,22 +264,34 @@ const diagrams: Diagram[] = [
       ...node("Login", "NEXT", "Criação e gestão de token"),
       nodes: [
         {
-          ...node("Mule EAPI", "MULESOFT", "Contrato de API e validação dos dados"),
+          ...node(
+            "Mule EAPI",
+            "MULESOFT",
+            "Contrato de API e validação dos dados",
+          ),
           nodes: [
             {
-              ...node("Users PAPI", "MULESOFT", "Validação de regras de negócio e e sincronização de dados do usuário"),
+              ...node(
+                "Users PAPI",
+                "MULESOFT",
+                "Validação de regras de negócio e e sincronização de dados do usuário",
+              ),
               sideNodes: [
                 {
                   ...node("Users SAPI", "MULESOFT", ""),
-                }
+                },
               ],
               nodes: [
                 {
-                  ...node("Users SAPI", "MULESOFT", "Criação de conta e gestão de dados do usuário"),
+                  ...node(
+                    "Users SAPI",
+                    "MULESOFT",
+                    "Criação de conta e gestão de dados do usuário",
+                  ),
                   nodes: [
                     node("Users Table", "POSTGRES", "Tabela de usuários"),
                   ],
-                }
+                },
               ],
             },
           ],
@@ -269,25 +302,275 @@ const diagrams: Diagram[] = [
   {
     id: 3,
     name: "Criar Conta",
-    icon: <SupervisorAccountOutlinedIcon sx={{ fontSize: 32, color: "primary.main" }} />,
+    icon: (
+      <SupervisorAccountOutlinedIcon
+        sx={{ fontSize: 32, color: "primary.main" }}
+      />
+    ),
     nodes: {
       ...node("Criar Conta", "NEXT", "Criação e gestão de token"),
       nodes: [
         {
-          ...node("Mule EAPI", "MULESOFT", "Contrato de API e validação dos dados"),
+          ...node(
+            "Mule EAPI",
+            "MULESOFT",
+            "Contrato de API e validação dos dados",
+          ),
           nodes: [
             {
-              ...node("Users PAPI", "MULESOFT", "Validação de regras de negócio e orquestração da criação de conta"),
+              ...node(
+                "Users PAPI",
+                "MULESOFT",
+                "Validação de regras de negócio e orquestração da criação de conta",
+              ),
               nodes: [
                 {
-                  ...node("Users SAPI", "MULESOFT", "Criação de conta e gestão de dados do usuário"),
+                  ...node(
+                    "Users SAPI",
+                    "MULESOFT",
+                    "Criação de conta e gestão de dados do usuário",
+                  ),
                   nodes: [
                     node("Accounts Table", "POSTGRES", "Tabela de contas"),
-                    node("Clients Table", "POSTGRES", "Tabela de clientes como LEAD"),
+                    node(
+                      "Clients Table",
+                      "POSTGRES",
+                      "Tabela de clientes como LEAD",
+                    ),
                     node("Users Table", "POSTGRES", "Tabela de usuários"),
                   ],
-                }
+                },
               ],
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    id: 4,
+    name: "Pedidos",
+    icon: <ShoppingCartIcon sx={{ fontSize: 32, color: "primary.main" }} />,
+    nodes: {
+      ...node("Pedidos", "NEXT", "Listagem e gestão de pedidos"),
+      nodes: [
+        {
+          ...node(
+            "Mule EAPI",
+            "MULESOFT",
+            "Contrato de API e validação dos dados",
+          ),
+          nodes: [
+            {
+              ...node(
+                "Orders PAPI",
+                "MULESOFT",
+                "Validação de regras de negócio e orquestração dos pedidos",
+              ),
+              sideNodes: [
+                {
+                  ...node(
+                    "Users SAPI",
+                    "MULESOFT",
+                    "Validação de dados do usuário e verificação de crédito",
+                  ),
+                },
+              ],
+              nodes: [
+                {
+                  ...node(
+                    "Orders SAPI",
+                    "MULESOFT",
+                    "Cria o pedido com o status inicial",
+                  ),
+                  nodes: [
+                    node("Orders Table", "POSTGRES", "Tabela de pedidos"),
+                  ],
+                },
+                {
+                  ...node(
+                    "Orders Topic",
+                    "KAFKA",
+                    "Tópico de eventos de pedidos para integração com outros sistemas",
+                  ),
+                },
+                {
+                  ...node(
+                    "Object Store",
+                    "STORAGE",
+                    "Em caso de falha no DB e Kafka, salva o pedido no object store para reprocessamento",
+                  ),
+                },
+                {
+                  ...node(
+                    "Orders SAPI",
+                    "MULESOFT",
+                    "Em caso de falha na criação do pedido, salva o evento na tabela de eventos para reprocessamento",
+                  ),
+                  nodes: [
+                    node("Events Table", "POSTGRES", "Tabela de eventos"),
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    id: 5,
+    name: "Orders Events",
+    icon: <Kafka sx={{ fontSize: 32, color: "black" }} />,
+    nodes: {
+      ...node(
+        "Orders Topic",
+        "KAFKA",
+        "Tópico de eventos de pedidos para integração com outros sistemas",
+      ),
+      nodes: [
+        {
+          ...node(
+            "Orders PAPI",
+            "MULESOFT",
+            "Faz a leitura dos eventos do tópico para atualizar o status do pedido e estoque dos itens",
+          ),
+          sideNodes: [
+            {
+              ...node(
+                "Items SAPI",
+                "MULESOFT",
+                "Verifica o estoque e preço dos itens do pedido e atualiza o estoque reservado",
+              ),
+            },
+          ],
+          nodes: [
+            {
+              ...node(
+                "Orders SAPI",
+                "MULESOFT",
+                "Atualiza o pedido para esperando pagamento",
+              ),
+              nodes: [
+                node("Orders Table", "POSTGRES", "Tabela de pedidos"),
+                node(
+                  "Order Items Table",
+                  "POSTGRES",
+                  "Tabela de itens dos pedidos",
+                ),
+              ],
+            },
+            {
+              ...node(
+                "Orders DLQ",
+                "KAFKA",
+                "Em caso de falha no processamento do evento, salva o evento na DLQ para reprocessamento",
+              ),
+            },
+            {
+              ...node(
+                "items SAPI",
+                "MULESOFT",
+                "Atualiza o estoque dos itens do pedido",
+              ),
+              nodes: [node("Items Table", "POSTGRES", "Tabela de itens")],
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    id: 6,
+    name: "Itens",
+    icon: <CategoryIcon sx={{ fontSize: 32, color: "primary.main" }} />,
+    nodes: {
+      ...node("Itens", "NEXT", "Listagem e gestão de itens"),
+      nodes: [
+        {
+          ...node(
+            "Mule EAPI",
+            "MULESOFT",
+            "Contrato de API e validação dos dados",
+          ),
+          nodes: [
+            {
+              ...node(
+                "Items PAPI",
+                "MULESOFT",
+                "Validação de regras de negócio e orquestração dos itens",
+              ),
+              nodes: [
+                {
+                  ...node(
+                    "Items Topic",
+                    "KAFKA",
+                    "Tópico de eventos de itens para integração com outros sistemas",
+                  ),
+                },
+                {
+                  ...node(
+                    "Items SAPI",
+                    "MULESOFT",
+                    "Validação de dados dos itens e verificação de estoque",
+                  ),
+                  sideNodes: [
+                    {
+                      ...node(
+                        "Gemini API",
+                        "AI",
+                        "Geração de descrição e imagem dos itens utilizando IA",
+                      ),
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    id: 7,
+    name: "Items Events",
+    icon: <Kafka sx={{ fontSize: 32, color: "black" }} />,
+    nodes: {
+      ...node(
+        "Items Topic",
+        "KAFKA",
+        "Tópico de eventos de itens para integração com outros sistemas",
+      ),
+      nodes: [
+        {
+          ...node(
+            "Items PAPI",
+            "MULESOFT",
+            "Faz a leitura dos eventos do tópico para atualizar o estoque dos itens",
+          ),
+          sideNodes: [
+            {
+              ...node(
+                "Users SAPI",
+                "MULESOFT",
+                "Verifica se o usuário é admin para permitir a atualização do estoque dos itens",
+              ),
+            },
+          ],
+          nodes: [
+            {
+              ...node("Items SAPI", "MULESOFT", "Atualiza o estoque dos itens"),
+              nodes: [
+                node("Items Table", "POSTGRES", "Tabela de itens"),
+                node("Stock Table", "POSTGRES", "Tabela de estoque dos itens"),
+              ],
+            },
+            {
+              ...node(
+                "Items DLQ",
+                "KAFKA",
+                "Em caso de falha no processamento do evento, salva o evento na DLQ para reprocessamento",
+              ),
             },
           ],
         },

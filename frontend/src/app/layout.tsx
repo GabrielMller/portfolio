@@ -8,6 +8,7 @@ import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import AdaptiveBackground from "@/components/AdaptiveBackground";
 import './globals.css';
+import { NotificationsProvider } from "@/lib/NotificationsProvider";
 
 export const metadata: Metadata = {
   title: "Portfolio - Home",
@@ -28,7 +29,9 @@ export default function RootLayout({
             <ThemeProvider theme={theme}>
               <CssBaseline enableColorScheme/>
               <AdaptiveBackground />
-              {children}
+              <NotificationsProvider>
+                {children}
+              </NotificationsProvider>
             </ThemeProvider>
           </AppRouterCacheProvider>
         </React.Suspense>

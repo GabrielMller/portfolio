@@ -53,4 +53,18 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
 		</choice>
 		<set-payload value="#[output json&#10;---&#10;vars.user]" doc:name="Set Payload" doc:id="11d0edb0-92e1-4dba-a99a-0d608bc4b894" />
 	</flow>
+	<flow name="sendSuggestion" doc:id="fc9c2d02-2a5a-46b5-8ccd-a9a556d929a9" >
+		<http:request method="POST" doc:name="Create Suggestion" doc:id="8b619836-9a66-4fb4-8a86-6f62a13b36fb" config-ref="Users_Request_configuration" path="/suggestion" target="user" >
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"version" : 1
+}]]]></http:uri-params>
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"email" : payload.email
+}]]]></http:query-params>
+		</http:request>
+	</flow>
 </mule>

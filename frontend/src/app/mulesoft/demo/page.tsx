@@ -4,9 +4,12 @@ import { Avatar, Button, Container, Divider, Fade, Grow, Paper, Stack, Typograph
 import TerminalOutlinedIcon from '@mui/icons-material/TerminalOutlined';
 import { GitHub, Google } from "@mui/icons-material";
 import { signIn } from "@/lib/auth";
+import MulesoftAppBar from "@/components/MulesoftAppBar";
 
 export default async function Page() {
   return (
+    <>
+    <MulesoftAppBar />
     <Container maxWidth="sm" sx={{ minHeight: "calc(100vh - 70px)", display: "flex", alignItems: "center", justifyContent: "center" }}>
       <Fade in timeout={800}>
         <Stack spacing={3} alignItems="center" justifyContent="center" sx={{ width: "100%" }}>
@@ -43,5 +46,6 @@ export default async function Page() {
         </Stack>
       </Fade>
     </Container>
+    </>
   );
 }

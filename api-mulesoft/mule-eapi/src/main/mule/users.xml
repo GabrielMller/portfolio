@@ -31,4 +31,13 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
 }]]]></http:uri-params>
 		</http:request>
 	</flow>
+	<flow name="createSuggestion" doc:id="73595eef-29d2-4602-ac95-386d84a7dec0" >
+		<http:request method="POST" doc:name="Request" doc:id="a2502252-f29e-4f9f-8629-0cf4091dd33a" config-ref="Users_Request_configuration" path="/suggestion" >
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"version" : 1
+}]]]></http:uri-params>
+		</http:request>
+	</flow>
 </mule>
