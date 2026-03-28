@@ -27,6 +27,18 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
 }]]]></http:query-params>
 		</http:request>
 	</flow>
+	<flow name="orderDelivery" doc:id="1b3a7141-f6ad-4957-abcb-04b082567d8a" >
+		<set-payload value="#[output json&#10;---&#10;payload ++ {&#10;	userId: vars.user.userId&#10;}]" doc:name="Set Payload" doc:id="d0b0e440-58b8-4351-823a-ebf849bfe982" />
+		<http:request method="POST" doc:name="Request" doc:id="ffb255fd-0145-418a-9826-a6738fcef5b0" config-ref="Orders_Request_configuration" path="/{id}/delivery" >
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"id" : vars.id,
+	"version" : 1
+}]]]></http:uri-params>
+			<http:query-params ><![CDATA[#[(vars.query default {})]]]></http:query-params>
+		</http:request>
+	</flow>
 	<flow name="orderPayment" doc:id="c0b33f88-2b29-4161-843f-8d8efc7d42ac" >
 		<set-payload value="#[output json&#10;---&#10;{&#10;	userId: vars.user.userId&#10;} ++ payload]" doc:name="Set Payload" doc:id="cbe6396a-bb57-4b4d-809e-4422c821789f" />
 		<http:request method="PATCH" doc:name="Request" doc:id="053639ad-dc6b-4c9f-90ff-b8d5c73d3e74" config-ref="Orders_Request_configuration" path="/{id}/payment" >

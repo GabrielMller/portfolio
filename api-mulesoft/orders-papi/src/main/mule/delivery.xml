@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:os="http://www.mulesoft.org/schema/mule/os" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:kafka="http://www.mulesoft.org/schema/mule/kafka"
+	xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd
+http://www.mulesoft.org/schema/mule/kafka http://www.mulesoft.org/schema/mule/kafka/current/mule-kafka.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd">
+	<flow name="kafkaDelivery" doc:id="473be1a1-fb54-4ac7-a44d-a5a5e5d2062c" >
+		<try doc:name="Try" doc:id="16966e2e-41b7-49f8-806d-d92e9a034fad" >
+			<set-payload value='#[output json&#10;---&#10;{&#10;	id: vars.id,&#10;	delivery: payload,&#10;	eventType: "DELIVERY",&#10;	eventId: correlationId&#10;}]' doc:name="Set Payload" doc:id="19723d29-36db-4465-87ef-2fc2115501b4" />
+			<validation:is-true doc:name="Is true" doc:id="8b996d21-ac53-4d00-be5c-c5699141057e" expression="#[vars.query.kafkaActive default true]" message="Kafka Inactive Prop" />
+			<kafka:publish-message doc:name="Publish message" doc:id="c4cdab92-c8a4-479d-b75b-1f45fde2ff47" config-ref="Kafka_Producer_config" topic="orders" key="#[payload.id]" target="kafkaError" targetValue="#[false]" >
+				<kafka:message ><![CDATA[#[output json
+---
+payload]]]></kafka:message>
+			</kafka:publish-message>
+			<set-payload value='#[output json&#10;---&#10;{&#10;	description: "Order delivery event received"&#10;}]' doc:name="Set Payload" doc:id="e83eb62f-5d8e-498e-a303-7fe370390940" />
+			<error-handler >
+				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="bb0a245d-fe2d-4ad0-9a8d-727b041f1026" >
+					<logger level="INFO" doc:name="Logger" doc:id="96a5ba66-c00e-4d2d-b6cc-00ed5629c6de" message='#[output json&#10;---&#10;{&#10;	message: "Error sending order delivery to Kafka Saving on retry",&#10;	payload: payload&#10;}]' />
+					<validation:is-true doc:name="Is true" doc:id="1b119bb3-475c-4a67-bc38-df75abb29623" expression="#[vars.query.dbActive default true]" />
+					<http:request method="POST" doc:name="Request" doc:id="3ef4e5e6-dd70-4370-b28c-25bf49d8164d" config-ref="Orders_Request_configuration" path="/retry" target="dbError" targetValue="#[false]" >
+						<http:body ><![CDATA[#[output json
+---
+{
+	reason: "KAFKA ERROR $(error.detailedDescription)",
+	eventId: correlationId,
+	order: payload
+}]]]></http:body>
+						<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"version" : 1
+}]]]></http:uri-params>
+					</http:request>
+					<set-payload value='#[output json&#10;---&#10;{&#10;	description: "Order delivery event will be processed as soon as possible"&#10;}]' doc:name="Set Payload" doc:id="d1a7616c-9e73-4ec9-b3e0-e7b9efd9b452" />
+					<set-variable value="#[200]" doc:name="Set Variable" doc:id="cc466859-96e6-4e55-8dbd-caaf0b9a0c1a" variableName="httpStatus" />
+				</on-error-continue>
+			</error-handler>
+		</try>
+		<error-handler >
+			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="627d20a6-adf1-40e5-8e9f-682f604b85f9" >
+				<os:store doc:name="Store" doc:id="63fd758f-a586-4bed-861b-b61137f3a607" key="#[payload.id]" objectStore="Object_store" />
+				<set-payload value='#[output json&#10;---&#10;{&#10;	description: "Order payment event will be processed as soon as possible"&#10;}]' doc:name="Set Payload" doc:id="c9053958-2862-4458-a1db-eb21eb8c8e1d" />
+			</on-error-continue>
+		</error-handler>
+	</flow>
+	<sub-flow name="orderDelivery" doc:id="821f9424-2d4f-4a8a-b7fa-96937c787f54" >
+		<choice doc:name="Choice" doc:id="1abdd74b-a9a2-43a0-a21c-d32a6fcb21f9" >
+			<when expression='#[payload.delivery.status == "STARTED"]'>
+				<http:request method="PATCH" doc:name="Request" doc:id="46907ade-1a87-4bed-8b51-d964c9386728" config-ref="Orders_Request_configuration" path="/{id}" target="res" >
+					<http:body ><![CDATA[#[output json
+---
+{
+	status: "DLVR",
+	userId: payload.delivery.userId
+}]]]></http:body>
+					<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"id" : payload.id,
+	"version" : 1
+}]]]></http:uri-params>
+				</http:request>
+			</when>
+			<when expression='#[payload.delivery.status == "COMPLETED"]'>
+				<http:request method="PATCH" doc:name="Request" doc:id="c045fa28-5b6e-48c5-9278-c98fabae5e8c" config-ref="Orders_Request_configuration" path="/{id}" target="res">
+			<http:body><![CDATA[#[output json
+---
+{
+	status: "CPLT",
+	userId: payload.delivery.userId
+}]]]></http:body>
+			<http:uri-params><![CDATA[#[output application/java
+---
+{
+	"id" : payload.id,
+	"version" : 1
+}]]]></http:uri-params>
+		</http:request>
+			</when>
+		</choice>
+	</sub-flow>
+</mule>

@@ -10,9 +10,26 @@ types:
   request.post.orders: !include types/requests/post/orders.raml
   response.get.orders: !include types/responses/get/orders.raml
   requests.patch.payment: !include types/requests/patch/payment.raml
+  requests.post.delivery: !include types/requests/post/delivery.raml
 
 /{version}:
   /{id}:
+    /delivery:
+      post:
+        is: [connection]
+        description: Endpoint para iniciar a entrega de um pedido específico
+        body:
+          application/json:
+            type: requests.post.delivery
+        responses:
+          200:
+            description: Entrega iniciada com sucesso
+          400:
+            description: Requisição inválida, verifique os dados enviados
+          404:
+            description: Pedido não encontrado
+          500:
+            description: Erro interno do servidor, tente novamente mais tarde
     /payment:
       patch:
         is: [connection]

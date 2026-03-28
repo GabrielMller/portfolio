@@ -6,6 +6,7 @@ import { cookies } from "next/headers";
 import { unauthorized } from "next/navigation";
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import MulesoftOrderItems from "@/components/MulesoftOrderItems";
+import AdvanceStatusButton from "@/components/mulesoft/AdvanceStatusButton";
 
 const PAGE_SIZE = 20;
 
@@ -31,13 +32,14 @@ export default async function OrdersPage({searchParams}: { searchParams: { [key:
         ) : (
           orders.data.map(order =>
             <AnimatedBox sx={{ cursor: 'default'}} key={order.id}>
-              <Stack p={2}>
+              <Stack p={2} spacing={2}>
                 <Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'}>
                   <Typography variant="h6">
                     Pedido #{order.order_number} - {new Date(order.created_at).toLocaleDateString()}
                   </Typography>
-                  <Chip label={order.status} color={statusColors[order.status] || "default"} variant="outlined" />
+                  <Chip label={statusProps[order.status]?.label || order.status} color={statusProps[order.status]?.color || "default"} variant="outlined" />
                 </Stack>
+                <AdvanceStatusButton order={order} />
                 <MulesoftOrderItems items={order.items} />
               </Stack>
             </AnimatedBox>
@@ -51,8 +53,8 @@ export default async function OrdersPage({searchParams}: { searchParams: { [key:
   );
 }
 
-const statusColors: { [key: string]: "default" | "primary" | "secondary" | "error" | "info" | "success" | "warning" } = {
-  waiting_payment: "warning",
-  completed: "success",
-  pending: "warning"
+const statusProps: { [key: string]: { label: string; color: "default" | "primary" | "secondary" | "error" | "info" | "success" | "warning" } } = {
+  PYMT: { label: "Aguardando Pagamento", color: "warning" },
+  PCKG: { label: "Em Separação", color: "info" },
+  pending: { label: "Pendente", color: "warning" }
 };

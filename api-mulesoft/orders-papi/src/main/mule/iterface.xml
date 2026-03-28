@@ -33,8 +33,13 @@
         <flow-ref doc:name="Flow Reference" doc:id="f6ecde09-44e2-4c9b-9d51-8476d9763de3" name="getOrders" />
     </flow>
     <flow name="patch:\v1\(id)\payment:application\json:Router">
-        <set-variable value="#[attributes.uriParams.id]" doc:name="Set Variable" doc:id="7207d639-9f75-4f79-8ac4-02077f79e195" variableName="id"/>
-		<set-variable value="#[output json&#10;---&#10;attributes.queryParams]" doc:name="Set Variable" doc:id="367182be-cb7e-4c26-912a-c15f4e39eeae" variableName="query" />
-		<flow-ref doc:name="Flow Reference" doc:id="b835fb3e-fbb0-4a28-9aba-bd5e3493d90c" name="kafkaPayment"/>
+        <set-variable value="#[attributes.uriParams.id]" doc:name="Set Variable" doc:id="7207d639-9f75-4f79-8ac4-02077f79e195" variableName="id" />
+        <set-variable value="#[output json&#xA;---&#xA;attributes.queryParams]" doc:name="Set Variable" doc:id="367182be-cb7e-4c26-912a-c15f4e39eeae" variableName="query" />
+        <flow-ref doc:name="Flow Reference" doc:id="b835fb3e-fbb0-4a28-9aba-bd5e3493d90c" name="kafkaPayment" />
+    </flow>
+    <flow name="post:\v1\(id)\delivery:application\json:Router">
+		<set-variable value="#[attributes.uriParams.id]" doc:name="Set Variable" doc:id="a18eaf13-39b4-4120-9656-437c28e53a62" variableName="id" />
+		<set-variable value="#[output json&#10;---&#10;attributes.queryParams]" doc:name="Set Variable" doc:id="f8b3e010-2643-4285-aab6-abfba60bb1dc" variableName="query" />
+		<flow-ref doc:name="Flow Reference" doc:id="123c4254-ae6c-4e80-9987-df37a118a0cb" name="kafkaDelivery"/>
     </flow>
 </mule>

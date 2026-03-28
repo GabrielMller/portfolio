@@ -100,6 +100,18 @@ payload]]]></http:body>
 			<when expression='#[payload.eventType == "ORDER_CREATED"]'>
 				<flow-ref doc:name="Flow Reference" doc:id="316d55f9-f4ae-464f-9a63-1d2021448002" name="sendKafkaOrder" />
 			</when>
+			<when expression='#[payload.eventType == "PAYMENT"]'>
+						<set-variable value="#[payload.id]" doc:name="Set Variable" doc:id="59d6eb4c-8f8e-433f-ba3f-6bace9fb5a77" variableName="id" />
+						<set-payload value="#[output json&#10;---&#10;payload.payment]" doc:name="Set Payload" doc:id="d07d0504-e187-4cd8-8389-74b04f5cf0bc" />
+						<flow-ref doc:name="Flow Reference" doc:id="1251a010-fbaf-466a-9c7a-bce11d665505" name="kafkaPayment"/>
+					
+					</when>
+					<when expression='#[payload.eventType == "DELIVERY"]'>
+						<set-variable value="#[payload.id]" doc:name="Set Variable" doc:id="ea0474d1-e98c-4baf-94e0-3dda45be5312" variableName="id"/>
+						<set-payload value="#[output json&#10;---&#10;payload.delivery]" doc:name="Set Payload" doc:id="a6141c21-57bf-452f-86f6-c002b8a49dc3" />
+						<flow-ref doc:name="Flow Reference" doc:id="b0da3849-be77-4fcd-b44a-b1251a23e230" name="kafkaDelivery"/>
+					
+					</when>
 		</choice>
 				<error-handler >
 					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="4f0a51f0-1feb-416e-bf29-7bd391d45f8c" >
@@ -151,6 +163,18 @@ payload]]]></http:body>
 				<choice doc:name="Choice" doc:id="3a21dc01-b91d-4836-a49b-a0c6ebfff09f">
 					<when expression='#[payload.eventType == "ORDER_CREATED"]'>
 						<flow-ref doc:name="Flow Reference" doc:id="a456eb55-f5cf-4ca7-a067-b708785b4337" name="processCreateOrder" />
+					</when>
+					<when expression='#[payload.eventType == "PAYMENT"]'>
+						<set-variable value="#[payload.id]" doc:name="Set Variable" doc:id="02558703-17f4-4feb-810d-c1c7bc591ec8" variableName="id" />
+						<set-payload value="#[output json&#10;---&#10;payload.payment]" doc:name="Set Payload" doc:id="e5e77648-2f59-4d54-a778-71ffc9a45296" />
+						<flow-ref doc:name="Flow Reference" doc:id="37962bb3-c8c2-4997-8173-5b0643d721d6" name="kafkaPayment"/>
+					
+					</when>
+					<when expression='#[payload.eventType == "DELIVERY"]'>
+						<set-variable value="#[payload.id]" doc:name="Set Variable" doc:id="08ab0bf2-8485-44a9-bd00-128c84cbf653" variableName="id"/>
+						<set-payload value="#[output json&#10;---&#10;payload.delivery]" doc:name="Set Payload" doc:id="441caed7-d81f-417d-9ba2-682569f5bb2a" />
+						<flow-ref doc:name="Flow Reference" doc:id="5c520aca-3625-4f1a-a36f-a804016b3547" name="kafkaDelivery"/>
+					
 					</when>
 				</choice>
 				<os:remove doc:name="Remove" doc:id="f689495b-6ba5-411e-a398-9873bc0cf6b1" key="#[vars.key]" objectStore="Object_store"/>
@@ -253,6 +277,9 @@ payload.items]]]></http:body>
 			</when>
 			<when expression='#[payload.eventType == "PAYMENT"]'>
 				<flow-ref doc:name="Flow Reference" doc:id="0e085a0b-6ebc-4686-8625-308c961ff87f" name="orderPayment"/>
+			</when>
+			<when expression='#[payload.eventType == "DELIVERY"]'>
+				<flow-ref doc:name="Flow Reference" doc:id="f6c29690-05e0-4f22-a3a3-c23bea7a43b8" name="orderDelivery"/>
 			</when>
 		</choice>
 		<logger level="INFO" doc:name="Logger" doc:id="507d2963-2c65-4f05-8e09-ff31d6939fec" message='#[output json&#10;---&#10;{&#10;	message: "Success processing Order",&#10;	payload: payload&#10;}]' />
