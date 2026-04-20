@@ -20,6 +20,11 @@ jobs:
           # Instala o operador CNPG no cluster (idempotente)
           kubectl apply -f https://raw.githubusercontent.com/cloudnative-pg/cloudnative-pg/main/releases/cnpg-1.22.1.yaml
 
+      
+      - name: teste
+        run: |
+          whoami
+
       - name: Deploy Postgres Cluster & Metrics
         run: |
           export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
