@@ -1,7 +1,7 @@
 ARG DOCKERHUB_USERNAME
 ARG API_NAME
 
-FROM maven:3.8-openjdk-17 AS build
+FROM maven:3.8-openjdk-8 AS build
 COPY . .
 RUN mvn clean package -DskipTests
 
