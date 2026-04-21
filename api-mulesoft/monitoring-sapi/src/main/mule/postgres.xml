@@ -8,6 +8,7 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
 	<flow name="get-postgres-health" doc:id="0d05de11-4396-4c7e-8e59-cb0ac3d9c890" >
 		<scatter-gather doc:name="Scatter-Gather" doc:id="8bb4d1c5-2464-486c-9094-a1fdb6f29895" >
 			<route >
+			
 				<http:request method="GET" doc:name="Request" doc:id="0f801298-dfd7-4df4-8663-83a8bb5b76aa" config-ref="Prometheus_Request_configuration" path="/query">
 			<http:query-params><![CDATA[#[output application/java
 ---
