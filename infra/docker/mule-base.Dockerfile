@@ -29,4 +29,6 @@ ENV MULE_JDK_OPTIONS="-Djava.security.egd=file:/dev/./urandom"
 
 EXPOSE 8081
 
-CMD ["mule", "-M-Danypoint.platform.gatekeeper=disabled -Xms512m -Xmx768m -XX:MaxMetaspaceSize=256m"]
+ENV JAVA_OPTS="-XX:MaxRAMPercentage=75.0 -Djava.security.egd=file:/dev/./urandom"
+
+CMD ["mule", "-M-Danypoint.platform.gatekeeper=disabled"]
