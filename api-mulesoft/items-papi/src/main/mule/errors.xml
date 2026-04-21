@@ -4,6 +4,7 @@
 	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
 	<error-handler name="propagate_error" doc:id="68cc57f3-7f2e-43f0-94fe-b495eff941e1" >
+   
 		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="543c887b-6a7e-40df-a34c-813058ff06a5" >
 			<flow-ref doc:name="Flow Reference" doc:id="f8d45009-0d17-4b20-9a63-95ad29bb661f" name="set-response"/>
 		</on-error-propagate>
